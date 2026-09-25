@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" aria-hidden="true">
+  <!-- Le décor de fond : un éclair ramifié, très pâle. Il donne de la
+       profondeur au fond sans se disputer l'attention avec les photos de
+       produits, qui sont ce qu'on est venu regarder. -->
+  <g fill="none" stroke="#FFD11A" stroke-width="3" stroke-linecap="round"
+     stroke-linejoin="round" opacity=".9">
+    <path d="M96 4 L58 74 h26 L44 152"/>
+    <path d="M84 60 l30 -14"/>
+    <path d="M70 104 l-28 -10"/>
+    <path d="M58 128 l26 16"/>
+    <path d="M44 152 l-16 34"/>
+  </g>
+</svg>

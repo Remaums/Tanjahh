@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Éclair">
+  <!-- L'emblème de TANJA HH 67 : un éclair, dessiné et non emprunté.
+       Tracé en un seul chemin fermé pour qu'il reste net à toute taille —
+       une icône de 26 px dans l'en-tête, et 200 px sur l'écran d'ouverture. -->
+  <defs>
+    <linearGradient id="foudre" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FFE066"/>
+      <stop offset="55%"  stop-color="#FFD11A"/>
+      <stop offset="100%" stop-color="#E0AA00"/>
+    </linearGradient>
+  </defs>
+  <path d="M70 6 L30 62 h22 L44 114 l46 -60 H66 Z"
+        fill="url(#foudre)" stroke="#0B0D14" stroke-width="5"
+        stroke-linejoin="round"/>
+</svg>

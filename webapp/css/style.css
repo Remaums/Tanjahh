@@ -1,0 +1,1785 @@
+/* ══════════════════════════════════════════════════════════════
+   TANJA HH 67 — feuille de style
+   Direction artistique « Orage » : un noir bleuté de nuit de ruelle, et
+   le jaune de la foudre pour tout ce qui compte. Deux couleurs, une
+   tension — c'est ce qui fait tenir une enseigne électrique.
+
+   Napoli est en ivoire sur encre, volontairement sans teinte. Ici c'est
+   l'inverse : l'accent crie, et c'est voulu. Le jaune ne désigne pas
+   seulement l'information, il donne le ton de la maison. Mais il reste
+   rare : posé partout il redeviendrait du bruit, et une enseigne au néon
+   qui éclaire toute la rue n'est plus une enseigne.
+
+   Trois règles qui tiennent le reste :
+   - le fond est un bleu-noir, pas un gris. Une ruelle la nuit n'est
+     jamais neutre, elle est bleue ;
+   - le jaune n'apparaît que sur une action, un prix, ou l'onglet ouvert ;
+   - le texte posé sur le jaune est noir. Le jaune est une couleur claire,
+     et du blanc dessus ne se lit pas.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Palette ─────────────────────────────────────────────────
+   Toutes les couleurs du thème descendent de ces composantes RVB :
+   changer de palette, c'est réécrire ce seul bloc. Les valeurs sont
+   données en composantes brutes pour pouvoir moduler l'opacité avec
+   la syntaxe rgb(var(--x) / .5). */
+:root {
+  --void-rgb:     5  6 10;    /* fonds d'écran modaux */
+  --night-rgb:   11 13 20;    /* fond de page — nuit bleutée */
+  --night2-rgb:  16 19 28;    /* barres hautes et basses */
+  --panel-rgb:   26 30 42;    /* surface haute (cartes, panneaux) */
+  --panel2-rgb:  19 23 33;    /* surface basse */
+  --ink-rgb:      8  9 13;    /* contours, et texte posé sur le jaune */
+  --cream-rgb: 233 238 248;   /* texte — blanc très légèrement bleuté */
+  --line-rgb:   106 122 156;  /* filets et bordures */
+
+  /* La foudre. `--neon` a gardé son nom : il est cité par une centaine de
+     déclarations, et le renommer partout n'aurait rien changé à l'écran. */
+  --neon-rgb:  255 209  26;
+  --halo-rgb:  255 209  26;
+  --halo2-rgb: 232  74 106;   /* rouge enseigne : favoris, pastille du panier */
+  --halo3-rgb:  86 178 222;   /* bleu électrique : compteurs */
+
+  --gold-rgb:  255 176  32;   /* ambre : commandes en cours, avertissements */
+  --gold-lo-rgb: 214 132  12;
+  --red-rgb:   232  62  62;   /* alertes, ruptures — le rouge du « OPEN 7/7 » */
+  --tg-rgb:     42 171 238;   /* le bleu de Telegram : il ne nous appartient pas */
+
+  --neon-hi: #ffe066;         /* survol */
+  --neon-deep: #e0aa00;       /* appui */
+  --gold-hi: #ffc95c;
+  --sauge: #5fd39a;           /* ce qui est ouvert, en stock */
+}
+
+:root {
+  /* Fonds — opaques : la transparence laissait passer le dégradé du
+     corps, qui n'existe plus. Une carte se lit à sa surface, pas au
+     travers. */
+  --night: rgb(var(--night-rgb));
+  --night-2: rgb(var(--night2-rgb));
+  --panel: rgb(var(--panel-rgb));
+  --panel-2: rgb(var(--panel2-rgb));
+
+  /* Néons */
+  --neon: rgb(var(--neon-rgb));
+  --halo: rgb(var(--halo-rgb));
+  --pink: rgb(var(--halo2-rgb));
+
+  /* Or de l'affiche */
+  --gold: rgb(var(--gold-rgb));
+  --gold-lo: rgb(var(--gold-lo-rgb));
+
+  /* Traits & textes */
+  --ink: rgb(var(--ink-rgb));
+  --cream: rgb(var(--cream-rgb));
+  --muted: rgb(var(--cream-rgb) / .68);
+  --line-soft: rgb(var(--line-rgb) / .2);
+  --tg: rgb(var(--tg-rgb));
+
+  /* Alias hérités (admin.css et états produits) */
+  --green: var(--neon-deep);
+  --green-dark: var(--neon-deep);
+  --yellow: var(--gold);
+  --red: rgb(var(--red-rgb));
+  --paper: var(--night);
+
+  /* Les titres sont écrits dans la même famille que le texte, en plus
+     gras. La police d'affiche donnait un air de fête foraine à un écran
+     qui vend des grammes : le contraire de ce qu'on veut inspirer. */
+  --display: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --line: 1px;
+  --radius: 16px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, .45);
+  --shadow-sm: 0 3px 10px rgba(0, 0, 0, .35);
+  --shadow-lg: 0 18px 44px rgba(0, 0, 0, .55);
+  /* Gardés pour les règles qui les nomment encore, mais réduits à presque
+     rien : supprimer les deux variables aurait cassé trente déclarations
+     pour le même résultat. */
+  --glow-neon: 0 0 0 1px rgb(var(--neon-rgb) / .28);
+  --glow-halo: none;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Les règles display: grid/flex ci-dessous sont plus spécifiques que le
+   display:none du navigateur pour [hidden] : sans ce !important, masquer un
+   panneau ou l'écran d'âge ne les ferait pas disparaître. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-weight: 600;
+  color: var(--cream);
+  background-color: var(--night);
+  /* Une seule lueur, très faible, en haut : assez pour que la barre de
+     titre ne flotte pas sur du noir mort, trop peu pour qu'on la
+     remarque. Fixée, pour ne pas défiler avec la page. */
+  background-image: none;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  overscroll-behavior-y: none;
+}
+
+::selection { background: rgb(var(--neon-rgb) / .3); color: var(--cream); }
+
+/* ── Recherche et tri ────────────────────────────────────── */
+.find { display: flex; gap: 8px; padding: 0 14px 4px; }
+.find__box {
+  position: relative; flex: 1; min-width: 0; display: flex; align-items: center;
+}
+.find__icon { position: absolute; left: 12px; font-size: 14px; pointer-events: none; opacity: .75; }
+.find__box input {
+  width: 100%; font: inherit; font-size: 14px; font-weight: 600; color: var(--cream);
+  background: rgb(var(--ink-rgb) / .55); border: var(--line) solid var(--line-soft);
+  border-radius: 999px; padding: 10px 34px 10px 34px;
+  -webkit-appearance: none; appearance: none;
+}
+.find__box input::placeholder { color: rgb(var(--cream-rgb) / .42); }
+.find__box input:focus { outline: none; border-color: var(--neon); box-shadow: var(--glow-neon); }
+/* La croix native des champs de recherche varie d'un moteur à l'autre : on
+   pose la nôtre pour qu'elle soit toujours là et toujours assez grande. */
+.find__box input::-webkit-search-cancel-button { display: none; }
+.find__clear {
+  position: absolute; right: 4px; width: 28px; height: 28px; border: 0; border-radius: 50%;
+  background: rgb(var(--cream-rgb) / .12); color: var(--cream); font-size: 12px; line-height: 1;
+}
+.find select {
+  flex: 0 1 auto; max-width: 42%; font: inherit; font-size: 13px; font-weight: 700;
+  color: var(--cream); background: rgb(var(--ink-rgb) / .55);
+  border: var(--line) solid var(--line-soft); border-radius: 999px; padding: 10px 12px;
+}
+.find select:focus { outline: none; border-color: var(--neon); box-shadow: var(--glow-neon); }
+.find select option { background: var(--night-2); color: var(--cream); }
+
+/* ── Décor de fond ───────────────────────────────────────── */
+/* Éclairs « sprayés » et voile de fumée, purement décoratifs. */
+.fx { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+/* Les éclairs restent, à peine : ils donnent de la profondeur au fond
+   sans se disputer l'attention avec les photos de produits, qui sont ce
+   qu'on est venu regarder. */
+.fx__eclair { position: absolute; width: 130px; opacity: .045; }
+.fx__eclair--a { top: 8%;  left: -34px; transform: rotate(-24deg); }
+.fx__eclair--b { top: 34%; right: -40px; width: 160px; transform: rotate(28deg); }
+.fx__eclair--c { bottom: 6%; left: -28px; width: 110px; transform: rotate(14deg); }
+/* La fumée qui dérivait est éteinte : un fond qui bouge derrière une
+   liste qu'on fait défiler donne le tournis, et c'était le plus flagrant
+   des effets « néon » qu'on abandonne ici. */
+.fx__smoke { display: none; }
+@keyframes drift {
+  from { transform: translate3d(-3%, 2%, 0) scale(1); }
+  to   { transform: translate3d(4%, -3%, 0) scale(1.08); }
+}
+
+/* ── Typographie d'affiche ───────────────────────────────── */
+h1, h2, h3, .display,
+.topbar__name, .card__name, .card__price, .cart__total strong {
+  font-family: var(--display);
+  /* Luckiest Guy n'existe qu'en 400 : on demande 700 pour que la police de
+     secours reste grasse, et on coupe la fausse graisse pour ne pas
+     l'épaissir artificiellement quand le fichier est bien chargé. */
+  font-weight: 700;
+  font-synthesis-weight: none;
+  letter-spacing: .02em;
+  margin: 0;
+}
+
+/* Lettrage doré de l'affiche : dégradé clippé sur le glyphe, contour noir
+   obtenu par ombres portées enchaînées (chaque drop-shadow reprend le
+   résultat de la précédente : l'ensemble dilate la lettre sans recouvrir le
+   dégradé, ce que feraient text-stroke ou text-shadow), puis relief + halo. */
+/* Le lettrage d'affiche — or, contour noir, relief — est devenu du texte.
+   La classe reste : elle est posée sur une trentaine de titres, et un
+   renommage n'aurait rien changé à l'écran. Un dégradé très court garde
+   un peu de matière dans les grands titres, sans se voir dans les petits. */
+.goldtext {
+  color: var(--cream);
+  letter-spacing: -.01em;
+}
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .goldtext {
+    background: linear-gradient(180deg, #ffffff 0%, var(--cream) 58%, rgb(var(--cream-rgb) / .78) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+}
+
+.neontext { color: var(--neon); }
+
+img { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* ── Boutons ─────────────────────────────────────────────── */
+.btn {
+  border: var(--line) solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
+  padding: 13px 20px;
+  font-weight: 700;
+  font-size: 15.5px;
+  color: var(--cream);
+  background: rgba(255, 255, 255, .06);
+  box-shadow: none;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.btn:active { transform: translateY(2px) scale(.985); filter: brightness(1.05); }
+/* Un aplat, pas un dégradé à trois arrêts avec reflet intérieur et halo.
+   Le bouton principal se distingue d'être le seul vert de l'écran ; il
+   n'a pas besoin de briller en plus. */
+.btn--primary {
+  color: var(--ink);
+  background: var(--neon);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgb(var(--neon-rgb) / .18);
+  text-shadow: none;
+}
+.btn--primary:active { background: var(--neon-deep); }
+.btn--ghost { background: rgba(255, 255, 255, .06); }
+
+/* Ce qui renvoie vers Telegram porte le bleu de Telegram : c'est la seule
+   couleur que le client reconnaît sans lire le bouton. */
+.btn--tg {
+  color: #ffffff; background: var(--tg); border-color: transparent;
+  box-shadow: 0 4px 14px rgb(var(--tg-rgb) / .22);
+}
+.btn--grow { flex: 1; }
+.btn[disabled] { opacity: .45; pointer-events: none; box-shadow: none; }
+
+/* ── Contrôle d'âge ──────────────────────────────────────── */
+.agegate {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center; padding: 20px;
+  background: rgb(var(--void-rgb) / .9);
+  backdrop-filter: blur(6px);
+}
+.agegate__card {
+  position: relative;
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 26px;
+  box-shadow: var(--shadow-lg), var(--glow-halo), inset 0 1px 0 rgba(255, 255, 255, .1);
+  padding: 22px 20px 18px;
+  max-width: 340px; text-align: center;
+}
+/* Pastille « 18+ » : le sceau qui remplace l'ancienne mascotte. */
+.agegate__seal {
+  display: grid; place-items: center;
+  width: 84px; height: 84px; margin: -62px auto 6px;
+  font-family: var(--display); font-weight: 700; font-synthesis-weight: none;
+  font-size: 27px; line-height: 1; color: var(--ink);
+  background: var(--neon);
+  border: 4px solid var(--night-2); border-radius: 50%;
+  box-shadow: none;
+}
+.agegate__title { font-size: 44px; }
+.agegate__text { font-size: 15px; line-height: 1.45; margin: 6px 0 16px; color: var(--muted); }
+.agegate__text strong { color: var(--cream); }
+.agegate__actions { display: flex; gap: 10px; }
+.agegate__actions .btn { flex: 1; padding: 13px 12px; font-size: 15px; }
+.agegate__legal { font-size: 11px; color: var(--muted); opacity: .8; line-height: 1.4; margin: 14px 0 0; font-weight: 600; }
+
+/* ── Portes d'entrée (épreuve, vérification) ─────────────── */
+.gate {
+  position: fixed; inset: 0; z-index: 95;
+  display: grid; place-items: center; padding: 20px;
+  background: rgb(var(--void-rgb) / .92);
+  backdrop-filter: blur(8px);
+}
+.gate__card {
+  width: 100%; max-width: 360px; text-align: center;
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 26px; padding: 24px 20px 20px;
+  box-shadow: var(--shadow-lg), var(--glow-halo);
+}
+.gate__eyebrow {
+  margin: 0 0 6px; font-size: 11.5px; font-weight: 800;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--neon);
+}
+.gate__title { font-size: 30px; line-height: 1.05; margin: 0; }
+.gate__text { margin: 10px 0 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.gate__fine {
+  margin: 14px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); opacity: .85;
+}
+.gate__error {
+  margin: 12px 0 0; font-size: 13.5px; font-weight: 800; color: var(--red);
+}
+.gate .btn { width: 100%; margin-top: 16px; }
+
+.grid-tiles {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0 0;
+}
+.tile {
+  aspect-ratio: 1; display: grid; place-items: center;
+  font-size: 34px; line-height: 1;
+  background: rgb(var(--ink-rgb) / .5);
+  border: var(--line) solid var(--line-soft); border-radius: 16px;
+  transition: transform .1s ease, border-color .14s ease, box-shadow .14s ease;
+}
+.tile[aria-pressed="true"] {
+  border-color: var(--neon); box-shadow: var(--glow-neon), inset 0 0 22px rgb(var(--neon-rgb) / .18);
+  transform: scale(.96);
+}
+
+/* ── Barre supérieure ────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(10px + var(--safe-top)) 14px 10px;
+  background: rgb(var(--night2-rgb) / .88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-soft);
+}
+.topbar__brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+/* L'éclair, nu. L'anneau autour du logo faisait « photo de profil », ce
+   qu'on voit sur toutes les boutiques Telegram ; une enseigne se pose sur sa
+   devanture, elle ne se met pas dans un médaillon. */
+.topbar__eclair { width: 26px; height: 26px; flex: none; opacity: .9; }
+.topbar__bloc { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.topbar__name {
+  font-size: 18px; font-weight: 800; letter-spacing: .01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* La seconde ligne dit l'état de la maison : ouvert, et combien d'articles.
+   C'est ce qu'on regarde en arrivant, et ça évitait jusqu'ici un bandeau
+   séparé qui poussait le catalogue vers le bas. */
+.topbar__sous {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: rgb(var(--cream-rgb) / .42);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.topbar__sous b { color: var(--sauge); font-weight: 800; }
+.topbar__sous b.est-ferme { color: rgb(var(--red-rgb)); }
+.topbar__actions { display: flex; align-items: center; gap: 9px; flex: none; }
+
+/* Bouton discret de la barre : l'accent néon reste au panier. */
+.iconbtn {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center;
+  color: var(--cream);
+  background: rgba(255, 255, 255, .06);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 12px;
+  transition: transform .12s ease, border-color .16s ease;
+}
+.iconbtn svg { width: 22px; height: 22px; }
+.iconbtn:active { transform: scale(.94); border-color: rgb(var(--neon-rgb) / .6); }
+
+/* Le panier : une pastille qui dit le total, pas une icône avec un compteur
+   suspendu au coin. Le compteur flottant est l'ornement le plus recopié du
+   genre, et il annonce un nombre d'articles — ce qui n'est pas ce qu'on se
+   demande devant un panier. Le montant, si. Panier vide, la pastille
+   disparaît et il ne reste que l'icône. */
+.cartbtn {
+  position: relative; flex: none;
+  display: flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 12px;
+  color: var(--neon);
+  background: rgb(var(--neon-rgb) / .1);
+  border: var(--line) solid rgb(var(--neon-rgb) / .34);
+  border-radius: 999px; box-shadow: none;
+  transition: transform .12s ease;
+}
+.cartbtn:active { transform: scale(.96); }
+.cartbtn svg { width: 21px; height: 21px; fill: currentColor; }
+.cartbtn__total {
+  font-size: 13.5px; font-weight: 800; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* Le nombre d'articles reste accessible aux lecteurs d'écran, mais ne
+   s'affiche plus : le montant le remplace à l'œil. */
+.cartbtn__count {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.cartbtn__count.pop { animation: pop .35s ease; }
+@keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.45)} 100%{transform:scale(1)} }
+
+/* Bandeau de fermeture : visible sans masquer le catalogue, on peut
+   préparer son panier et commander à la réouverture. */
+.closed {
+  position: relative; z-index: 2; margin: 0; padding: 13px 18px;
+  text-align: center; font-weight: 800; font-size: 14px; line-height: 1.4;
+  color: var(--gold);
+  background: linear-gradient(180deg, rgb(var(--gold-rgb) / .16), rgb(var(--gold-rgb) / .06));
+  border-bottom: 1px solid rgb(var(--gold-rgb) / .45);
+}
+
+/* ── Page ────────────────────────────────────────────────── */
+.page { position: relative; z-index: 1; padding: 16px 14px calc(28px + var(--safe-bottom)); max-width: 640px; margin: 0 auto; }
+
+/* ── Bannière ────────────────────────────────────────────── */
+.hero {
+  position: relative; overflow: hidden;
+  padding: 22px 18px 24px;
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 18px;
+  box-shadow: none;
+}
+/* Le halo vert qui noyait la bannière ne reste qu'en trace, dans un coin :
+   assez pour que la surface ne soit pas un rectangle gris, pas assez pour
+   qu'on le voie avant le titre. */
+.hero__halo {
+  position: absolute; inset: -60% -30% auto; height: 170%;
+  background: radial-gradient(45% 45% at 78% 45%, rgb(var(--neon-rgb) / .1), transparent 70%);
+  pointer-events: none;
+}
+.hero__body { position: relative; z-index: 1; }
+.hero__eyebrow {
+  display: inline-block; margin: 0 0 8px;
+  font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--neon);
+}
+.hero__title { font-size: clamp(30px, 9.5vw, 40px); line-height: 1.02; font-weight: 800; }
+.hero__sub { margin: 10px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--muted); max-width: 24ch; }
+/* Éclair filigrane dans le coin : le décor de la bannière depuis que
+   la mascotte a disparu. */
+/* Le filigrane du coin n'est plus un dessin fixe mais l'emblème animé.
+   Posé en `img` plutôt qu'en fond : un fond ne se remplace pas par une
+   image fixe quand le client a coupé les animations, alors qu'une balise,
+   si — il suffit de lui changer d'adresse. */
+.hero__embleme {
+  position: absolute; right: -34px; bottom: -44px;
+  width: 210px; height: auto; opacity: .16;
+  transform: rotate(14deg);
+  pointer-events: none; user-select: none;
+  /* Le GIF est en ivoire sur encre : sur la surface du panneau, il faut le
+     fondre, sinon son fond noir dessine un rectangle dans le coin. */
+  mix-blend-mode: screen;
+}
+
+/* ── Chips d'arguments ───────────────────────────────────── */
+.badges { display: flex; gap: 8px; overflow-x: auto; margin: 14px -14px 0; padding: 2px 14px 4px; scrollbar-width: none; }
+.badges::-webkit-scrollbar { display: none; }
+.badge-chip {
+  flex: none; font-size: 12px; font-weight: 700; white-space: nowrap;
+  color: var(--muted);
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 999px; padding: 7px 14px;
+}
+
+/* ── Catégories ──────────────────────────────────────────── */
+.cats { display: flex; gap: 9px; overflow-x: auto; margin: 16px -14px 0; padding: 4px 14px 10px; scrollbar-width: none; }
+.cats::-webkit-scrollbar { display: none; }
+.cat {
+  flex: none; display: flex; align-items: center; gap: 6px;
+  color: var(--cream);
+  background: rgba(255, 255, 255, .06);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 999px; padding: 8px 15px; font-weight: 700; font-size: 13.5px;
+  white-space: nowrap;
+  transition: transform .12s ease, box-shadow .12s ease, background .16s ease, color .16s ease;
+}
+.cat[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--neon);
+  border-color: transparent;
+  box-shadow: none;
+}
+.cat:active { transform: scale(.95); }
+
+/* ── Grille produits ─────────────────────────────────────── */
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 8px; }
+@media (min-width: 520px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+.card {
+  position: relative; display: flex; flex-direction: column;
+  color: var(--cream);
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: var(--radius);
+  box-shadow: none;
+  overflow: hidden; text-align: left; padding: 0;
+  transition: transform .14s ease, border-color .14s ease;
+}
+.card:active { transform: scale(.975); border-color: rgb(var(--neon-rgb) / .45); }
+
+/* La vignette d'un produit sans photo. Le halo derrière le dessin a
+   sauté : il donnait à chaque case l'air d'être en promotion, y compris
+   celles qui n'ont pas encore d'image. */
+.card__art {
+  position: relative; aspect-ratio: 1; display: grid; place-items: center;
+  background: rgb(var(--ink-rgb) / .45);
+  border-bottom: 1px solid var(--line-soft);
+}
+.card__art img { width: 74%; opacity: .5; }
+
+.card__badge {
+  position: absolute; top: 9px; left: 9px;
+  /* Une pastille de vingt caractères sortait de la vignette : on la borne
+     à la largeur disponible et on coupe proprement. */
+  max-width: calc(100% - 18px); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  /* Vert plein : c'est la couleur de ce qui est bon à savoir dans toute la
+     boutique. Le dégradé rose vers vert disait surtout « regarde comme je
+     brille », sur une vignette qui n'a que 170 px de large. */
+  background: var(--neon);
+  color: var(--ink); font-size: 10px; font-weight: 800;
+  letter-spacing: .04em; padding: 4px 8px; border: 0;
+  border-radius: 6px; box-shadow: none;
+}
+
+.card__body { padding: 11px 12px 13px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.card__name { font-size: 18px; line-height: 1.12; letter-spacing: .01em; }
+.card__short { font-size: 12px; line-height: 1.3; color: var(--muted); font-weight: 600; flex: 1; }
+.card__foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; }
+/* Le prix est vert : dans toute la boutique, le vert veut dire « voilà
+   l'information ». C'est la seule chose qu'on lit sur une carte avant de
+   l'ouvrir. */
+.card__price { font-size: 19px; color: var(--neon); }
+.card__price small { font-family: 'Baloo 2', sans-serif; font-size: 10.5px; font-weight: 700; text-shadow: none;
+  -webkit-text-fill-color: rgb(var(--cream-rgb) / .7); color: rgb(var(--cream-rgb) / .7); background: none; }
+.card__add {
+  width: 32px; height: 32px; flex: none; display: grid; place-items: center;
+  color: var(--ink);
+  background: var(--neon);
+  border: 0; border-radius: 10px;
+  font-size: 20px; line-height: 1; font-weight: 800; box-shadow: none;
+}
+.card__add:active { background: var(--neon-deep); }
+
+.empty { text-align: center; padding: 30px 0; color: var(--muted); }
+/* Quand la zone annonce une panne plutôt qu'une catégorie vide, elle porte
+   plusieurs éléments : on les empile au lieu de les laisser en ligne. */
+.empty:has(strong) {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 24px 16px; line-height: 1.5;
+}
+.empty strong { font-size: 16px; color: var(--cream); }
+.empty__detail {
+  display: block; max-width: 100%; padding: 8px 10px; border-radius: 8px;
+  background: rgb(var(--panel-rgb) / .6); font-size: 11.5px;
+  /* Le serveur explique parfois la panne en plusieurs lignes, chemins de
+     fichiers compris : on les respecte plutôt que de tout écraser. */
+  white-space: pre-line; text-align: left; line-height: 1.5;
+  overflow-wrap: anywhere; opacity: .8;
+}
+
+/* ── Pied de page ────────────────────────────────────────── */
+.foot { margin-top: 28px; text-align: center; font-size: 11.5px; line-height: 1.5; color: var(--muted); font-weight: 600; }
+.foot__eclair { width: 36px; margin: 0 auto 8px; opacity: .6; filter: drop-shadow(0 0 10px rgb(var(--neon-rgb) / .55)); }
+
+/* ── Panneaux coulissants ────────────────────────────────── */
+.sheet { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; }
+.sheet__backdrop { position: absolute; inset: 0; background: rgb(var(--void-rgb) / .75); backdrop-filter: blur(4px); animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0 } }
+
+.sheet__panel {
+  position: relative; width: 100%; max-width: 640px; margin: 0 auto;
+  max-height: 92vh; display: flex; flex-direction: column;
+  background: var(--night-2);
+  border: var(--line) solid var(--line-soft); border-bottom: 0;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 36px rgba(0, 0, 0, .5);
+  animation: rise .26s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes rise { from { transform: translateY(100%) } }
+
+.sheet__close {
+  position: absolute; top: 12px; right: 12px; z-index: 3;
+  width: 36px; height: 36px; border-radius: 50%;
+  color: var(--cream);
+  background: rgb(var(--ink-rgb) / .6);
+  border: var(--line) solid var(--line-soft);
+  font-size: 15px; font-weight: 800; backdrop-filter: blur(6px);
+}
+.sheet__scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+
+.sheet__bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 14px calc(12px + var(--safe-bottom));
+  background: rgb(var(--ink-rgb) / .72);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line-soft);
+}
+
+/* ── Fiche produit ───────────────────────────────────────── */
+/* Le cadre de la fiche. Deux contenus très différents s'y posent : une photo
+   du vendeur, qui doit le remplir, et le dessin par défaut, qui doit flotter
+   au milieu d'une surface sombre. D'où les deux jeux de règles. */
+.pdetail__art {
+  display: grid; place-items: center; padding: 26px 0 20px;
+  background: rgb(var(--ink-rgb) / .45);
+  border: 1px solid var(--line-soft);
+  border-radius: 16px; overflow: hidden;
+}
+/* Le dessin par défaut, et lui seul : `>` est ce qui l'empêche d'atteindre
+   les images de la galerie, qui vivent plus bas dans le même cadre. Sans ce
+   chevron, une photo importée héritait d'un plafond de 200 px et d'une
+   opacité de 55 % — elle s'affichait donc petite et délavée, soit le
+   contraire d'une vitrine. */
+.pdetail__art > img { width: 48%; max-width: 200px; opacity: .55; }
+.pdetail__body { padding: 16px 0 10px; }
+.pdetail__tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.tag {
+  font-size: 11px; font-weight: 800; letter-spacing: .04em;
+  color: var(--neon); background: rgb(var(--neon-rgb) / .12);
+  border: 1px solid rgb(var(--neon-rgb) / .3); border-radius: 999px; padding: 4px 10px;
+  box-shadow: none;
+}
+.pdetail__name { font-size: 27px; line-height: 1.1; font-weight: 800; }
+.pdetail__desc { font-size: 14.5px; line-height: 1.55; margin: 10px 0 0; font-weight: 600; color: var(--muted); }
+
+/* ── Les formats, en grille ──────────────────────────────────
+   Des pastilles sur une ligne, il fallait les lire de gauche à droite pour
+   comparer quatre prix ; en grille on les embrasse d'un regard, et c'est
+   exactement ce qu'on vient faire ici. Deux colonnes, parce qu'un poids et
+   un prix tiennent dans la moitié d'un écran de téléphone et qu'au-delà les
+   chiffres se serrent. */
+.variants__titre {
+  margin: 20px 0 9px; font-size: 12px; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--cream-rgb) / .5);
+}
+.variants { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 6px; }
+.variant {
+  color: var(--cream);
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft); border-radius: 13px;
+  padding: 12px 14px; font-weight: 700; font-size: 14px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.15;
+  transition: background .16s ease, border-color .16s ease;
+}
+.variant__poids { font-size: 14.5px; font-weight: 800; }
+/* Le prix en vert, comme partout ailleurs : le vert désigne l'information
+   qu'on est venu chercher. */
+.variant__prix { font-size: 16px; font-weight: 800; color: var(--neon); }
+
+/* Le format choisi : un fond teinté et un liseré, pas un aplat plein. Rempli
+   de vert, il avalait son propre prix — qui est vert lui aussi. */
+.variant[aria-pressed="true"] {
+  background: rgb(var(--neon-rgb) / .14);
+  border-color: var(--neon);
+}
+.variant[disabled] .variant__prix { color: rgb(var(--cream-rgb) / .38); }
+
+/* ── Les caractéristiques ────────────────────────────────── */
+.points { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 7px; }
+.points li {
+  position: relative; padding-left: 17px;
+  font-size: 13.5px; line-height: 1.45; font-weight: 600; color: var(--cream);
+}
+/* Le point vert, aligné sur la première ligne et non centré sur la puce :
+   une caractéristique qui passe à la ligne aurait sinon sa pastille au
+   milieu du vide. */
+.points li::before {
+  content: ''; position: absolute; left: 0; top: .52em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--neon);
+}
+
+.qty {
+  display: flex; align-items: center; gap: 2px; flex: none;
+  border: var(--line) solid var(--line-soft); border-radius: 999px;
+  background: rgba(255, 255, 255, .06); overflow: hidden;
+}
+.qty button { width: 40px; height: 44px; background: none; border: 0; font-size: 22px; font-weight: 800; color: var(--cream); }
+.qty button:active { background: rgb(var(--neon-rgb) / .22); }
+.qty span { min-width: 26px; text-align: center; font-weight: 800; font-size: 17px; }
+
+/* ── Panier ──────────────────────────────────────────────── */
+.cart__title { font-size: 32px; padding: 20px 16px 4px; }
+.cart__list { list-style: none; margin: 0; padding: 10px 14px 0; display: flex; flex-direction: column; gap: 10px; }
+
+/* Un nom de produit sans espace ne doit pas sortir de sa carte : le
+   débordement était masqué par la page, donc invisible à la mesure, mais bien
+   là à l'écran. */
+.card__name, .card__short, .cart-item__name, .cart-item__meta,
+.pdetail__name, .pdetail__desc, .order__items li, .toast,
+.done__lines li, .promo__status, .cart__hint {
+  overflow-wrap: anywhere;
+}
+
+.cart-item {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow-sm);
+}
+.cart-item__art {
+  width: 52px; height: 52px; flex: none; display: grid; place-items: center;
+  background: rgb(var(--ink-rgb) / .45);
+  border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.cart-item__art img { width: 80%; }
+.cart-item__info { flex: 1; min-width: 0; }
+.cart-item__name { display: block; font-weight: 800; font-size: 14.5px; line-height: 1.2; }
+.cart-item__meta { display: block; font-size: 12px; color: var(--muted); font-weight: 700; }
+.cart-item__ctl { display: flex; align-items: center; gap: 2px; flex: none; }
+.cart-item__ctl button {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  color: var(--cream); background: rgba(255, 255, 255, .07);
+  border: 1px solid var(--line-soft); border-radius: 9px;
+  font-size: 17px; font-weight: 800; line-height: 1;
+}
+.cart-item__ctl button:active { background: rgb(var(--neon-rgb) / .25); }
+.cart-item__ctl span { min-width: 24px; text-align: center; font-weight: 800; font-size: 15px; }
+
+/* Une ligne qu'on ne peut plus servir doit se voir avant le bouton. */
+.cart-item--short { border-color: rgb(var(--gold-rgb) / .55); background: rgb(var(--gold-rgb) / .07); }
+.cart-item__short { display: block; font-size: 11.5px; font-weight: 800; color: var(--gold); margin-top: 2px; }
+
+.cart__empty { text-align: center; padding: 26px 20px; }
+.cart__empty-eclair { width: 84px; margin: 0 auto 12px; opacity: .8; filter: drop-shadow(0 0 20px rgb(var(--neon-rgb) / .5)); }
+.cart__empty p { font-weight: 700; color: var(--muted); margin: 0; }
+
+.field { display: block; padding: 16px 14px 4px; }
+.field span { font-size: 13px; font-weight: 800; display: block; margin-bottom: 6px; color: var(--muted); }
+.field textarea, .field input, .field select {
+  width: 100%; font: inherit; font-size: 14px; font-weight: 600; color: var(--cream);
+  background: rgb(var(--ink-rgb) / .55); border: var(--line) solid var(--line-soft); border-radius: 14px;
+  padding: 11px 13px; resize: none;
+}
+.field textarea::placeholder, .field input::placeholder { color: rgb(var(--cream-rgb) / .38); }
+.field textarea:focus, .field input:focus, .field select:focus {
+  outline: none; border-color: var(--neon); box-shadow: var(--glow-neon);
+}
+.field select option { background: var(--night-2); color: var(--cream); }
+.field select option:disabled { color: rgb(var(--cream-rgb) / .4); }
+
+/* Une adresse tient en plusieurs lignes : elles se suivent sans intitulé
+   intermédiaire, comme sur une enveloppe. */
+.field input + input, .field input + .champs-deux { margin-top: 7px; }
+.champs-deux { display: grid; grid-template-columns: 5.5rem 1fr; gap: 7px; }
+
+/* « La même chose » : un raccourci d'habitué, pas une réclame. Il a la forme
+   d'une ligne qu'on touche, pas d'un bouton d'appel à l'action. */
+.reprise {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  margin: 0 0 14px; padding: 12px 14px; text-align: left;
+  background: linear-gradient(180deg, rgb(var(--neon-rgb) / .16), rgb(var(--neon-rgb) / .06));
+  border: 1px solid rgb(var(--neon-rgb) / .4); border-radius: 16px;
+  color: var(--cream); font: inherit;
+}
+.reprise:active { transform: scale(.985); }
+.reprise__icone { font-size: 20px; }
+.reprise__texte { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.reprise__texte b { font-size: 15px; font-weight: 800; }
+.reprise__texte span { color: var(--muted); font-weight: 600; overflow-wrap: anywhere; }
+.reprise__fleche { color: var(--neon); font-size: 22px; font-weight: 800; }
+
+.cart__total { flex: 1 1 auto; min-width: 0; line-height: 1.05; }
+.cart__total span { display: block; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.cart__total strong { font-size: 28px; }
+/* Sur un écran étroit, un libellé de total un peu long poussait le bouton
+   Commander hors de la barre. La barre passe à la ligne plutôt que d'expulser
+   ce sur quoi il faut appuyer. */
+.sheet__bar--cart { gap: 10px 14px; }
+.sheet__bar--cart .btn--grow { min-width: 9rem; }
+@media (max-width: 380px) {
+  .sheet__bar--cart .btn--grow { flex-basis: 100%; }
+}
+
+.modes { display: flex; gap: 9px; }
+.mode {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 11px 8px; font-weight: 800; font-size: 14px; color: var(--cream);
+  background: rgba(255, 255, 255, .06);
+  border: var(--line) solid var(--line-soft); border-radius: 14px;
+  transition: background .16s ease, color .16s ease, box-shadow .16s ease;
+}
+.mode small { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.mode[aria-pressed="true"] {
+  color: var(--ink); background: var(--neon);
+  border-color: transparent; box-shadow: none;
+}
+.mode[aria-pressed="true"] small { color: rgb(var(--ink-rgb) / .75); }
+
+.promo { display: flex; gap: 8px; }
+.promo input { flex: 1; text-transform: uppercase; letter-spacing: .08em; }
+/* Le code se saisit en majuscules, l'invite reste une phrase normale. */
+.promo input::placeholder { text-transform: none; letter-spacing: 0; }
+.promo .btn { flex: none; padding: 0 16px; font-size: 13px; }
+.promo__status {
+  margin: 7px 0 0; font-size: 12.5px; font-weight: 800; line-height: 1.35;
+  color: var(--muted);
+}
+.promo__status--ok { color: var(--neon); }
+.promo__status--ko { color: var(--gold); }
+
+/* Le prix barré rassure : on voit ce qu'on aurait payé sans la remise. */
+.cart__total small {
+  display: block; font-size: 12px; font-weight: 800; color: var(--muted);
+  text-decoration: line-through; text-decoration-color: rgb(var(--cream-rgb) / .5);
+}
+
+.cart__hint {
+  margin: 12px 14px 0; padding: 10px 12px; border-radius: 12px;
+  font-size: 13px; font-weight: 700; line-height: 1.4;
+  color: var(--gold); background: rgb(var(--gold-rgb) / .12);
+  border: 1px solid rgb(var(--gold-rgb) / .4);
+}
+
+/* ── Commande enregistrée ────────────────────────────────── */
+.done { text-align: center; padding: 28px 20px 8px; }
+.done__seal {
+  display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 14px;
+  font-size: 28px; font-weight: 800; color: var(--ink);
+  background: var(--neon);
+  border-radius: 50%; box-shadow: none;
+}
+/* Un peu d'air : serré, l'accent des capitales se fait rogner. */
+.done__title { font-size: 28px; line-height: 1.18; margin: 0 0 6px; }
+.done__ref {
+  display: inline-block; margin: 0 0 12px; padding: 5px 13px; border-radius: 999px;
+  font-family: var(--display); font-size: 17px; letter-spacing: .04em; color: var(--gold);
+  background: rgb(var(--gold-rgb) / .12); border: 1px solid rgb(var(--gold-rgb) / .4);
+}
+.done__text { margin: 0 auto 14px; max-width: 30ch; font-weight: 700; color: var(--muted); line-height: 1.45; }
+.done__lines { list-style: none; margin: 0; padding: 0; font-size: 13.5px; font-weight: 700; }
+.done__lines li { padding: 3px 0; }
+.done__lines li b { color: var(--neon); }
+
+.gate__link {
+  display: block; width: 100%; margin-top: 12px; padding: 6px;
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--muted);
+  background: none; border: 0; text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ── Mes commandes ───────────────────────────────────────── */
+.orders { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 20px; }
+.orders__empty { text-align: center; padding: 30px 24px; color: var(--muted); font-weight: 700; }
+
+.order {
+  background: var(--panel);
+  border: var(--line) solid var(--line-soft);
+  border-radius: 18px; padding: 13px 14px; box-shadow: var(--shadow-sm);
+}
+.order__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.order__ref { font-family: var(--display); font-weight: 700; font-synthesis-weight: none; font-size: 17px; letter-spacing: .02em; }
+.order__status {
+  flex: none; font-size: 11px; font-weight: 800; letter-spacing: .03em;
+  border: 1px solid currentColor; border-radius: 999px; padding: 4px 10px;
+}
+.order__status--nouvelle { color: var(--gold); }
+.order__status--confirmee { color: rgb(var(--halo2-rgb)); }
+.order__status--prete { color: var(--neon); }
+.order__status--livree { color: var(--neon); background: rgb(var(--neon-rgb) / .14); }
+.order__status--annulee { color: var(--muted); }
+.order__date { margin: 4px 0 8px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.order__items { list-style: none; margin: 0; padding: 0; font-size: 13.5px; font-weight: 700; }
+.order__items li { padding: 2px 0; }
+.order__items small { font-weight: 700; color: var(--muted); }
+.order__total { margin: 8px 0 0; font-weight: 800; font-size: 15px; color: var(--gold); }
+
+/* ── Toast ───────────────────────────────────────────────── */
+.toast {
+  position: fixed; left: 50%; top: calc(74px + var(--safe-top)); z-index: 90;
+  transform: translateX(-50%);
+  background: rgb(var(--ink-rgb) / .92); color: var(--cream);
+  border: 1px solid rgb(var(--neon-rgb) / .55);
+  /* Le rayon en pilule ne vaut que sur une ligne : avec un nom de produit à
+     rallonge, il transformait le message en disque géant qui masquait tout
+     le panier. On borne le texte à trois lignes et on arrondit sobrement. */
+  border-radius: 16px; padding: 11px 18px; font-weight: 800; font-size: 14px;
+  box-shadow: var(--glow-neon), var(--shadow); animation: rise-fade .3s ease;
+  max-width: min(88vw, 22rem); text-align: center; backdrop-filter: blur(8px);
+  line-height: 1.35; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* `display: -webkit-box` l'emporterait sur le display:none de [hidden]. */
+.toast[hidden] { display: none !important; }
+@keyframes rise-fade { from { transform: translate(-50%, -14px); opacity: 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* ── Ruptures de stock ───────────────────────────────────── */
+.card--soldout .card__art { background: linear-gradient(180deg, rgb(var(--ink-rgb) / .5), rgb(var(--ink-rgb) / .8)); }
+.card--soldout .card__art img { filter: grayscale(1); opacity: .38; }
+.card--soldout .card__price { -webkit-text-fill-color: rgb(var(--cream-rgb) / .4); color: rgb(var(--cream-rgb) / .4); background: none; text-shadow: none; }
+/* La famille d'affiche s'applique au prix, mais pas son remplissage : sans
+   cette ligne, le dégradé de .goldtext repeindrait le prix en blanc. */
+.card__price { -webkit-text-fill-color: var(--neon); }
+.card--soldout .card__add { background: rgba(255, 255, 255, .1); color: var(--muted); box-shadow: none; }
+.card__badge--out { background: rgb(var(--ink-rgb) / .85); border-color: var(--line-soft); box-shadow: none; color: var(--muted); }
+
+.variant[disabled] {
+  background: rgba(255, 255, 255, .03); color: rgb(var(--cream-rgb) / .38);
+  border-style: dashed; box-shadow: none; pointer-events: none;
+}
+.variant[disabled] small { color: inherit; }
+
+.qty button[disabled] { opacity: .3; pointer-events: none; }
+
+/* ── Photos ──────────────────────────────────────────────── */
+/* Une vraie photo remplit son cadre au lieu de flotter dans le halo, avec
+   un voile sombre en haut pour que la pastille reste lisible. */
+.card__art--photo, .card__art--video { background: rgb(var(--ink-rgb) / .6); overflow: hidden; }
+.card__art--photo img { width: 100%; height: 100%; object-fit: cover; filter: none; }
+.card__art--photo::after, .card__art--video::after {
+  content: ''; position: absolute; inset: 0 0 55% 0; pointer-events: none;
+  background: linear-gradient(180deg, rgb(var(--ink-rgb) / .55), transparent);
+}
+
+/* Une vidéo en vitrine : même cadre qu'une photo. Elle ne reçoit aucun clic —
+   la carte entière doit rester le bouton qui ouvre la fiche. */
+.card__video {
+  width: 100%; height: 100%; object-fit: cover;
+  pointer-events: none; background: rgb(var(--ink-rgb) / .7);
+}
+/* La pastille dit « vidéo » même immobile : sur un système qui demande moins de
+   mouvement, la vitrine montre la première image et rien ne bouge. */
+.card__film {
+  position: absolute; bottom: 8px; right: 8px; z-index: 2;
+  display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 999px;
+  background: rgb(var(--ink-rgb) / .72); color: var(--cream);
+  font-size: 10px; padding-left: 2px; pointer-events: none;
+}
+.card--soldout .card__video { filter: grayscale(1); opacity: .38; }
+
+/* ══ Animations et widgets ═══════════════════════════════════
+   Tout ce bloc est suspendu par `[data-anim='off']`, que pose la boutique
+   quand la fonctionnalité est éteinte ou que le système demande moins de
+   mouvement. Rien ne disparaît alors : les éléments sont simplement là,
+   immobiles. Une animation ne doit jamais être ce qui rend une chose
+   visible. */
+
+/* ── Apparition des cartes, en cascade ───────────────────── */
+
+/* Le décalage vient d'une variable posée par le script : une règle par carte
+   serait ingérable, et `nth-child` figerait le nombre de produits. */
+.card--entre {
+  animation: carte-entre .34s cubic-bezier(.22, .9, .3, 1) backwards;
+  animation-delay: calc(var(--rang, 0) * 42ms);
+}
+@keyframes carte-entre {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+}
+
+/* ── L'article qui s'envole vers le panier ───────────────── */
+
+/* Une copie de la vignette, posée en `fixed` le temps du vol, puis retirée.
+   `pointer-events: none` : elle traverse l'écran, elle ne doit rien bloquer. */
+.vol {
+  position: fixed; z-index: 95; pointer-events: none;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform .55s cubic-bezier(.5, -0.2, .7, 1), opacity .55s ease-in;
+}
+.vol img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* La pastille du panier a déjà son `pop` : on ne l'empile pas, on la laisse
+   dire « c'est arrivé » au moment où la vignette la rejoint. */
+
+/* ── Squelette de chargement ─────────────────────────────── */
+
+/* Mieux qu'un écran vide : la grille montre sa forme pendant que le catalogue
+   arrive, donc l'attente paraît courte et l'écran ne saute pas au moment où
+   les vraies cartes remplacent les fausses. */
+.squelette {
+  border-radius: var(--radius); border: 1px solid var(--line-soft);
+  background: rgb(var(--panel-rgb) / .35);
+  aspect-ratio: 3 / 4; position: relative; overflow: hidden;
+}
+.squelette::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgb(var(--cream-rgb) / .07) 50%, transparent 80%);
+  animation: luire 1.4s linear infinite;
+}
+@keyframes luire { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+/* ── Widget : l'état de la boutique ──────────────────────── */
+
+.statut {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 14px 10px; padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--line-soft); background: rgb(var(--panel-rgb) / .5);
+  font-size: 12.5px; font-weight: 800;
+}
+.statut__pastille {
+  flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--neon); box-shadow: 0 0 0 0 rgb(var(--neon-rgb) / .6);
+  animation: pulse-statut 2.4s ease-out infinite;
+}
+.statut--ferme .statut__pastille { background: rgb(var(--red-rgb)); animation: none; }
+.statut--ferme { border-color: rgb(var(--red-rgb) / .45); }
+@keyframes pulse-statut {
+  0%   { box-shadow: 0 0 0 0 rgb(var(--neon-rgb) / .55); }
+  70%  { box-shadow: 0 0 0 7px rgb(var(--neon-rgb) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--neon-rgb) / 0); }
+}
+.statut__texte { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.statut__compte { color: var(--muted); font-weight: 700; }
+
+/* ── Widget : la progression vers un palier ──────────────── */
+
+.jauge { margin: 10px 0 2px; }
+.jauge__texte {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 12px; font-weight: 800; margin-bottom: 6px;
+}
+.jauge__texte span:last-child { color: var(--muted); font-weight: 700; white-space: nowrap; }
+.jauge__piste {
+  height: 7px; border-radius: 999px; overflow: hidden;
+  background: rgb(var(--ink-rgb) / .55);
+}
+.jauge__barre {
+  height: 100%; border-radius: 999px; width: 0;
+  background: linear-gradient(90deg, var(--neon-deep), var(--neon));
+  box-shadow: 0 0 10px rgb(var(--neon-rgb) / .5);
+  transition: width .5s cubic-bezier(.22, .9, .3, 1);
+}
+.jauge--atteint .jauge__barre { background: linear-gradient(90deg, var(--gold-lo), var(--gold)); }
+.jauge--atteint .jauge__texte span:first-child { color: var(--gold); }
+
+/* ── Quand le mouvement n'est pas souhaité ───────────────── */
+
+/* Deux raisons de tout suspendre : le vendeur a coupé la fonctionnalité, ou
+   le système du client demande moins de mouvement — un réglage qu'on ne
+   discute pas, il est souvent posé pour raison médicale. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important;
+  }
+}
+[data-anim='off'] .card--entre { animation: none; }
+[data-anim='off'] .vue { animation: none; }
+[data-anim='off'] .tabbar__curseur { transition: none; }
+[data-anim='off'] .statut__pastille { animation: none; }
+[data-anim='off'] .squelette::after { animation: none; }
+[data-anim='off'] .jauge__barre { transition: none; }
+[data-anim='off'] .cartbtn__count.pop { animation: none; }
+
+/* ── Galerie de la fiche produit ─────────────────────────── */
+
+/* Un défilement horizontal aimanté plutôt qu'un carrousel en JavaScript : le
+   glissement du doigt est celui du système, donc fluide, et il marche même si
+   le script tombe. Les flèches ne servent qu'à la souris. */
+.galerie { position: relative; width: 100%; }
+.galerie__piste {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.galerie__piste::-webkit-scrollbar { display: none; }
+/* `relative` n'est pas un détail d'implantation : sans lui, les pastilles
+   d'une case se positionnaient par rapport à la galerie entière. Une galerie
+   dont la première vue est une photo et la seconde une vidéo affichait donc
+   « ▶ Vidéo » sur la photo, et l'étiquette de format d'une case sur la
+   voisine. Chaque case porte maintenant ce qui la concerne. */
+.galerie__media {
+  position: relative;
+  flex: 0 0 100%; scroll-snap-align: center;
+  display: grid; place-items: center; background: rgb(var(--ink-rgb) / .55);
+}
+/* Une proportion plutôt qu'une hauteur fixe : 250 px donnaient une bande
+   étroite sur un grand téléphone et une image plus haute que large sur un
+   petit. Le 4/3 tient sur les deux, et c'est aussi celui du cadre d'une
+   fiche sans galerie — passer d'un produit à l'autre ne fait plus sauter
+   la page. */
+.galerie__media img, .galerie__media video {
+  width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+}
+/* La vidéo garde ses contrôles : on ne réinvente pas un lecteur. */
+.galerie__media video { background: #000; }
+
+.galerie__fleche {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%; border: 0;
+  background: rgb(var(--ink-rgb) / .62); color: var(--cream);
+  font-size: 20px; line-height: 1; backdrop-filter: blur(4px);
+}
+.galerie__fleche--gauche { left: 8px; }
+.galerie__fleche--droite { right: 8px; }
+/* Sur un écran tactile, le doigt suffit : les flèches masqueraient l'image. */
+@media (hover: none) { .galerie__fleche { display: none; } }
+
+.galerie__points {
+  position: absolute; left: 0; right: 0; bottom: 8px; z-index: 2;
+  display: flex; justify-content: center; gap: 6px; pointer-events: none;
+}
+.galerie__point {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgb(var(--cream-rgb) / .4); transition: background .2s, width .2s;
+}
+.galerie__point[aria-selected='true'] { background: var(--neon); width: 18px; border-radius: 4px; }
+
+/* La pastille « vidéo » dit ce qui attend, avant même de lancer la lecture. */
+.galerie__type {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  padding: 3px 8px; border-radius: 999px;
+  background: rgb(var(--ink-rgb) / .72); color: var(--cream);
+  font-size: 11px; font-weight: 800; letter-spacing: .03em;
+}
+
+/* Quand la galerie est là, le décor de l'illustration n'a plus lieu d'être. */
+.pdetail__art:has(.galerie:not([hidden])) { padding: 0; overflow: hidden; }
+.pdetail__art:has(.galerie:not([hidden])) > #pImage { display: none; }
+
+/* Une photo importée remplit le cadre, sans marge et à pleine opacité.
+   L'opacité n'est pas un détail : le dessin par défaut est volontairement
+   effacé pour ne pas se disputer l'attention avec les vraies photos, et une
+   photo qui héritait de cette règle s'affichait délavée — exactement le
+   contraire de ce qu'on veut d'une vitrine.
+
+   Le rapport 4/3 plutôt qu'une hauteur fixe : sur un grand téléphone,
+   250 px donnaient une bande étroite, et sur un petit, une photo plus haute
+   que large. La proportion, elle, tient sur les deux. */
+.pdetail__art--photo { padding: 0; }
+.pdetail__art--photo > img {
+  width: 100%; max-width: none; height: auto; aspect-ratio: 4 / 3;
+  object-fit: cover; opacity: 1; filter: none;
+}
+
+.cart-item__art--photo { overflow: hidden; background: rgb(var(--ink-rgb) / .5); }
+.cart-item__art--photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Avis ─────────────────────────────────────────────────────
+   Les étoiles portent l'or de l'affiche, pas le néon : le néon
+   veut dire « touche ici » partout ailleurs dans la boutique, et
+   une note n'est pas un bouton. La seule qui en soit un — celle
+   de la fiche produit — le dit par son soulignement. */
+
+.reprise--avis {
+  background: linear-gradient(180deg, rgb(var(--gold-rgb) / .16), rgb(var(--gold-rgb) / .05));
+  border-color: rgb(var(--gold-rgb) / .38);
+}
+.reprise--avis .reprise__fleche { color: var(--gold); }
+
+/* La note sur une carte du catalogue : discrète, sur une ligne. */
+.card__note {
+  display: block; margin-top: 3px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .04em;
+  color: var(--gold);
+}
+.card__note small { color: var(--muted); font-weight: 700; letter-spacing: 0; }
+
+/* La note de la fiche produit, qui descend jusqu'aux avis. */
+.note--lien {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  margin: 0 0 8px; padding: 0; border: 0; background: none;
+  color: var(--gold); font: inherit; cursor: pointer;
+}
+.note__etoiles { font-size: 15px; letter-spacing: .06em; }
+.note__chiffre { font-size: 15px; font-weight: 800; }
+.note__nombre {
+  font-size: 12.5px; font-weight: 700; color: var(--muted);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+.avis { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line-soft); }
+.avis__titre {
+  margin: 0 0 12px; font-size: 12.5px; font-weight: 800;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .07em;
+}
+
+/* La répartition : ce que la moyenne cache. */
+.avis__barres { margin-bottom: 16px; }
+.avis__barre { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.avis__barre-note { width: 2.1rem; font-size: 11.5px; font-weight: 800; color: var(--gold); }
+.avis__barre-piste {
+  flex: 1; height: 6px; border-radius: 999px;
+  background: rgb(var(--cream-rgb) / .08); overflow: hidden;
+}
+.avis__barre-plein { display: block; height: 100%; background: rgb(var(--gold-rgb) / .7); }
+.avis__barre-nombre {
+  width: 1.6rem; text-align: right;
+  font-size: 11.5px; font-weight: 700; color: var(--muted);
+}
+
+.avis__liste { list-style: none; margin: 0; padding: 0; }
+.avis__item { padding: 12px 0; border-top: 1px solid var(--line-soft); }
+.avis__item:first-child { border-top: 0; }
+.avis__tete { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.avis__etoiles { color: var(--gold); font-size: 13px; letter-spacing: .06em; }
+.avis__qui { font-size: 13.5px; font-weight: 800; }
+.avis__quand { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-left: auto; }
+.avis__texte { margin: 6px 0 0; font-size: 13.5px; line-height: 1.5; }
+.avis__reponse {
+  margin-top: 8px; padding: 9px 11px; border-radius: 12px;
+  background: rgb(var(--neon-rgb) / .07); border-left: 2px solid rgb(var(--neon-rgb) / .5);
+  font-size: 13px; line-height: 1.45;
+}
+.avis__reponse b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--neon); }
+.avis__reponse p { margin: 3px 0 0; }
+
+/* Donner son avis : une ligne par produit, cinq boutons. */
+.avis__intro { margin: 0 0 16px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.avis__facultatif {
+  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; letter-spacing: .04em;
+  color: var(--muted); background: rgb(var(--cream-rgb) / .07); text-transform: none;
+}
+.avis__note-vie { margin: 12px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
+
+.notation {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap; padding: 12px 0; border-top: 1px solid var(--line-soft);
+}
+.notation:first-child { border-top: 0; padding-top: 0; }
+.notation__nom { flex: 1 1 8rem; min-width: 0; font-size: 14px; font-weight: 800; overflow-wrap: anywhere; }
+.notation__nom small { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.notation__etoiles { display: flex; gap: 2px; }
+.notation__etoile {
+  padding: 4px 3px; border: 0; background: none; cursor: pointer;
+  /* Une étoile éteinte reste lisible : trop pâle, on ne sait plus qu'on peut
+     appuyer dessus. */
+  color: rgb(var(--cream-rgb) / .28); font-size: 27px; line-height: 1;
+}
+.notation__etoile.est-pleine { color: var(--gold); }
+.notation__etoile:active { transform: scale(.88); }
+
+#avisTexte {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  padding: 11px 13px; border-radius: 13px;
+  font: inherit; font-size: 15px; color: var(--cream);
+  background: rgb(var(--cream-rgb) / .05); border: 1px solid var(--line-soft);
+}
+#avisTexte:focus { outline: none; border-color: rgb(var(--neon-rgb) / .5); }
+
+/* Signé ou anonyme : deux choix côte à côte, jamais une case à cocher —
+   « publier mon prénom » décoché par erreur n'est pas récupérable. */
+.signature { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.signature__choix {
+  padding: 10px 12px; text-align: left; border-radius: 13px;
+  background: rgb(var(--cream-rgb) / .05); border: 1px solid var(--line-soft);
+  color: var(--cream); font: inherit;
+}
+.signature__choix b { display: block; font-size: 13.5px; font-weight: 800; }
+.signature__choix small { display: block; margin-top: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); line-height: 1.35; }
+.signature__choix[aria-pressed="true"] {
+  background: rgb(var(--neon-rgb) / .12); border-color: rgb(var(--neon-rgb) / .55);
+}
+.signature__choix[aria-pressed="true"] b { color: var(--neon); }
+
+/* ── Favoris ──────────────────────────────────────────────────
+   Le cœur porte le rouge, seul endroit de la boutique où il ne
+   veut pas dire « erreur » : il est posé sur l'image, jamais
+   dans le corps de la carte, pour rester atteignable au pouce
+   sans pousser le prix. */
+.card__coeur, .pdetail__coeur {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  width: 34px; height: 34px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 17px; line-height: 1;
+  color: rgb(var(--cream-rgb) / .55);
+  background: rgb(var(--ink-rgb) / .55); border: 1px solid rgb(var(--cream-rgb) / .18);
+  backdrop-filter: blur(6px);
+}
+.card__coeur.est-favori, .pdetail__coeur.est-favori {
+  color: var(--red); border-color: rgb(var(--red-rgb) / .55);
+  background: rgb(var(--red-rgb) / .16);
+}
+.card__coeur:active, .pdetail__coeur:active { transform: scale(.86); }
+.pdetail__coeur { position: absolute; top: -46px; right: 0; width: 38px; height: 38px; font-size: 19px; }
+.pdetail__body { position: relative; }
+
+/* ── Profil ───────────────────────────────────────────────── */
+.profil__qui { margin: -6px 0 14px; font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.profil__onglets {
+  display: flex; gap: 6px; margin-bottom: 16px;
+  padding: 4px; border-radius: 14px;
+  background: rgb(var(--cream-rgb) / .05); border: 1px solid var(--line-soft);
+}
+.profil__onglet {
+  flex: 1; padding: 9px 6px; border: 0; border-radius: 11px; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 800;
+  color: var(--muted); background: transparent;
+}
+.profil__onglet[aria-selected="true"] {
+  color: var(--ink); background: var(--neon);
+}
+.profil__compte {
+  display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: 999px;
+  font-size: 11px; background: rgb(var(--ink-rgb) / .22);
+}
+.profil__onglet[aria-selected="false"] .profil__compte { background: rgb(var(--cream-rgb) / .12); }
+.profil__intro { margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.profil__stop {
+  margin: 14px 0 0; padding: 11px 13px; border-radius: 13px;
+  font-size: 12.5px; line-height: 1.5;
+  background: rgb(var(--red-rgb) / .1); border: 1px solid rgb(var(--red-rgb) / .4);
+}
+
+.favoris { display: flex; flex-direction: column; gap: 10px; }
+.favori {
+  position: relative; display: flex; align-items: center; gap: 12px;
+  padding: 10px; border-radius: 16px; cursor: pointer;
+  background: rgb(var(--panel-rgb) / .5); border: 1px solid var(--line-soft);
+}
+.favori__image { width: 58px; height: 58px; border-radius: 12px; object-fit: cover; flex: none; }
+.favori__corps { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.favori__nom { font-size: 14.5px; font-weight: 800; overflow-wrap: anywhere; }
+.favori__prix { font-size: 14px; font-weight: 800; }
+.favori__prix small { font-size: 11px; font-weight: 700; color: var(--muted); }
+.favori__etat { font-size: 11.5px; font-weight: 700; color: var(--red); }
+.favori__coeur {
+  flex: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  display: grid; place-items: center; font-size: 17px;
+  color: var(--red); background: rgb(var(--red-rgb) / .14);
+  border: 1px solid rgb(var(--red-rgb) / .45);
+}
+.favori__coeur:active { transform: scale(.86); }
+
+/* Les alertes : une ligne entière qui bascule, pas une case à cocher de 12 px
+   qu'on rate une fois sur deux au pouce. */
+.alertes { display: flex; flex-direction: column; gap: 10px; }
+.alerte {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  padding: 13px 14px; border-radius: 15px; cursor: pointer; font: inherit;
+  color: var(--cream);
+  background: rgb(var(--panel-rgb) / .5); border: 1px solid var(--line-soft);
+}
+.alerte__texte { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.alerte__texte b { font-size: 14.5px; font-weight: 800; }
+.alerte__texte small { font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--muted); }
+.alerte__bouton {
+  flex: none; position: relative; width: 46px; height: 27px; border-radius: 999px;
+  background: rgb(var(--cream-rgb) / .14); border: 1px solid var(--line-soft);
+  transition: background .16s ease;
+}
+.alerte__bouton::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 21px; height: 21px; border-radius: 50%;
+  background: rgb(var(--cream-rgb) / .8);
+  transition: transform .16s ease, background .16s ease;
+}
+.alerte[aria-checked="true"] { border-color: rgb(var(--neon-rgb) / .5); }
+.alerte[aria-checked="true"] .alerte__bouton { background: var(--neon); }
+.alerte[aria-checked="true"] .alerte__bouton::after { transform: translateX(19px); background: var(--ink); }
+@media (prefers-reduced-motion: reduce) {
+  .alerte__bouton, .alerte__bouton::after { transition: none; }
+}
+
+/* La pastille du profil : elle dit qu'il y a quelque chose à y voir. */
+.iconbtn { position: relative; }
+.iconbtn__pastille {
+  position: absolute; top: -3px; right: -3px; min-width: 17px; height: 17px;
+  padding: 0 4px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 10.5px; font-weight: 800; line-height: 1;
+  color: var(--ink); background: var(--neon);
+}
+
+/* Le format auquel un média est rattaché. En bas à gauche, en face de la
+   pastille « Vidéo » qui occupe le haut : les deux peuvent coexister sur la
+   même vidéo, et se superposer les rendrait illisibles toutes les deux. */
+.galerie__format {
+  position: absolute; bottom: 8px; left: 8px; z-index: 2;
+  padding: 3px 9px; border-radius: 999px;
+  background: var(--neon); color: var(--ink);
+  font-size: 11.5px; font-weight: 800; letter-spacing: .03em;
+}
+
+/* ── L'ouverture : le voile de chargement ────────────────────
+   Trois secondes au plus, souvent une demie. Ce qu'on y met compte :
+   un écran noir laisse croire à une panne, une barre qui progresse ment
+   sur une durée qu'on ne connaît pas. Un anneau qui tourne autour du
+   logo dit seulement « ça vient », ce qui est exactement ce qu'on sait.
+   Le voile se retire en fondu ; il ne clignote donc pas quand le
+   catalogue arrive en 80 ms. */
+.charge {
+  position: fixed; inset: 0; z-index: 120;
+  display: grid; place-content: center; justify-items: center; gap: 14px;
+  background: radial-gradient(120% 90% at 50% 20%, rgb(var(--night2-rgb)), rgb(var(--void-rgb)));
+  transition: opacity .32s ease, visibility .32s;
+}
+.charge[hidden] {
+  display: grid !important;   /* on le fait disparaître en fondu, pas d'un coup */
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.charge__anneau {
+  position: relative; width: 104px; height: 104px;
+  display: grid; place-items: center;
+}
+.charge__anneau::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--halo2-rgb) / .28), transparent 68%);
+}
+.charge__arc {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2.5px solid rgb(var(--line-rgb) / .18);
+  border-top-color: var(--neon);
+  border-right-color: rgb(var(--halo2-rgb) / .85);
+  animation: charge-tour 1.05s linear infinite;
+}
+.charge__eclair {
+  width: 46px; height: 46px; position: relative;
+  filter: drop-shadow(0 0 12px rgb(var(--halo2-rgb) / .6));
+  animation: charge-souffle 2.2s ease-in-out infinite;
+}
+.charge__nom { font-size: 26px; line-height: 1; }
+.charge__texte { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); }
+
+@keyframes charge-tour { to { transform: rotate(360deg); } }
+@keyframes charge-souffle {
+  0%, 100% { transform: scale(1); opacity: .92; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+
+/* Le voile reste — c'est lui qui dit que ça charge — mais il cesse de
+   tourner : une boutique sobre doit rester lisible, pas immobile au
+   point d'avoir l'air figée. */
+[data-anim='off'] .charge__arc,
+[data-anim='off'] .charge__eclair { animation: none; }
+[data-anim='off'] .charge__arc { border-top-color: var(--neon); }
+
+@media (prefers-reduced-motion: reduce) {
+  .charge__arc, .charge__eclair { animation: none; }
+  .charge { transition: none; }
+}
+
+/* ══ La barre du bas et ses quatre vues ═══════════════════════
+   Une seule page qui défilait est devenue quatre écrans. Ce qui
+   change vraiment : le profil et le contact existaient déjà, mais
+   derrière une icône de 40 px que personne ne touchait. Une place
+   nommée dans une barre se voit ; une icône se devine. */
+
+.vue { display: block; }
+
+/* La page laisse la hauteur de la barre sous elle, sinon la dernière
+   carte finit dessous et personne ne peut l'ouvrir. */
+.page { padding-bottom: calc(var(--tabbar-h, 78px) + 24px); }
+
+/* La barre décolle du bord.
+   Collée en bas sur toute la largeur, elle fermait la page comme une
+   plinthe — et c'est le meuble qu'on retrouve dans toutes les boutiques
+   Telegram. Détachée, elle flotte au-dessus du catalogue : on voit que
+   la page continue dessous, et le pouce la trouve un peu plus haut,
+   c'est-à-dire plus près de là où il se repose. La marge du bas tient
+   compte de la barre d'accueil des téléphones sans bouton. */
+.tabbar {
+  position: fixed; z-index: 40;
+  left: 14px; right: 14px; bottom: calc(12px + var(--safe-bottom));
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 4px; padding: 5px;
+  background: rgb(var(--night2-rgb) / .9);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgb(var(--void-rgb) / .6);
+}
+.tabbar__item {
+  position: relative;
+  display: grid; justify-items: center; gap: 4px;
+  padding: 9px 2px 8px;
+  border: 0; border-radius: 15px;
+  background: none; color: rgb(var(--cream-rgb) / .45);
+  font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  transition: color .16s ease, background-color .16s ease;
+}
+.tabbar__item svg { width: 21px; height: 21px; }
+.tabbar__item span { line-height: 1; }
+
+/* L'onglet actif est un bloc plein d'ivoire, texte en encre : dans une
+   barre flottante et sombre, c'est le contraste qui désigne, pas une
+   teinte posée sur un fond déjà coloré. Ni pastille translucide ni
+   soulignement sous le libellé — ces deux-là sont la signature de la
+   moitié des boutiques Telegram. */
+.tabbar__item[aria-selected='true'] {
+  color: var(--ink);
+  background: var(--neon);
+}
+.tabbar__item:active { color: var(--cream); background: rgb(var(--cream-rgb) / .07); }
+
+.tabbar__pastille {
+  position: absolute; top: 5px; right: calc(50% - 20px);
+  min-width: 16px; height: 16px; padding: 0 4px;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 800; line-height: 1;
+  color: #fff; background: rgb(var(--halo2-rgb));
+  border-radius: 999px;
+}
+
+/* ── Les rayons : le catalogue rangé ─────────────────────── */
+.rayons { display: grid; gap: 22px; padding: 4px 0 0; }
+/* L'intitulé d'un rayon tient toute la largeur : nom à gauche, compte à
+   droite, un filet dessous. Le petit trait vertical collé à gauche du titre
+   était l'élément le plus reconnaissable de la boutique qui nous a servi de
+   départ ; celui-ci range le catalogue comme une carte range ses plats. */
+.rayon__tete {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin: 0 0 12px; padding-bottom: 7px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.rayon__nom {
+  margin: 0; font-size: 13px; font-weight: 800;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--neon);
+}
+.rayon__compte {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
+  color: rgb(var(--cream-rgb) / .45);
+}
+.rayon__grille { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+/* ── Contact ─────────────────────────────────────────────── */
+/* ── Contact ─────────────────────────────────────────────────
+   C'était un médaillon centré, un titre centré, un texte centré et une
+   légende entre deux filets — la mise en page de tous les écrans « nous
+   contacter » de la place. Ici tout est aligné à gauche, comme le reste
+   de la boutique : on lit une adresse, on ne contemple pas une vignette.
+   Le titre porte un filet de laiton court au-dessus, seul ornement. */
+.contact { padding: 18px 0 0; }
+.contact__icone {
+  width: 34px; height: 3px; margin: 0 0 18px;
+  background: var(--neon); border: 0; border-radius: 2px;
+  display: block; color: transparent; overflow: hidden;
+}
+.contact__icone svg { display: none; }
+.contact__titre {
+  margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -.015em; color: var(--cream);
+}
+.contact__texte {
+  margin: 10px 0 0; max-width: 34ch;
+  font-size: 14px; line-height: 1.55; color: var(--muted);
+}
+/* Une simple ligne d'intitulé, sans les filets qui l'encadraient. */
+.contact__legende {
+  margin: 26px 0 12px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .18em;
+  text-transform: uppercase; color: rgb(var(--cream-rgb) / .4);
+}
+.contact__fine { margin: 12px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
+
+/* Les renseignements, en liste plutôt qu'en cartes : trois cartes empilées
+   sous un bouton ressemblaient à trois autres boutons. */
+.contact__infos { margin-top: 26px; border-top: 1px solid var(--line-soft); }
+.contact__info {
+  display: flex; align-items: baseline; gap: 11px;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 13.5px; line-height: 1.45; font-weight: 600; color: var(--muted);
+}
+.contact__info b { color: var(--cream); font-weight: 800; }
+
+.btn--block { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; }
+.btn__icone { width: 19px; height: 19px; flex: none; }
+
+/* ── Le profil en pleine page ────────────────────────────── */
+.profil { padding: 6px 0 0; }
+.profil__tete { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
+.profil__vignette {
+  width: 58px; height: 58px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 23px; font-weight: 800; color: var(--neon);
+  background: rgb(var(--neon-rgb) / .12);
+  border: 1.5px solid rgb(var(--neon-rgb) / .4);
+}
+.profil__identite { min-width: 0; }
+.profil__nom {
+  margin: 0; font-size: 19px; font-weight: 800; color: var(--cream);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Les quatre compteurs, en bandeau.
+   C'étaient quatre cartes en deux rangées, chacune avec son filet de
+   couleur à gauche et sa tuile d'icône — exactement la disposition qu'on
+   trouve partout ailleurs, et qui mange un tiers de l'écran pour dire
+   quatre nombres. Une seule ligne divisée par des filets les dit aussi
+   bien, laisse les commandes monter dans l'écran, et n'appartient qu'à
+   nous. Les icônes sautent : un chiffre et son mot suffisent. */
+.chiffres {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 20px; padding: 14px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.chiffre {
+  position: relative; text-align: center; padding: 0 4px;
+}
+/* Un filet entre deux colonnes, jamais avant la première : une bordure
+   posée sur les quatre laisserait un trait pendu au bord de l'écran. */
+.chiffre + .chiffre::before {
+  content: ''; position: absolute; left: 0; top: 2px; bottom: 2px;
+  width: 1px; background: var(--line-soft);
+}
+.chiffre__valeur {
+  display: block; font-size: 21px; font-weight: 800; line-height: 1.1;
+  color: var(--cream); font-variant-numeric: tabular-nums;
+}
+.chiffre__label {
+  display: block; margin-top: 3px;
+  font-size: 9.5px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: rgb(var(--cream-rgb) / .42);
+}
+/* Seul le compteur qui porte quelque chose prend la couleur : un panier
+   vide et un panier plein ne doivent pas se ressembler. */
+.chiffre--plein .chiffre__valeur { color: var(--neon); }
+
+/* ══ La fiche produit, en page ════════════════════════════════
+   Elle occupait une feuille qui remontait du bas, en laissant voir le
+   catalogue derrière : une galerie, une description, des formats, des
+   avis et deux carrousels se lisaient alors par un hublot. Ici elle
+   prend l'écran, et la barre d'achat se pose au-dessus des onglets. */
+
+.vue--produit {
+  /* La réserve sous la fiche est celle que la barre d'achat occupe vraiment,
+     mesurée à l'affichage. Écrite en dur, elle se trompait dès que la barre
+     changeait de hauteur — deux lignes de boutons sur un article épuisé, un
+     texte grossi par le téléphone — et le dernier carrousel finissait sous
+     elle : on voyait la vignette d'une suggestion, plus son nom ni son prix.
+     Les 96 px de secours valent pour l'instant qui sépare l'affichage de la
+     mesure. */
+  padding-bottom: calc(var(--pbar-h, 96px) - var(--tabbar-h, 78px) + 20px);
+}
+
+/* La flèche du retour, en tête de page. Elle double celle de Telegram : la
+   sienne est en haut de l'écran, hors de portée du pouce sur un grand
+   téléphone, et tout le monde ne sait pas qu'elle existe. */
+.pretour {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 0 0 12px; padding: 8px 14px 8px 10px;
+  border: 1px solid var(--line-soft); border-radius: 999px;
+  background: var(--panel); color: var(--muted);
+  font-size: 13px; font-weight: 700;
+}
+.pretour__fleche { font-size: 19px; line-height: 1; margin-top: -2px; }
+.pretour:active { background: rgb(var(--cream-rgb) / .09); }
+
+/* La barre d'achat : fixée au-dessus des onglets, jamais dessous. */
+.pbar {
+  position: fixed; left: 14px; right: 14px; z-index: 35;
+  border-radius: 18px;
+  bottom: calc(var(--tabbar-h, 78px) + 8px);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 9px 10px;
+  background: rgb(var(--night2-rgb) / .92);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line-soft);
+  box-shadow: 0 10px 30px rgb(var(--void-rgb) / .6);
+}
+
+/* ── Les carrousels du bas de fiche ──────────────────────── */
+.suite { margin-top: 26px; }
+.suite__titre {
+  margin: 0 0 11px; font-size: 15px; font-weight: 800; color: var(--cream);
+}
+/* Une piste qu'on fait glisser du pouce, aimantée : s'arrêter entre deux
+   vignettes donne l'impression d'un écran mal fini.
+
+   `scroll-padding` n'est pas un détail : un aimantage obligatoire aligne la
+   vignette sur le bord du cadre, marge intérieure comprise. Sans lui, la
+   piste s'ouvrait déjà décalée de quatorze pixels et la première vignette
+   collait au bord de l'écran, alors que tout le reste de la page commence
+   à la même gouttière. */
+.suite__piste {
+  display: flex; gap: 10px; overflow-x: auto;
+  margin: 0 -14px; padding: 2px 14px 6px;
+  scroll-snap-type: x mandatory; scroll-padding-left: 14px;
+  scrollbar-width: none;
+}
+.suite__piste::-webkit-scrollbar { display: none; }
+
+.suggestion {
+  flex: none; width: 124px; scroll-snap-align: start;
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 0; text-align: left;
+  background: none; border: 0; color: var(--cream);
+}
+.suggestion__art {
+  display: block; aspect-ratio: 1; overflow: hidden;
+  background: rgb(var(--ink-rgb) / .45);
+  border: 1px solid var(--line-soft); border-radius: 13px;
+}
+.suggestion__art img { width: 100%; height: 100%; object-fit: cover; }
+.suggestion__nom {
+  font-size: 12.5px; font-weight: 700; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.suggestion__prix { font-size: 13px; font-weight: 800; color: var(--neon); }
+.suggestion:active .suggestion__art { border-color: rgb(var(--neon-rgb) / .45); }
+
+/* ── L'attente d'une vidéo ───────────────────────────────────
+   La vignette tient la place mais ne dit rien : le client appuie sur
+   lecture, rien ne bouge, et il croit la vidéo cassée alors qu'elle
+   arrive. L'anneau dit qu'elle arrive, la durée dit combien de temps
+   il s'engage. Posé sans intercepter les appuis : les contrôles du
+   lecteur sont dessous, et il faut pouvoir les atteindre. */
+.vcharge {
+  position: absolute; inset: 0; z-index: 3;
+  display: grid; place-content: center; justify-items: center; gap: 9px;
+  /* Assez sombre pour que l'anneau se détache d'une vignette claire : à
+     45 % d'opacité il disparaissait sur une photo de produit bien exposée,
+     c'est-à-dire sur la plupart. */
+  background: rgb(var(--void-rgb) / .68);
+  pointer-events: none;
+  transition: opacity .25s ease, visibility .25s;
+}
+.vcharge--fini { opacity: 0; visibility: hidden; }
+.vcharge__arc {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 3px solid rgb(var(--cream-rgb) / .22);
+  border-top-color: var(--neon);
+  animation: charge-tour .95s linear infinite;
+}
+.vcharge__duree {
+  font-size: 12px; font-weight: 800; letter-spacing: .04em;
+  color: var(--cream);
+  background: rgb(var(--void-rgb) / .6);
+  border-radius: 999px; padding: 2px 9px;
+}
+[data-anim='off'] .vcharge__arc { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .vcharge__arc { animation: none; }
+  .vcharge { transition: none; }
+}
+
+/* Un GIF occupe la case comme une photo : il ne porte ni contrôles ni
+   bouton de lecture, donc rien à réserver en bas. */
+.galerie__gif {
+  width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+  background: rgb(var(--ink-rgb) / .5);
+}
+
+/* ══ Ce qui bouge ═══════════════════════════════════════════════
+   Une boutique figée a l'air d'une capture d'écran. Trois mouvements,
+   pas un de plus, et chacun dit quelque chose :
+
+   - l'écran qui arrive monte de huit pixels en apparaissant. C'est ce
+     qui fait comprendre qu'on a changé de page et non rechargé la
+     même ;
+   - le bloc de l'onglet actif glisse d'un onglet à l'autre au lieu de
+     sauter. Le regard suit le bloc et sait d'où il vient ;
+   - une carte qu'on touche s'enfonce. C'est la seule réponse qu'un
+     écran tactile peut donner tout de suite, avant même que la page
+     ait changé.
+
+   Tout est suspendu par [data-anim='off'] et par la préférence système :
+   quelqu'un qui a le mal des transports ne doit pas payer notre décor. */
+
+.vue { animation: vue-entre .24s cubic-bezier(.22, .8, .3, 1) both; }
+@keyframes vue-entre {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Le bloc de l'onglet actif est un seul rectangle qui se déplace, posé
+   sous les quatre boutons. Quatre fonds qu'on allume et qu'on éteint
+   ne peuvent pas glisser — d'où ce calque unique, dont la position
+   vient d'une variable que le script met à jour. */
+.tabbar { position: fixed; }
+.tabbar__curseur {
+  position: absolute; top: 5px; bottom: 5px; left: 0;
+  width: var(--curseur-l, 0px);
+  transform: translateX(var(--curseur-x, 0px));
+  background: var(--neon); border-radius: 15px;
+  transition: transform .28s cubic-bezier(.34, 1.3, .5, 1), width .28s ease;
+  pointer-events: none;
+}
+/* Au premier affichage le curseur se pose sans glisser : le voir traverser
+   l'écran depuis le bord gauche au lancement ferait croire à un défaut. */
+.tabbar__curseur--pose { transition: none; }
+.tabbar__item { position: relative; z-index: 1; }
+.tabbar__item[aria-selected='true'] { background: none; }
+
+/* La carte qu'on touche s'enfonce, et le doigt le sent avant que la fiche
+   s'ouvre. Cinq centièmes de seconde : au-delà, c'est une animation ; en
+   deçà, on ne la voit pas. */
+.card, .suggestion, .variant, .cat, .chiffre { will-change: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vue { animation: none; }
+  .tabbar__curseur { transition: none; }
+}
+
+/* Un vrai fichier GIF est une image : elle remplit sa case comme une photo,
+   et boucle d'elle-même. */
+.card__gif { width: 100%; height: 100%; object-fit: cover; display: block; }
+img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.card--soldout .card__gif { filter: grayscale(1); opacity: .38; }

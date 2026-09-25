@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0b0d14">
+<title>TANJA HH 67 — Boutique</title>
+<link rel="icon" href="/assets/ui/eclair.svg">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<!-- ══ Décor : fumée et feuilles sprayées ══ -->
+<div class="fx" aria-hidden="true">
+  <div class="fx__smoke"></div>
+  <img src="/assets/ui/eclair-spray.svg" alt="" class="fx__eclair fx__eclair--a">
+  <img src="/assets/ui/eclair-spray.svg" alt="" class="fx__eclair fx__eclair--b">
+  <img src="/assets/ui/eclair-spray.svg" alt="" class="fx__eclair fx__eclair--c">
+</div>
+
+<!-- ══ Ouverture : le temps que le catalogue arrive ══ -->
+<div class="charge" id="charge">
+  <div class="charge__anneau" aria-hidden="true">
+    <span class="charge__arc"></span>
+    <img src="/assets/ui/eclair.svg" alt="" class="charge__eclair">
+  </div>
+  <p class="charge__nom goldtext">TANJA HH 67</p>
+  <p class="charge__texte" id="chargeTexte">Ouverture de la boutique…</p>
+</div>
+
+<!-- ══ La porte du bot : le calcul se fait dans la conversation ══ -->
+<div class="gate" id="porte" hidden>
+  <div class="gate__card">
+    <p class="gate__eyebrow">Entrée</p>
+    <h2 class="gate__title goldtext">Un calcul, et c'est ouvert</h2>
+    <p class="gate__text">
+      Retourne dans la conversation du bot : il t'y pose une petite addition.
+      Réponds-y, puis reviens — la boutique s'ouvre toute seule.
+    </p>
+    <p class="gate__fine">
+      C'est demandé une seule fois, pour éviter les faux comptes. Aucune
+      information supplémentaire ne t'est demandée.
+    </p>
+    <button class="btn btn--primary btn--grow" id="porteAction" type="button">Ouvrir la conversation</button>
+    <button class="gate__link" id="porteRetry" type="button">J'ai répondu — réessayer</button>
+  </div>
+</div>
+
+<!-- ══ Contrôle d'âge ══ -->
+<div class="agegate" id="agegate" hidden>
+  <div class="agegate__card">
+    <span class="agegate__seal" aria-hidden="true">18+</span>
+    <h1 class="agegate__title goldtext">Stop !</h1>
+    <p class="agegate__text">
+      Cette boutique est réservée aux personnes majeures.
+      Tu confirmes avoir <strong>18&nbsp;ans ou plus</strong>&nbsp;?
+    </p>
+    <div class="agegate__actions">
+      <button class="btn btn--primary" id="ageYes" type="button">Oui, j'ai 18 ans</button>
+      <button class="btn btn--ghost" id="ageNo" type="button">Non</button>
+    </div>
+    <p class="agegate__legal" id="legalNotice"></p>
+  </div>
+</div>
+
+<!-- ══ Épreuve d'entrée ══ -->
+<div class="gate" id="captcha" hidden>
+  <div class="gate__card">
+    <p class="gate__eyebrow">Vérification</p>
+    <h2 class="gate__title goldtext" id="captchaPrompt">Touche les 3 feuilles</h2>
+    <p class="gate__text">Une seconde, le temps de vérifier que tu n'es pas un robot.</p>
+    <div class="grid-tiles" id="captchaGrid" role="group" aria-labelledby="captchaPrompt"></div>
+    <p class="gate__error" id="captchaError" hidden></p>
+    <button class="btn btn--primary btn--grow" id="captchaSubmit" type="button" disabled>Valider</button>
+  </div>
+</div>
+
+<!-- ══ Vérification d'identité ══ -->
+<div class="gate" id="verification" hidden>
+  <div class="gate__card">
+    <p class="gate__eyebrow">Accès contrôlé</p>
+    <h2 class="gate__title goldtext" id="verifTitle">Vérification requise</h2>
+    <p class="gate__text" id="verifText"></p>
+    <p class="gate__fine">
+      La boutique n'enregistre pas ton document : il reste dans la conversation
+      Telegram, et tu peux le supprimer une fois la vérification faite.
+    </p>
+    <button class="btn btn--primary btn--grow" id="verifAction" type="button">Ouvrir la conversation</button>
+    <button class="gate__link" id="verifBrowse" type="button">Regarder la boutique en attendant</button>
+  </div>
+</div>
+
+<!-- ══ En-tête ══ -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <img src="/assets/ui/eclair.svg" alt="" class="topbar__eclair">
+    <span class="topbar__bloc">
+      <span class="topbar__name goldtext" id="shopName">TANJA HH 67</span>
+      <span class="topbar__sous" id="shopSous"></span>
+    </span>
+  </div>
+  <div class="topbar__actions">
+  <button class="cartbtn" id="cartBtn" type="button" aria-label="Ouvrir le panier">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h3l2.6 11.2a2 2 0 0 0 2 1.6h7.1a2 2 0 0 0 2-1.5L21.5 8H7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg>
+    <span class="cartbtn__count" id="cartCount" hidden>0</span>
+    <span class="cartbtn__total" id="cartTotalPill" hidden></span>
+  </button>
+  </div>
+</header>
+
+<p class="closed" id="closedBanner" hidden></p>
+
+<!-- État de la boutique, avec le décompte jusqu'au prochain basculement. -->
+<div class="statut" id="statutBar" hidden>
+  <span class="statut__pastille" aria-hidden="true"></span>
+  <span class="statut__texte" id="statutTexte"></span>
+  <span class="statut__compte" id="statutCompte"></span>
+</div>
+
+<main class="page">
+
+<!-- ══ Vue « Filtres » : la recherche et la grille ══ -->
+<section class="vue" id="vueFiltres" role="tabpanel" aria-label="Boutique">
+
+  <!-- ══ Bannière ══ -->
+  <section class="hero">
+    <div class="hero__halo" aria-hidden="true"></div>
+    <!-- L'emblème de la maison, dans le coin de la bannière. Animé, mais
+         lentement : il donne un signe de vie à l'écran d'accueil sans se
+         disputer l'attention avec les photos de produits. -->
+    <img class="hero__embleme" id="heroEmbleme" src="/assets/ui/eclair.svg" alt="" aria-hidden="true">
+    <div class="hero__body">
+      <p class="hero__eyebrow">Open 7/7 · 13h – 00h</p>
+      <h1 class="hero__title goldtext">Ça circule<br>tous les jours</h1>
+      <p class="hero__sub">Meet up ou livraison. Tu choisis dans le menu, on règle le reste en message.</p>
+    </div>
+  </section>
+
+  <div class="badges">
+    <span class="badge-chip">⚡ Réponse rapide</span>
+    <span class="badge-chip">🤝 Meet up</span>
+    <span class="badge-chip">🛵 Livraison</span>
+    <span class="badge-chip">📦 Emballage discret</span>
+  </div>
+
+  <!-- ══ « La même chose » ══ ══════════════════════════════════
+       N'apparaît que pour qui a déjà commandé ici : c'est le
+       raccourci d'un habitué, pas une réclame. -->
+  <button class="reprise" id="reprise" type="button" hidden>
+    <span class="reprise__icone" aria-hidden="true">🔁</span>
+    <span class="reprise__texte">
+      <b>La même chose</b>
+      <span id="repriseDetail"></span>
+    </span>
+    <span class="reprise__fleche" aria-hidden="true">›</span>
+  </button>
+
+  <!-- ══ « Comment c'était ? » ══ ══════════════════════════════
+       La suggestion d'avis. Elle ne s'adresse qu'à qui a reçu
+       quelque chose et n'en a rien dit : c'est le seul moment où
+       la question a un sens, et elle disparaît une fois posée. -->
+  <button class="reprise reprise--avis" id="suggestionAvis" type="button" hidden>
+    <span class="reprise__icone" aria-hidden="true">⭐</span>
+    <span class="reprise__texte">
+      <b>Comment c'était ?</b>
+      <span id="suggestionAvisDetail"></span>
+    </span>
+    <span class="reprise__fleche" aria-hidden="true">›</span>
+  </button>
+
+  <!-- ══ Recherche et tri ══ -->
+  <div class="find" id="findBar" hidden>
+    <div class="find__box">
+      <span class="find__icon" aria-hidden="true">🔎</span>
+      <input id="findInput" type="search" autocomplete="off" placeholder="Chercher un produit…"
+             aria-label="Chercher un produit">
+      <button class="find__clear" id="findClear" type="button" aria-label="Effacer la recherche" hidden>✕</button>
+    </div>
+    <select id="findSort" aria-label="Trier les produits">
+      <option value="default">Tri : par défaut</option>
+      <option value="new">Nouveautés d'abord</option>
+      <option value="price-asc">Prix croissant</option>
+      <option value="price-desc">Prix décroissant</option>
+      <option value="name">Ordre alphabétique</option>
+    </select>
+  </div>
+
+  <!-- ══ Catégories ══ -->
+  <nav class="cats" id="cats" aria-label="Catégories"></nav>
+
+  <!-- ══ Grille produits ══ -->
+  <section class="grid" id="grid" aria-live="polite"></section>
+
+  <p class="empty" id="empty" hidden>Rien dans cette catégorie pour le moment.</p>
+
+  <footer class="foot">
+    <img src="/assets/ui/eclair.svg" alt="" class="foot__eclair">
+    <p id="footLegal"></p>
+  </footer>
+</section>
+
+<!-- ══ Page « Fiche produit » ══ ════════════════════════════════
+     Une page, pas un panneau qui remonte du bas. Une fiche porte une
+     galerie, une description, des formats, des avis et deux carrousels :
+     tout ça dans une feuille qui laisse voir le catalogue derrière se
+     lisait à travers un hublot. Elle prend l'écran, et on en revient par
+     la flèche — ou par le bouton retour de Telegram, qui fait la même
+     chose sans qu'on ait à viser. -->
+<section class="vue vue--produit" id="vueProduit" role="tabpanel" aria-label="Fiche produit" hidden>
+  <button class="pretour" id="pRetour" type="button">
+    <span class="pretour__fleche" aria-hidden="true">‹</span>
+    <span id="pRetourTexte">Retour</span>
+  </button>
+
+  <div class="pdetail__art">
+    <img id="pImage" src="" alt="">
+    <!-- La galerie prend la place de l'image dès qu'un produit en a une. -->
+    <div class="galerie" id="pGallery" hidden>
+      <div class="galerie__piste" id="pGalleryTrack"></div>
+      <button class="galerie__fleche galerie__fleche--gauche" id="pGalleryPrev"
+              type="button" aria-label="Média précédent" hidden>‹</button>
+      <button class="galerie__fleche galerie__fleche--droite" id="pGalleryNext"
+              type="button" aria-label="Média suivant" hidden>›</button>
+      <div class="galerie__points" id="pGalleryDots" role="tablist" aria-label="Médias"></div>
+    </div>
+  </div>
+
+  <div class="pdetail__body">
+    <div class="pdetail__tags" id="pTags"></div>
+    <button class="pdetail__coeur" id="pCoeur" type="button" aria-pressed="false" hidden>♥</button>
+    <h2 class="pdetail__name goldtext" id="pName"></h2>
+    <!-- La note, juste sous le nom : c'est là qu'on la cherche. -->
+    <button class="note note--lien" id="pNote" type="button" hidden></button>
+    <!-- Les caractéristiques : ce qu'on lit en diagonale avant la description. -->
+    <ul class="points" id="pPoints" hidden></ul>
+    <p class="pdetail__desc" id="pDesc"></p>
+    <p class="variants__titre" id="pVariantsTitre" hidden>Choisis ton format</p>
+    <div class="variants" id="pVariants"></div>
+
+    <!-- Ce que les autres en ont dit. -->
+    <section class="avis" id="pAvis" hidden>
+      <h3 class="avis__titre" id="pAvisTitre">Avis</h3>
+      <div class="avis__barres" id="pAvisBarres"></div>
+      <ul class="avis__liste" id="pAvisListe"></ul>
+      <button class="btn btn--ghost btn--block" id="pAvisPlus" type="button" hidden>
+        Voir tous les avis
+      </button>
+    </section>
+
+    <!-- Les deux carrousels : ce qui se vend à côté, et ce qui plaît à ceux
+         qui aiment celui-ci. Chargés depuis le catalogue déjà en mémoire —
+         une suggestion ne vaut pas un aller-retour de plus. -->
+    <section class="suite" id="pMemeCategorie" hidden>
+      <h3 class="suite__titre" id="pMemeCategorieTitre">Même catégorie</h3>
+      <div class="suite__piste" id="pMemeCategoriePiste"></div>
+    </section>
+
+    <section class="suite" id="pAimerAussi" hidden>
+      <h3 class="suite__titre">Tu vas aimer aussi</h3>
+      <div class="suite__piste" id="pAimerAussiPiste"></div>
+    </section>
+  </div>
+
+</section>
+
+<!-- ══ Vue « Catégories » : le catalogue rangé, rayon par rayon ══
+     La grille de l'autre onglet répond à « je cherche ça » ; celle-ci
+     répond à « montre-moi ce que tu as ». Deux questions différentes,
+     deux écrans — les mêmes produits. -->
+<section class="vue" id="vueCategories" role="tabpanel" aria-label="Catégories" hidden>
+  <div class="rayons" id="rayons"></div>
+  <p class="empty" id="rayonsVide" hidden>Le catalogue est vide pour le moment.</p>
+</section>
+
+<!-- ══ Vue « Contact » ══ -->
+<section class="vue" id="vueContact" role="tabpanel" aria-label="Contact" hidden>
+  <div class="contact">
+    <div class="contact__icone" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.6-.4L4 21l1.5-4.3A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12.3 3 8.4 8.4 0 0 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </div>
+    <h2 class="contact__titre">Une question ?</h2>
+    <p class="contact__texte">
+      Un doute sur un produit, une commande qui traîne, une demande
+      particulière : écris-nous, on répond dans la conversation.
+    </p>
+
+    <p class="contact__legende"><span>Nous écrire</span></p>
+    <button class="btn btn--tg btn--block" id="contactTelegram" type="button">
+      <svg viewBox="0 0 24 24" class="btn__icone" aria-hidden="true"><path d="M21.8 4.3 18.9 19c-.2 1-.8 1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.6L18.4 6c.4-.3-.1-.5-.6-.2L7.4 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4l17.5-6.7c.8-.3 1.5.2 1.2 1.4Z" fill="currentColor"/></svg>
+      Ouvrir la conversation
+    </button>
+    <p class="contact__fine" id="contactFine"></p>
+
+    <div class="contact__infos" id="contactInfos"></div>
+  </div>
+</section>
+
+<!-- ══ Vue « Profil » ══ -->
+<section class="vue" id="vueProfil" role="tabpanel" aria-label="Mon profil" hidden>
+  <div class="profil">
+    <div class="profil__tete">
+      <div class="profil__vignette" id="profilVignette" aria-hidden="true"></div>
+      <div class="profil__identite">
+        <p class="profil__nom" id="profilNom">Mon profil</p>
+        <p class="profil__qui" id="profilQui"></p>
+      </div>
+    </div>
+
+    <div class="chiffres" id="profilChiffres"></div>
+
+    <div class="profil__onglets" id="profilOnglets" role="tablist">
+      <button class="profil__onglet" type="button" role="tab" data-vue="commandes" aria-selected="true">
+        Commandes
+      </button>
+      <button class="profil__onglet" type="button" role="tab" data-vue="favoris" aria-selected="false">
+        Favoris<span class="profil__compte" id="favorisCompte" hidden></span>
+      </button>
+      <button class="profil__onglet" type="button" role="tab" data-vue="alertes" aria-selected="false">
+        Alertes
+      </button>
+    </div>
+
+    <section class="profil__vue" data-vue="commandes">
+      <div class="orders" id="ordersList"></div>
+      <p class="orders__empty" id="ordersEmpty" hidden></p>
+    </section>
+
+    <section class="profil__vue" data-vue="favoris" hidden>
+      <div class="favoris" id="favorisList"></div>
+      <p class="orders__empty" id="favorisEmpty" hidden></p>
+    </section>
+
+    <section class="profil__vue" data-vue="alertes" hidden>
+      <p class="profil__intro">
+        Ce que la boutique peut t'envoyer dans cette conversation.
+        Tu coupes et rallumes quand tu veux.
+      </p>
+      <div class="alertes" id="alertesList"></div>
+      <p class="profil__stop" id="profilStop" hidden>
+        ⚠️ Tu as envoyé <b>/stop</b> au bot : rien ne t'arrivera tant que tu
+        n'auras pas écrit <b>/annonces</b> pour rouvrir la porte.
+      </p>
+    </section>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ La barre du bas ══ ════════════════════════════════════════
+     Quatre onglets plutôt qu'une page qui défile : la boutique avait
+     tout empilé sur un seul écran, si bien que le profil et le contact
+     n'existaient que pour qui savait où appuyer. Ici chaque chose a sa
+     place, et la place se voit. -->
+<!-- ══ La barre d'achat de la fiche produit ══ ══════════════════
+     Hors de la vue, et ce n'est pas un détail de rangement. La vue porte
+     une animation d'entrée qui déplace son contenu ; or un élément qui
+     anime sa transformation devient le repère des positions fixes qu'il
+     contient. La barre se calait donc sur la vue et non sur l'écran :
+     elle flottait cent pixels trop haut et recouvrait la fin de la fiche.
+     Ici elle ne dépend que de la fenêtre. -->
+<div class="pbar" id="pbar" hidden>
+  <div class="qty" role="group" aria-label="Quantité">
+    <button type="button" id="qtyMinus" aria-label="Retirer un">−</button>
+    <span id="qtyValue">1</span>
+    <button type="button" id="qtyPlus" aria-label="Ajouter un">+</button>
+  </div>
+  <button class="btn btn--primary btn--grow" id="addToCart" type="button">
+    Ajouter · <span id="pPrice"></span>
+  </button>
+  <button class="btn btn--ghost btn--grow" id="notifyMe" type="button" hidden>
+    🔔 Préviens-moi du retour
+  </button>
+</div>
+
+<nav class="tabbar" id="tabbar" role="tablist" aria-label="Navigation">
+  <span class="tabbar__curseur tabbar__curseur--pose" id="tabbarCurseur" aria-hidden="true"></span>
+  <button class="tabbar__item" type="button" role="tab" data-onglet="filtres" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Filtres</span>
+  </button>
+  <button class="tabbar__item" type="button" role="tab" data-onglet="categories" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    <span>Catégories</span>
+  </button>
+  <button class="tabbar__item" type="button" role="tab" data-onglet="contact" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.6-.4L4 21l1.5-4.3A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12.3 3 8.4 8.4 0 0 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    <span>Contact</span>
+  </button>
+  <button class="tabbar__item" type="button" role="tab" data-onglet="profil" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Profil</span>
+    <span class="tabbar__pastille" id="profilPastille" hidden></span>
+  </button>
+</nav>
+
+<!-- ══ Panier ══ -->
+<div class="sheet" id="cartSheet" hidden>
+  <div class="sheet__backdrop" data-close></div>
+  <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <button class="sheet__close" type="button" data-close aria-label="Fermer">✕</button>
+    <div class="sheet__scroll">
+      <h2 class="cart__title goldtext" id="cartTitle">Ton panier</h2>
+      <ul class="cart__list" id="cartList"></ul>
+      <div class="cart__empty" id="cartEmpty" hidden>
+        <img src="/assets/ui/eclair.svg" alt="" class="cart__empty-eclair">
+        <p>Le panier est vide. On le remplit ?</p>
+      </div>
+      <div class="field" id="modeField" hidden>
+        <span>Comment tu récupères</span>
+        <div class="modes" id="modes" role="group" aria-label="Mode de récupération"></div>
+      </div>
+      <!-- Plusieurs champs sous un seul intitulé : un <label> ne désigne qu'un
+           contrôle, chaque ligne porte donc son propre aria-label. -->
+      <div class="field" id="addressField" hidden>
+        <span>Adresse de livraison</span>
+        <input id="orderStreet" type="text" maxlength="120" placeholder="12 rue des Lilas"
+               autocomplete="street-address" aria-label="Rue et numéro">
+        <input id="orderComplement" type="text" maxlength="120"
+               placeholder="Bâtiment, étage, code d'entrée (optionnel)"
+               autocomplete="address-line2" aria-label="Complément d'adresse">
+        <div class="champs-deux">
+          <input id="orderPostal" type="text" inputmode="numeric" maxlength="6" placeholder="68100"
+                 autocomplete="postal-code" aria-label="Code postal">
+          <input id="orderCity" type="text" maxlength="60" placeholder="Ville"
+                 autocomplete="address-level2" aria-label="Ville">
+        </div>
+        <p class="promo__status" id="zoneStatus" hidden role="status"></p>
+      </div>
+      <label class="field" id="slotField" hidden>
+        <span id="slotFieldLabel">Créneau souhaité</span>
+        <select id="orderSlot"></select>
+      </label>
+      <label class="field" id="contactField">
+        <span id="contactLabel">Téléphone (optionnel)</span>
+        <input id="orderContact" type="tel" maxlength="200" placeholder="Pour te joindre"
+               autocomplete="tel">
+      </label>
+      <div class="field" id="promoField">
+        <span>Code promo</span>
+        <div class="promo">
+          <input id="promoCode" type="text" maxlength="20" autocomplete="off" spellcheck="false"
+                 placeholder="Si tu en as un" aria-label="Code promo">
+          <button class="btn btn--ghost" id="promoApply" type="button">Appliquer</button>
+        </div>
+        <p class="promo__status" id="promoStatus" hidden role="status"></p>
+      </div>
+      <p class="cart__hint" id="cartHint" hidden></p>
+
+      <!-- Progression vers la livraison offerte ou le prochain palier. -->
+      <div class="jauge" id="jauge" hidden>
+        <div class="jauge__texte">
+          <span id="jaugeTexte"></span>
+          <span id="jaugeReste"></span>
+        </div>
+        <div class="jauge__piste"><div class="jauge__barre" id="jaugeBarre"></div></div>
+      </div>
+
+      <label class="field" id="noteField">
+        <span>Un mot pour la commande ? (optionnel)</span>
+        <textarea id="orderNote" rows="2" maxlength="500" placeholder="Créneau souhaité, point de retrait, question…"></textarea>
+      </label>
+    </div>
+    <div class="sheet__bar sheet__bar--cart">
+      <div class="cart__total">
+        <span id="cartTotalLabel">Total</span>
+        <strong class="goldtext" id="cartTotal">0 €</strong>
+        <small id="cartStrike" hidden></small>
+      </div>
+      <button class="btn btn--primary btn--grow" id="checkout" type="button">Commander</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Commande enregistrée ══ -->
+<div class="sheet" id="doneSheet" hidden>
+  <div class="sheet__backdrop" data-close></div>
+  <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+    <button class="sheet__close" type="button" data-close aria-label="Fermer">✕</button>
+    <div class="sheet__scroll">
+      <div class="done">
+        <span class="done__seal">✓</span>
+        <h2 class="done__title goldtext" id="doneTitle">Commande enregistrée</h2>
+        <p class="done__ref" id="doneRef"></p>
+        <p class="done__text" id="doneText"></p>
+        <ul class="done__lines" id="doneLines"></ul>
+      </div>
+    </div>
+    <div class="sheet__bar">
+      <button class="btn btn--ghost" id="doneChat" type="button">Une question au vendeur</button>
+      <button class="btn btn--primary btn--grow" type="button" data-close>Continuer mes achats</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Donner son avis ══ -->
+<div class="sheet" id="avisSheet" hidden>
+  <div class="sheet__backdrop" data-close></div>
+  <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="avisTitre">
+    <button class="sheet__close" type="button" data-close aria-label="Fermer">✕</button>
+    <div class="sheet__scroll">
+      <h2 class="cart__title goldtext" id="avisTitre">Ton avis</h2>
+      <p class="avis__intro" id="avisIntro"></p>
+      <div id="avisProduits"></div>
+      <label class="field">
+        <span class="field__label">Un mot, si tu veux <span class="avis__facultatif">facultatif</span></span>
+        <textarea id="avisTexte" rows="3" maxlength="600"
+                  placeholder="Ce qui t'a plu, ce qui peut être mieux…"></textarea>
+      </label>
+      <div class="signature" id="avisSignature" role="radiogroup" aria-label="Signer ton avis">
+        <button class="signature__choix" type="button" data-anonyme="non" aria-pressed="true">
+          <b id="avisSigneNom">Avec mon prénom</b>
+          <small>Un avis signé inspire plus confiance.</small>
+        </button>
+        <button class="signature__choix" type="button" data-anonyme="oui" aria-pressed="false">
+          <b>Anonyme</b>
+          <small>Ton avis s'affiche sans nom.</small>
+        </button>
+      </div>
+      <p class="avis__note-vie" id="avisRappel">
+        Dans les deux cas, ni ton pseudo Telegram, ni ton numéro, ni ton adresse
+        ne sont publiés. Le vendeur, lui, voit toujours quelle commande a été notée.
+      </p>
+    </div>
+    <div class="sheet__bar">
+      <button class="btn btn--ghost" type="button" data-close>Plus tard</button>
+      <button class="btn btn--primary btn--grow" id="avisEnvoyer" type="button">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Profil ══ ═══════════════════════════════════════════════
+     Trois sections sous un seul toit : ce qu'il a commandé, ce
+     qu'il garde de côté, et ce qu'il accepte de recevoir. Un
+     onglet par section, parce que dérouler les trois d'un bloc
+     ferait défiler trois écrans pour atteindre un interrupteur. -->
+<div class="toast" id="toast" hidden></div>
+
+<script src="/js/app.js" type="module"></script>
+</body>
+</html>
