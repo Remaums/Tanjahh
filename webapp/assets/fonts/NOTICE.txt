@@ -6,6 +6,16 @@ Luckiest Guy
   Source   : https://fonts.google.com/specimen/Luckiest+Guy
   Licence  : SIL Open Font License 1.1 (https://openfontlicense.org)
 
+Bebas Neue
+  Auteur   : Ryoichi Tsunekawa (Dharma Type)
+  Source   : https://fonts.google.com/specimen/Bebas+Neue
+  Licence  : SIL Open Font License 1.1 (https://openfontlicense.org)
+
+Barlow
+  Auteur   : Jeremy Tribby
+  Source   : https://fonts.google.com/specimen/Barlow
+  Licence  : SIL Open Font License 1.1 (https://openfontlicense.org)
+
 Baloo 2
   Auteur   : Ek Type
   Source   : https://fonts.google.com/specimen/Baloo+2

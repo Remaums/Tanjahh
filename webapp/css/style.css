@@ -1,21 +1,25 @@
 /* ══════════════════════════════════════════════════════════════
    TANJA HH 67 — feuille de style
-   Direction artistique « Orage » : un noir bleuté de nuit de ruelle, et
-   le jaune de la foudre pour tout ce qui compte. Deux couleurs, une
-   tension — c'est ce qui fait tenir une enseigne électrique.
+   Direction artistique « La ruelle ». Elle vient des deux visuels de la
+   maison : une venelle la nuit, béton mouillé, tôle rouillée, murs
+   taggués, un lampadaire orange d'un côté, des éclairs bleu-blanc de
+   l'autre, et le jaune de l'enseigne au milieu.
 
-   Napoli est en ivoire sur encre, volontairement sans teinte. Ici c'est
-   l'inverse : l'accent crie, et c'est voulu. Le jaune ne désigne pas
-   seulement l'information, il donne le ton de la maison. Mais il reste
-   rare : posé partout il redeviendrait du bruit, et une enseigne au néon
-   qui éclaire toute la rue n'est plus une enseigne.
+   Ce que ça change par rapport à la version d'avant, qui était un
+   autocollant jaune sur fond noir et que personne n'a reconnue :
 
-   Trois règles qui tiennent le reste :
-   - le fond est un bleu-noir, pas un gris. Une ruelle la nuit n'est
-     jamais neutre, elle est bleue ;
-   - le jaune n'apparaît que sur une action, un prix, ou l'onglet ouvert ;
-   - le texte posé sur le jaune est noir. Le jaune est une couleur claire,
-     et du blanc dessus ne se lit pas.
+   - le jaune n'est plus la couleur de l'interface, c'est celle de la
+     marque. Il ne sort que pour le logo, les prix, et rien d'autre ;
+   - ce qui s'allume est bleu électrique, comme les éclairs : l'onglet
+     ouvert, le champ actif, ce qu'on vient de toucher ;
+   - ce qui réchauffe est ambre, comme les lampadaires : les halos, les
+     bordures des panneaux éclairés, les commandes en cours ;
+   - le fond n'est pas un aplat. C'est du béton : un gris légèrement
+     froid, un grain fin, une lueur orange en haut à gauche et une lueur
+     froide en haut à droite. Une ruelle n'est jamais d'une seule teinte.
+
+   Et le rouge du « OPEN 7/7 » reste ce qu'il est sur la vitrine : un
+   néon, réservé à ce qui est fermé ou en rupture.
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Palette ─────────────────────────────────────────────────
@@ -24,30 +28,38 @@
    données en composantes brutes pour pouvoir moduler l'opacité avec
    la syntaxe rgb(var(--x) / .5). */
 :root {
-  --void-rgb:     5  6 10;    /* fonds d'écran modaux */
-  --night-rgb:   11 13 20;    /* fond de page — nuit bleutée */
-  --night2-rgb:  16 19 28;    /* barres hautes et basses */
-  --panel-rgb:   26 30 42;    /* surface haute (cartes, panneaux) */
-  --panel2-rgb:  19 23 33;    /* surface basse */
-  --ink-rgb:      8  9 13;    /* contours, et texte posé sur le jaune */
-  --cream-rgb: 233 238 248;   /* texte — blanc très légèrement bleuté */
-  --line-rgb:   106 122 156;  /* filets et bordures */
+  /* Le béton, du plus sombre au plus clair. Un gris à peine froid, jamais
+     bleu franc : la version d'avant tirait sur le bleu nuit, ce qui donnait
+     une appli de nuit, pas une rue. */
+  --void-rgb:     9 10 11;    /* fonds d'écran modaux */
+  --night-rgb:   21 23 25;    /* fond de page — asphalte mouillé */
+  --night2-rgb:  27 29 32;    /* barres hautes et basses */
+  --panel-rgb:   38 41 44;    /* surface haute (cartes, panneaux) */
+  --panel2-rgb:  30 32 35;    /* surface basse */
+  --ink-rgb:     12 13 14;    /* contours, et texte posé sur le jaune */
+  --cream-rgb: 236 236 233;   /* texte — blanc cassé, pas bleuté */
+  --line-rgb:   148 150 148;  /* filets et bordures */
 
-  /* La foudre. `--neon` a gardé son nom : il est cité par une centaine de
-     déclarations, et le renommer partout n'aurait rien changé à l'écran. */
-  --neon-rgb:  255 209  26;
-  --halo-rgb:  255 209  26;
-  --halo2-rgb: 232  74 106;   /* rouge enseigne : favoris, pastille du panier */
-  --halo3-rgb:  86 178 222;   /* bleu électrique : compteurs */
+  /* L'éclair. C'est lui qui s'allume, et il est bleu-blanc — pas jaune.
+     `--neon` garde son nom : il est cité par une centaine de déclarations,
+     et le renommer n'aurait rien changé à l'écran, seulement au diff. */
+  --neon-rgb:  125 202 255;   /* bleu électrique : l'onglet ouvert, l'actif */
+  --halo-rgb:  125 202 255;
+  --halo2-rgb: 255  61  61;   /* néon rouge : favoris, pastille du panier */
+  --halo3-rgb: 255 158  44;   /* ambre lampadaire : compteurs */
 
-  --gold-rgb:  255 176  32;   /* ambre : commandes en cours, avertissements */
-  --gold-lo-rgb: 214 132  12;
-  --red-rgb:   232  62  62;   /* alertes, ruptures — le rouge du « OPEN 7/7 » */
+  /* Le jaune de l'enseigne. Il ne sert plus d'accent d'interface : il est
+     la marque, donc il ne sort que pour le logo et les prix. */
+  --jaune-rgb: 255 210  30;
+  --gold-rgb:  255 158  44;   /* ambre : commandes en cours, avertissements */
+  --gold-lo-rgb: 196 106  20;
+  --rouille-rgb: 138  75  42; /* la tôle de la pancarte */
+  --red-rgb:   255  61  61;   /* fermé, rupture — le néon du « OPEN 7/7 » */
   --tg-rgb:     42 171 238;   /* le bleu de Telegram : il ne nous appartient pas */
 
-  --neon-hi: #ffe066;         /* survol */
-  --neon-deep: #e0aa00;       /* appui */
-  --gold-hi: #ffc95c;
+  --neon-hi: #d6efff;         /* survol */
+  --neon-deep: #5fb4e8;       /* appui */
+  --gold-hi: #ffbe73;
   --sauge: #5fd39a;           /* ce qui est ouvert, en stock */
 }
 
@@ -65,9 +77,11 @@
   --halo: rgb(var(--halo-rgb));
   --pink: rgb(var(--halo2-rgb));
 
-  /* Or de l'affiche */
+  /* Ambre du lampadaire, et le jaune de la marque */
   --gold: rgb(var(--gold-rgb));
   --gold-lo: rgb(var(--gold-lo-rgb));
+  --jaune: rgb(var(--jaune-rgb));
+  --rouille: rgb(var(--rouille-rgb));
 
   /* Traits & textes */
   --ink: rgb(var(--ink-rgb));
@@ -79,22 +93,22 @@
   /* Alias hérités (admin.css et états produits) */
   --green: var(--neon-deep);
   --green-dark: var(--neon-deep);
-  --yellow: var(--gold);
+  --yellow: var(--jaune);
   --red: rgb(var(--red-rgb));
   --paper: var(--night);
 
-  /* La typo d'affiche, assumée. Napoli l'a abandonnée parce qu'un écran
-     sobre ne doit pas avoir l'air d'une fête foraine — mais Tanja n'est
-     pas sobre : ses visuels sont des stickers, et un sticker se lit en
-     lettres grasses et cernées. Les deux enseignes se distinguent d'abord
-     par là, avant même la couleur. */
-  --display: 'Luckiest Guy', 'Baloo 2', system-ui, sans-serif;
+  /* La typo des pancartes. Bebas Neue est une condensée en capitales : le
+     lettrage cloué au poteau, celui qui dit OPEN 7/7 · 13H-00H. Le
+     Luckiest Guy cerné d'encre de la version d'avant faisait fête
+     foraine ; ici les titres s'annoncent, ils ne crient pas. */
+  --display: 'Bebas Neue', 'Barlow', system-ui, sans-serif;
+  --sans: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Deux pixels de contour et des angles presque vifs : c'est la forme
-     d'un autocollant, pas d'une carte d'application. Napoli arrondit à
-     seize, ici on coupe à six. */
-  --line: 2px;
-  --radius: 6px;
+  /* Un filet fin et des angles à peine cassés : du béton coffré, pas un
+     autocollant découpé. Le contour de 2 px et les coins vifs, c'était la
+     forme du sticker — elle ne survit pas au reste. */
+  --line: 1px;
+  --radius: 10px;
   --shadow: 0 8px 24px rgba(0, 0, 0, .45);
   --shadow-sm: 0 3px 10px rgba(0, 0, 0, .35);
   --shadow-lg: 0 18px 44px rgba(0, 0, 0, .55);
@@ -119,25 +133,29 @@
 
 body {
   margin: 0;
-  font-family: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-weight: 600;
+  font-family: var(--sans);
+  font-weight: 500;
   color: var(--cream);
   background-color: var(--night);
-  /* Une seule lueur, très faible, en haut : assez pour que la barre de
-     titre ne flotte pas sur du noir mort, trop peu pour qu'on la
-     remarque. Fixée, pour ne pas défiler avec la page. */
-  /* Des rayures de chantier, à peine visibles. Napoli a un fond plat ; ici
-     la diagonale donne la texture d'un mur peint sans rien coûter en
-     lisibilité — quatre pour cent d'opacité, on la sent plus qu'on ne la
-     voit. */
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgb(var(--neon-rgb) / .035) 0 2px,
-    transparent 2px 14px
-  );
+  /* Deux lumières et un grain, c'est tout ce qui fait la ruelle.
+
+     Le lampadaire est en haut à gauche, ambre et large ; l'orage est en
+     haut à droite, froid et plus serré. Aucun des deux n'est assez fort
+     pour se remarquer, mais entre les deux le fond cesse d'être un aplat —
+     et c'est exactement ce qui manquait à la version d'avant, qui posait
+     des rayures jaunes sur du noir et ressemblait à un autocollant.
+
+     Le grain est une turbulence SVG en ligne : pas de fichier à charger,
+     pas de requête, et il se répète sans coupure visible. À trois pour
+     cent il ne se voit pas, il s'entend — la surface a l'air de béton au
+     lieu d'avoir l'air de rien. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='.3'/%3E%3C/svg%3E"),
+    radial-gradient(70% 45% at 12% 0%, rgb(var(--gold-rgb) / .11), transparent 70%),
+    radial-gradient(52% 38% at 92% 2%, rgb(var(--neon-rgb) / .10), transparent 72%);
+  background-size: 160px 160px, auto, auto;
   background-attachment: fixed;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-repeat: repeat, no-repeat, no-repeat;
   overscroll-behavior-y: none;
 }
 
@@ -195,7 +213,7 @@ body {
 h1, h2, h3, .display,
 .topbar__name, .card__name, .card__price, .cart__total strong {
   font-family: var(--display);
-  /* Luckiest Guy n'existe qu'en 400 : on demande 700 pour que la police de
+  /* Bebas Neue n'existe qu'en 400 : on demande 700 pour que la police de
      secours reste grasse, et on coupe la fausse graisse pour ne pas
      l'épaissir artificiellement quand le fichier est bien chargé. */
   font-weight: 700;
@@ -208,27 +226,30 @@ h1, h2, h3, .display,
    obtenu par ombres portées enchaînées (chaque drop-shadow reprend le
    résultat de la précédente : l'ensemble dilate la lettre sans recouvrir le
    dégradé, ce que feraient text-stroke ou text-shadow), puis relief + halo. */
-/* Le lettrage d'affiche — or, contour noir, relief — est devenu du texte.
-   La classe reste : elle est posée sur une trentaine de titres, et un
-   renommage n'aurait rien changé à l'écran. Un dégradé très court garde
-   un peu de matière dans les grands titres, sans se voir dans les petits. */
-/* Le lettrage de l'enseigne : jaune plein, cerné de noir, avec une ombre
-   portée nette dessous. C'est le contour qui fait le sticker — sans lui, du
-   jaune sur du bleu-noir bave et devient illisible en petit. Le cerne est
-   fait de quatre ombres portées plutôt que d'un `-webkit-text-stroke`, qui
-   rogne l'intérieur des lettres au lieu de les entourer. */
+/* Les titres. La classe s'appelle encore `goldtext` parce qu'elle est posée
+   sur une trentaine d'éléments et qu'un renommage n'aurait rien changé à
+   l'écran — mais elle ne fait plus d'or, et surtout plus de cerne.
+
+   Le contour d'encre à huit ombres, c'était le lettrage d'un autocollant :
+   lisible, mais il transformait chaque titre en logo et donnait à l'écran
+   entier un air de fête foraine. Ici un titre est peint au pochoir sur le
+   mur — blanc cassé, capitales condensées, très légèrement espacées — et
+   seule la lueur froide dessous rappelle l'orage. */
 .goldtext {
-  color: var(--neon);
-  letter-spacing: .01em;
-  text-shadow:
-    -2px 0 0 var(--ink), 2px 0 0 var(--ink),
-    0 -2px 0 var(--ink), 0 2px 0 var(--ink),
-    -2px -2px 0 var(--ink), 2px -2px 0 var(--ink),
-    -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
-    0 4px 0 rgb(var(--ink-rgb) / .55);
+  font-family: var(--display);
+  font-weight: 400;
+  color: var(--cream);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  text-shadow: 0 0 22px rgb(var(--neon-rgb) / .2);
 }
 
-.neontext { color: var(--neon); }
+/* Ce qui doit vraiment briller. Réservé : posé partout, un néon n'éclaire
+   plus rien. */
+.neontext {
+  color: var(--neon);
+  text-shadow: 0 0 14px rgb(var(--neon-rgb) / .55);
+}
 
 img { max-width: 100%; display: block; }
 button { font: inherit; color: inherit; cursor: pointer; }
@@ -252,11 +273,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .btn--primary {
   color: var(--ink);
   background: var(--neon);
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgb(var(--neon-rgb) / .18);
+  border-color: rgb(255 255 255 / .35);
+  /* Le halo est ce qui fait l'enseigne : sans lui, un aplat bleu clair sur
+     du béton a l'air d'un bouton désactivé. */
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .45),
+    0 0 26px rgb(var(--neon-rgb) / .45);
   text-shadow: none;
 }
-.btn--primary:active { background: var(--neon-deep); }
+.btn--primary:active {
+  background: var(--neon-deep);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .3), 0 0 14px rgb(var(--neon-rgb) / .5);
+}
 .btn--ghost { background: rgba(255, 255, 255, .06); }
 
 /* Ce qui renvoie vers Telegram porte le bleu de Telegram : c'est la seule
@@ -431,23 +459,51 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .page { position: relative; z-index: 1; padding: 16px 14px calc(28px + var(--safe-bottom)); max-width: 640px; margin: 0 auto; }
 
 /* ── Bannière ────────────────────────────────────────────── */
-/* La bannière est une plaque : cadre jaune épais, angles presque vifs,
-   ombre portée nette dessous. C'est le panneau cloué au mur de la ruelle,
-   pas une carte d'application. */
+/* La bannière, c'est l'écriteau du visuel : une tôle usée, jaunie par le
+   temps, cerclée de rouille et vissée aux quatre coins. Elle porte
+   exactement ce que porte le vrai panneau — les horaires, le mode de
+   remise — et elle est la seule surface claire de l'écran, donc la
+   première chose qu'on lit.
+
+   La version d'avant était un rectangle noir à filet jaune, c'est-à-dire
+   une carte d'application avec une bordure. Celle-ci est un objet. */
 .hero {
   position: relative; overflow: hidden;
   padding: 20px 16px 22px;
-  background: rgb(var(--ink-rgb) / .72);
-  border: 3px solid var(--neon);
-  border-radius: 4px;
-  box-shadow: 0 5px 0 rgb(var(--ink-rgb) / .8);
+  color: #2a1d11;
+  background-color: #c6ad80;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23r)' opacity='.5'/%3E%3C/svg%3E"),
+    radial-gradient(120% 90% at 20% 10%, rgb(226 205 166 / .85), transparent 60%),
+    radial-gradient(90% 70% at 100% 100%, rgb(var(--rouille-rgb) / .55), transparent 65%);
+  background-size: 120px 120px, auto, auto;
+  background-blend-mode: overlay, normal, normal;
+  border: 4px solid rgb(var(--rouille-rgb));
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / .18),
+    inset 0 -18px 34px rgb(var(--rouille-rgb) / .3),
+    0 14px 30px rgb(0 0 0 / .55);
 }
+/* Les quatre vis. Deux pseudo-éléments portent chacun deux points par
+   dégradé radial : c'est ce qui accroche la tôle au mur, et c'est ce
+   qui empêche le panneau de flotter comme un rectangle. */
+.hero::before, .hero::after {
+  content: ''; position: absolute; left: 9px; right: 9px; height: 7px;
+  background:
+    radial-gradient(circle at 3px 50%, rgb(60 42 26 / .9) 0 3px, transparent 3.5px) left / 50% 100% no-repeat,
+    radial-gradient(circle at calc(100% - 3px) 50%, rgb(60 42 26 / .9) 0 3px, transparent 3.5px) right / 50% 100% no-repeat;
+  pointer-events: none; z-index: 2;
+}
+.hero::before { top: 9px; }
+.hero::after  { bottom: 9px; }
 /* Le halo vert qui noyait la bannière ne reste qu'en trace, dans un coin :
    assez pour que la surface ne soit pas un rectangle gris, pas assez pour
    qu'on le voie avant le titre. */
 .hero__halo {
   position: absolute; inset: -60% -30% auto; height: 170%;
-  background: radial-gradient(45% 45% at 78% 45%, rgb(var(--neon-rgb) / .1), transparent 70%);
+  background: radial-gradient(45% 45% at 78% 45%, rgb(var(--rouille-rgb) / .28), transparent 70%);
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 .hero__body { position: relative; z-index: 1; }
@@ -456,13 +512,20 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hero__eyebrow {
   display: block; margin: -20px -16px 14px; padding: 7px 16px;
   font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--ink); background: var(--neon);
+  color: #f2e6d2; background: rgb(var(--rouille-rgb));
 }
+/* Sur la tôle claire, le texte est brun foncé : le blanc cassé des titres
+   du reste de l'écran y serait illisible, et la lueur froide n'a rien à
+   faire sur une surface éclairée au lampadaire. */
 .hero__title {
-  font-size: clamp(32px, 10.5vw, 44px); line-height: .98;
+  font-size: clamp(34px, 11vw, 48px); line-height: .94;
   text-transform: uppercase; font-weight: 400;
+  color: #24180d; text-shadow: 0 1px 0 rgb(255 255 255 / .22);
 }
-.hero__sub { margin: 10px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--muted); max-width: 24ch; }
+.hero__sub {
+  margin: 10px 0 0; font-size: 13.5px; line-height: 1.4;
+  color: rgb(42 29 17 / .82); font-weight: 600; max-width: 24ch;
+}
 /* Éclair filigrane dans le coin : le décor de la bannière depuis que
    la mascotte a disparu. */
 /* Le filigrane du coin n'est plus un dessin fixe mais l'emblème animé.
@@ -471,12 +534,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
    si — il suffit de lui changer d'adresse. */
 .hero__embleme {
   position: absolute; right: -34px; bottom: -44px;
-  width: 210px; height: auto; opacity: .16;
+  width: 168px; height: auto; opacity: .14;
   transform: rotate(14deg);
   pointer-events: none; user-select: none;
-  /* Le GIF est en ivoire sur encre : sur la surface du panneau, il faut le
-     fondre, sinon son fond noir dessine un rectangle dans le coin. */
-  mix-blend-mode: screen;
+  /* Sur une tôle claire, `screen` effaçait le dessin ; `multiply` l'imprime
+     dans la surface, comme un pochoir passé sur le panneau. */
+  mix-blend-mode: multiply;
 }
 
 /* ── Chips d'arguments ───────────────────────────────────── */
@@ -528,17 +591,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
   position: relative; display: block;
   aspect-ratio: 3 / 4;
   color: var(--cream);
-  background: rgb(var(--ink-rgb) / .6);
-  border: var(--line) solid var(--ink);
+  background: var(--panel-2);
+  border: var(--line) solid rgb(255 255 255 / .07);
   border-radius: var(--radius);
-  box-shadow: 0 3px 0 rgb(var(--ink-rgb) / .8);
+  /* Un liseré clair sur l'arête haute, une ombre portée douce dessous :
+     c'est du béton pris dans la lumière d'un lampadaire. L'ombre dure de
+     trois pixels de la version d'avant était celle d'un bouton d'arcade,
+     elle donnait à la grille l'air d'un jeu. */
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .1),
+    0 10px 22px rgb(0 0 0 / .45);
   overflow: hidden; text-align: left; padding: 0;
-  transition: transform .12s ease, box-shadow .12s ease;
+  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
 }
-/* L'appui enfonce la carte : l'ombre portée disparaît et la carte descend
-   de ses trois pixels. C'est le geste d'un bouton d'arcade, pas celui
-   d'une carte qui rétrécit. */
-.card:active { transform: translateY(3px); box-shadow: 0 0 0 rgb(var(--ink-rgb) / .8); }
+/* L'appui allume le contour plutôt que d'enfoncer la carte : c'est un
+   éclair qui passe sur le panneau, pas une touche qu'on presse. */
+.card:active {
+  transform: scale(.985);
+  border-color: rgb(var(--neon-rgb) / .55);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .1),
+    0 0 0 1px rgb(var(--neon-rgb) / .3),
+    0 0 26px rgb(var(--neon-rgb) / .22);
+}
 
 .card__art {
   position: absolute; inset: 0; display: grid; place-items: center;
@@ -553,12 +628,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
   position: absolute; top: 8px; left: 8px; z-index: 3;
   max-width: calc(100% - 16px); overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap;
-  background: var(--neon);
-  color: var(--ink); font-size: 10px; font-weight: 800;
-  letter-spacing: .06em; text-transform: uppercase;
-  padding: 4px 8px; border: 2px solid var(--ink);
+  /* Une étiquette au pochoir, pas un autocollant penché : fond sombre,
+     lettres ambre, un filet. Le jaune plein cerné d'encre et incliné de
+     deux degrés, c'était le sticker — il tirait l'œil avant la photo. */
+  background: rgb(var(--void-rgb) / .78);
+  backdrop-filter: blur(6px);
+  color: var(--gold); font-size: 9.5px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 4px 8px; border: 1px solid rgb(var(--gold-rgb) / .45);
   border-radius: 4px; box-shadow: none;
-  transform: rotate(-2deg);
 }
 
 /* Le bandeau du bas. Un dégradé sous lui, pour que le texte tienne même
@@ -580,19 +658,33 @@ button { font: inherit; color: inherit; cursor: pointer; }
    fiche, où il y a la place de la lire. */
 .card__short { display: none; }
 .card__foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 5px; }
-.card__price { font-size: 19px; color: var(--neon); }
+/* Le prix est la seule chose en jaune d'enseigne de tout l'écran, avec le
+   logo. C'est ce qu'on vient chercher, et le jaune ne sert plus qu'à ça —
+   là où la version d'avant en mettait sur les onglets, les boutons, les
+   étiquettes et les bordures, si bien qu'il ne désignait plus rien. */
+.card__price {
+  font-family: var(--display); font-size: 22px; letter-spacing: .02em;
+  color: var(--jaune);
+}
 .card__price small {
-  font-family: 'Baloo 2', sans-serif; font-size: 10px; font-weight: 700;
-  text-shadow: none; color: rgb(var(--cream-rgb) / .72);
+  font-family: var(--sans); font-size: 10px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  text-shadow: none; color: rgb(var(--cream-rgb) / .55);
 }
 .card__add {
-  width: 32px; height: 32px; flex: none; display: grid; place-items: center;
-  color: var(--ink);
-  background: var(--neon);
-  border: 2px solid var(--ink); border-radius: 5px;
-  font-size: 19px; line-height: 1; font-weight: 800;
+  width: 34px; height: 34px; flex: none; display: grid; place-items: center;
+  color: var(--neon);
+  background: rgb(var(--neon-rgb) / .1);
+  border: 1px solid rgb(var(--neon-rgb) / .4); border-radius: 50%;
+  font-size: 19px; line-height: 1; font-weight: 700;
+  transition: background .14s ease, box-shadow .14s ease;
 }
-.card__add:active { background: var(--neon-deep); }
+/* L'appui l'allume : le halo froid de l'éclair, une fois, à l'endroit
+   exact où le doigt s'est posé. */
+.card__add:active {
+  background: rgb(var(--neon-rgb) / .3);
+  box-shadow: 0 0 18px rgb(var(--neon-rgb) / .55);
+}
 
 .empty { text-align: center; padding: 30px 0; color: var(--muted); }
 /* Quand la zone annonce une panne plutôt qu'une catégorie vide, elle porte
@@ -660,8 +752,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
      largeur de l'écran et se termine sur un rail jaune. */
   margin: 0 calc(var(--gutter, 14px) * -1);
   background: rgb(var(--ink-rgb) / .45);
-  border: 0; border-bottom: 3px solid var(--neon);
+  border: 0; border-bottom: 1px solid rgb(var(--neon-rgb) / .55);
   border-radius: 0; overflow: hidden;
+  box-shadow: 0 1px 18px rgb(var(--neon-rgb) / .2);
 }
 /* Le dessin par défaut, et lui seul : `>` est ce qui l'empêche d'atteindre
    les images de la galerie, qui vivent plus bas dans le même cadre. Sans ce
@@ -673,11 +766,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .pdetail__tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .tag {
   font-size: 11px; font-weight: 800; letter-spacing: .04em;
-  /* Un autocollant : aplat jaune, contour d'encre, coin presque droit. */
-  color: var(--ink); background: var(--neon);
-  border: 2px solid var(--ink); border-radius: 3px; padding: 4px 10px;
-  text-transform: uppercase;
-  box-shadow: 0 2px 0 rgb(var(--void-rgb) / .55);
+  /* Au pochoir, comme les étiquettes des cartes : fond sombre, lettres
+     ambre, un filet. L'aplat bleu cerné d'encre qu'il y avait ici lisait
+     comme du surligneur. */
+  color: var(--gold); background: rgb(var(--void-rgb) / .7);
+  border: 1px solid rgb(var(--gold-rgb) / .45);
+  border-radius: 4px; padding: 4px 10px;
+  letter-spacing: .12em; text-transform: uppercase;
+  box-shadow: none;
 }
 .pdetail__name { font-size: 27px; line-height: 1.1; font-weight: 800; }
 .pdetail__desc { font-size: 14.5px; line-height: 1.55; margin: 10px 0 0; font-weight: 600; color: var(--muted); }
@@ -697,29 +793,35 @@ button { font: inherit; color: inherit; cursor: pointer; }
   color: var(--cream);
   background: var(--panel);
   border: var(--line) solid var(--line-soft); border-radius: var(--radius);
-  box-shadow: 0 3px 0 rgb(var(--void-rgb) / .5);
-  padding: 12px 14px; font-weight: 700; font-size: 14px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .06);
+  padding: 12px 14px; font-weight: 600; font-size: 14px;
   display: flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.15;
   transition: background .16s ease, border-color .16s ease,
               transform .1s ease, box-shadow .1s ease;
 }
 .variant__poids { font-size: 14.5px; font-weight: 800; }
-/* Le prix en vert, comme partout ailleurs : le vert désigne l'information
-   qu'on est venu chercher. */
-.variant__prix { font-size: 16px; font-weight: 800; color: var(--neon); }
+/* Le prix en jaune d'enseigne, comme partout ailleurs : c'est la seule
+   couleur réservée à l'information qu'on vient chercher. */
+.variant__prix {
+  font-family: var(--display); font-size: 19px; font-weight: 400;
+  letter-spacing: .02em; color: var(--jaune);
+}
 
 /* Le format choisi : un fond teinté et un liseré, pas un aplat plein. Rempli
    de vert, il avalait son propre prix — qui est vert lui aussi. */
-/* Le format choisi s'enfonce : l'ombre dure tombe, la plaque descend de trois
-   pixels. On voit lequel est appuyé sans lire la couleur — ce qui compte quand
-   le jaune sert déjà au prix. */
+/* Le format choisi s'allume au lieu de se remplir : un contour de néon et
+   un souffle froid autour de la plaque. Rempli de bleu, il avalait son
+   propre prix, qui est jaune, et la tuile devenait un surligneur. */
 .variant[aria-pressed="true"] {
-  background: var(--neon); border-color: var(--ink); color: var(--ink);
-  transform: translateY(3px); box-shadow: 0 0 0 rgb(var(--void-rgb) / 0);
+  background: rgb(var(--neon-rgb) / .1);
+  border-color: rgb(var(--neon-rgb) / .7);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .08),
+    0 0 0 1px rgb(var(--neon-rgb) / .3),
+    0 0 22px rgb(var(--neon-rgb) / .22);
 }
-.variant[aria-pressed="true"] .variant__prix { color: var(--ink); }
 .variant:not([aria-pressed="true"]):active {
-  transform: translateY(3px); box-shadow: 0 0 0 rgb(var(--void-rgb) / 0);
+  border-color: rgb(var(--neon-rgb) / .4);
 }
 .variant[disabled] .variant__prix { color: rgb(var(--cream-rgb) / .38); }
 
@@ -961,7 +1063,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card--soldout .card__price { -webkit-text-fill-color: rgb(var(--cream-rgb) / .4); color: rgb(var(--cream-rgb) / .4); background: none; text-shadow: none; }
 /* La famille d'affiche s'applique au prix, mais pas son remplissage : sans
    cette ligne, le dégradé de .goldtext repeindrait le prix en blanc. */
-.card__price { -webkit-text-fill-color: var(--neon); }
+.card__price { -webkit-text-fill-color: var(--jaune); }
 .card--soldout .card__add { background: rgba(255, 255, 255, .1); color: var(--muted); box-shadow: none; }
 .card__badge--out { background: rgb(var(--ink-rgb) / .85); border-color: var(--line-soft); box-shadow: none; color: var(--muted); }
 
@@ -1515,9 +1617,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   left: 0; right: 0; bottom: 0;
   display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 0; padding: 0 0 var(--safe-bottom);
-  background: rgb(var(--void-rgb) / .97);
-  backdrop-filter: blur(14px);
-  border-top: 3px solid var(--neon);
+  background: rgb(var(--void-rgb) / .94);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgb(255 255 255 / .09);
 }
 .tabbar__item {
   position: relative;
@@ -1530,19 +1632,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .tabbar__item svg { width: 21px; height: 21px; }
 .tabbar__item span { line-height: 1; }
-.tabbar__item[aria-selected='true'] { color: var(--ink); }
+.tabbar__item[aria-selected='true'] {
+  color: var(--neon);
+  text-shadow: 0 0 12px rgb(var(--neon-rgb) / .5);
+}
 .tabbar__item:active { background: rgb(var(--cream-rgb) / .08); }
 
-/* Le bloc de l'onglet actif glisse d'une case à l'autre, comme chez
-   Napoli — mais il est carré, plein bord à bord, et il touche le filet
-   jaune du haut. */
+/* L'onglet ouvert n'est plus un pavé jaune plein : c'est un trait de néon
+   allumé au-dessus de lui, et la lueur froide qui descend dessous. Le pavé
+   retournait l'icône en noir sur jaune et faisait de la barre l'élément le
+   plus voyant de l'écran, devant le catalogue. */
 .tabbar__curseur {
   position: absolute; top: 0; bottom: 0; left: 0;
   width: var(--curseur-l, 0px);
   transform: translateX(var(--curseur-x, 0px));
-  background: var(--neon); border-radius: 0;
+  background: linear-gradient(180deg, rgb(var(--neon-rgb) / .16), transparent 62%);
+  border-radius: 0;
   transition: transform .2s cubic-bezier(.3, .9, .3, 1), width .2s ease;
   pointer-events: none;
+}
+.tabbar__curseur::before {
+  content: ''; position: absolute; top: -1px; left: 14%; right: 14%; height: 2px;
+  background: var(--neon);
+  box-shadow: 0 0 12px rgb(var(--neon-rgb) / .9), 0 0 3px rgb(var(--neon-rgb));
 }
 .tabbar__curseur--pose { transition: none; }
 .tabbar__item { position: relative; z-index: 1; }
@@ -1569,7 +1681,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .rayon__nom {
   margin: 0; font-size: 13px; font-weight: 800;
-  letter-spacing: .16em; text-transform: uppercase; color: var(--neon);
+  letter-spacing: .16em; text-transform: uppercase; color: var(--gold);
 }
 .rayon__compte {
   font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
@@ -1694,9 +1806,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .pretour {
   display: inline-flex; align-items: center; gap: 6px;
   margin: 0 0 12px; padding: 8px 14px 8px 10px;
-  border: var(--line) solid var(--neon); border-radius: var(--radius);
-  background: var(--panel); color: var(--neon);
-  text-transform: uppercase; letter-spacing: .06em;
+  border: var(--line) solid var(--line-soft); border-radius: var(--radius);
+  background: var(--panel); color: var(--muted);
+  font-family: var(--display); font-size: 14px;
+  text-transform: uppercase; letter-spacing: .08em;
   font-size: 13px; font-weight: 700;
 }
 .pretour__fleche { font-size: 19px; line-height: 1; margin-top: -2px; }
@@ -1713,8 +1826,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   bottom: var(--tabbar-h, 78px);
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 10px 14px;
-  background: var(--night-2);
-  border: 0; border-top: 3px solid var(--neon);
+  background: rgb(var(--night2-rgb) / .96);
+  backdrop-filter: blur(16px);
+  border: 0; border-top: 1px solid rgb(255 255 255 / .09);
   box-shadow: 0 -8px 24px rgb(var(--void-rgb) / .55);
 }
 
@@ -1822,24 +1936,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
   to   { opacity: 1; transform: none; }
 }
 
-/* Le bloc de l'onglet actif est un seul rectangle qui se déplace, posé
-   sous les quatre boutons. Quatre fonds qu'on allume et qu'on éteint
-   ne peuvent pas glisser — d'où ce calque unique, dont la position
-   vient d'une variable que le script met à jour. */
+/* Le curseur de l'onglet actif est défini plus haut, avec le reste de la
+   barre. Il y avait ici un second jeu de règles — la pilule arrondie de la
+   barre flottante dont cette boutique est partie — qui écrasait le premier
+   du seul fait d'être plus bas dans le fichier : on obtenait un pavé bleu
+   arrondi par-dessus l'onglet ouvert, au lieu du trait de néon. */
 .tabbar { position: fixed; }
-.tabbar__curseur {
-  position: absolute; top: 5px; bottom: 5px; left: 0;
-  width: var(--curseur-l, 0px);
-  transform: translateX(var(--curseur-x, 0px));
-  background: var(--neon); border-radius: 15px;
-  transition: transform .28s cubic-bezier(.34, 1.3, .5, 1), width .28s ease;
-  pointer-events: none;
-}
-/* Au premier affichage le curseur se pose sans glisser : le voir traverser
-   l'écran depuis le bord gauche au lancement ferait croire à un défaut. */
-.tabbar__curseur--pose { transition: none; }
 .tabbar__item { position: relative; z-index: 1; }
-.tabbar__item[aria-selected='true'] { background: none; }
 
 /* La carte qu'on touche s'enfonce, et le doigt le sent avant que la fiche
    s'ouvre. Cinq centièmes de seconde : au-delà, c'est une animation ; en
