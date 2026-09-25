@@ -83,13 +83,18 @@
   --red: rgb(var(--red-rgb));
   --paper: var(--night);
 
-  /* Les titres sont écrits dans la même famille que le texte, en plus
-     gras. La police d'affiche donnait un air de fête foraine à un écran
-     qui vend des grammes : le contraire de ce qu'on veut inspirer. */
-  --display: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* La typo d'affiche, assumée. Napoli l'a abandonnée parce qu'un écran
+     sobre ne doit pas avoir l'air d'une fête foraine — mais Tanja n'est
+     pas sobre : ses visuels sont des stickers, et un sticker se lit en
+     lettres grasses et cernées. Les deux enseignes se distinguent d'abord
+     par là, avant même la couleur. */
+  --display: 'Luckiest Guy', 'Baloo 2', system-ui, sans-serif;
 
-  --line: 1px;
-  --radius: 16px;
+  /* Deux pixels de contour et des angles presque vifs : c'est la forme
+     d'un autocollant, pas d'une carte d'application. Napoli arrondit à
+     seize, ici on coupe à six. */
+  --line: 2px;
+  --radius: 6px;
   --shadow: 0 8px 24px rgba(0, 0, 0, .45);
   --shadow-sm: 0 3px 10px rgba(0, 0, 0, .35);
   --shadow-lg: 0 18px 44px rgba(0, 0, 0, .55);
@@ -121,7 +126,16 @@ body {
   /* Une seule lueur, très faible, en haut : assez pour que la barre de
      titre ne flotte pas sur du noir mort, trop peu pour qu'on la
      remarque. Fixée, pour ne pas défiler avec la page. */
-  background-image: none;
+  /* Des rayures de chantier, à peine visibles. Napoli a un fond plat ; ici
+     la diagonale donne la texture d'un mur peint sans rien coûter en
+     lisibilité — quatre pour cent d'opacité, on la sent plus qu'on ne la
+     voit. */
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgb(var(--neon-rgb) / .035) 0 2px,
+    transparent 2px 14px
+  );
+  background-attachment: fixed;
   background-attachment: fixed;
   background-repeat: no-repeat;
   overscroll-behavior-y: none;
@@ -138,7 +152,7 @@ body {
 .find__box input {
   width: 100%; font: inherit; font-size: 14px; font-weight: 600; color: var(--cream);
   background: rgb(var(--ink-rgb) / .55); border: var(--line) solid var(--line-soft);
-  border-radius: 999px; padding: 10px 34px 10px 34px;
+  border-radius: var(--radius); padding: 10px 34px 10px 34px;
   -webkit-appearance: none; appearance: none;
 }
 .find__box input::placeholder { color: rgb(var(--cream-rgb) / .42); }
@@ -153,7 +167,7 @@ body {
 .find select {
   flex: 0 1 auto; max-width: 42%; font: inherit; font-size: 13px; font-weight: 700;
   color: var(--cream); background: rgb(var(--ink-rgb) / .55);
-  border: var(--line) solid var(--line-soft); border-radius: 999px; padding: 10px 12px;
+  border: var(--line) solid var(--line-soft); border-radius: var(--radius); padding: 10px 12px;
 }
 .find select:focus { outline: none; border-color: var(--neon); box-shadow: var(--glow-neon); }
 .find select option { background: var(--night-2); color: var(--cream); }
@@ -198,16 +212,20 @@ h1, h2, h3, .display,
    La classe reste : elle est posée sur une trentaine de titres, et un
    renommage n'aurait rien changé à l'écran. Un dégradé très court garde
    un peu de matière dans les grands titres, sans se voir dans les petits. */
+/* Le lettrage de l'enseigne : jaune plein, cerné de noir, avec une ombre
+   portée nette dessous. C'est le contour qui fait le sticker — sans lui, du
+   jaune sur du bleu-noir bave et devient illisible en petit. Le cerne est
+   fait de quatre ombres portées plutôt que d'un `-webkit-text-stroke`, qui
+   rogne l'intérieur des lettres au lieu de les entourer. */
 .goldtext {
-  color: var(--cream);
-  letter-spacing: -.01em;
-}
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .goldtext {
-    background: linear-gradient(180deg, #ffffff 0%, var(--cream) 58%, rgb(var(--cream-rgb) / .78) 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; color: transparent;
-  }
+  color: var(--neon);
+  letter-spacing: .01em;
+  text-shadow:
+    -2px 0 0 var(--ink), 2px 0 0 var(--ink),
+    0 -2px 0 var(--ink), 0 2px 0 var(--ink),
+    -2px -2px 0 var(--ink), 2px -2px 0 var(--ink),
+    -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
+    0 4px 0 rgb(var(--ink-rgb) / .55);
 }
 
 .neontext { color: var(--neon); }
@@ -413,13 +431,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .page { position: relative; z-index: 1; padding: 16px 14px calc(28px + var(--safe-bottom)); max-width: 640px; margin: 0 auto; }
 
 /* ── Bannière ────────────────────────────────────────────── */
+/* La bannière est une plaque : cadre jaune épais, angles presque vifs,
+   ombre portée nette dessous. C'est le panneau cloué au mur de la ruelle,
+   pas une carte d'application. */
 .hero {
   position: relative; overflow: hidden;
-  padding: 22px 18px 24px;
-  background: var(--panel);
-  border: var(--line) solid var(--line-soft);
-  border-radius: 18px;
-  box-shadow: none;
+  padding: 20px 16px 22px;
+  background: rgb(var(--ink-rgb) / .72);
+  border: 3px solid var(--neon);
+  border-radius: 4px;
+  box-shadow: 0 5px 0 rgb(var(--ink-rgb) / .8);
 }
 /* Le halo vert qui noyait la bannière ne reste qu'en trace, dans un coin :
    assez pour que la surface ne soit pas un rectangle gris, pas assez pour
@@ -430,12 +451,17 @@ button { font: inherit; color: inherit; cursor: pointer; }
   pointer-events: none;
 }
 .hero__body { position: relative; z-index: 1; }
+/* La ligne d'horaires, en bandeau plein sur toute la largeur de la
+   plaque — c'est ce qu'on lit en premier sur une devanture. */
 .hero__eyebrow {
-  display: inline-block; margin: 0 0 8px;
-  font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--neon);
+  display: block; margin: -20px -16px 14px; padding: 7px 16px;
+  font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink); background: var(--neon);
 }
-.hero__title { font-size: clamp(30px, 9.5vw, 40px); line-height: 1.02; font-weight: 800; }
+.hero__title {
+  font-size: clamp(32px, 10.5vw, 44px); line-height: .98;
+  text-transform: uppercase; font-weight: 400;
+}
 .hero__sub { margin: 10px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--muted); max-width: 24ch; }
 /* Éclair filigrane dans le coin : le décor de la bannière depuis que
    la mascotte a disparu. */
@@ -461,7 +487,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   color: var(--muted);
   background: var(--panel);
   border: var(--line) solid var(--line-soft);
-  border-radius: 999px; padding: 7px 14px;
+  border-radius: var(--radius); padding: 7px 14px;
 }
 
 /* ── Catégories ──────────────────────────────────────────── */
@@ -472,7 +498,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   color: var(--cream);
   background: rgba(255, 255, 255, .06);
   border: var(--line) solid var(--line-soft);
-  border-radius: 999px; padding: 8px 15px; font-weight: 700; font-size: 13.5px;
+  border-radius: var(--radius); padding: 8px 15px; font-weight: 700; font-size: 13.5px;
   white-space: nowrap;
   transition: transform .12s ease, box-shadow .12s ease, background .16s ease, color .16s ease;
 }
@@ -488,59 +514,83 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 8px; }
 @media (min-width: 520px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
+/* ── La carte produit ────────────────────────────────────────
+   Napoli empile : vignette carrée en haut, corps de texte en dessous.
+   Ici on superpose — la photo prend toute la carte, et le nom avec le
+   prix viennent se poser par-dessus, sur un bandeau noir. C'est la
+   composition d'un autocollant ou d'un flyer, pas d'une fiche.
+
+   Ce que ça change pour de vrai : la photo est deux fois plus grande à
+   surface égale, et c'est elle qui vend. Ce que ça coûte : l'accroche
+   de deux lignes ne tient plus, elle est réservée à la fiche. Un nom et
+   un prix suffisent pour décider d'ouvrir. */
 .card {
-  position: relative; display: flex; flex-direction: column;
+  position: relative; display: block;
+  aspect-ratio: 3 / 4;
   color: var(--cream);
-  background: var(--panel);
-  border: var(--line) solid var(--line-soft);
+  background: rgb(var(--ink-rgb) / .6);
+  border: var(--line) solid var(--ink);
   border-radius: var(--radius);
-  box-shadow: none;
+  box-shadow: 0 3px 0 rgb(var(--ink-rgb) / .8);
   overflow: hidden; text-align: left; padding: 0;
-  transition: transform .14s ease, border-color .14s ease;
+  transition: transform .12s ease, box-shadow .12s ease;
 }
-.card:active { transform: scale(.975); border-color: rgb(var(--neon-rgb) / .45); }
+/* L'appui enfonce la carte : l'ombre portée disparaît et la carte descend
+   de ses trois pixels. C'est le geste d'un bouton d'arcade, pas celui
+   d'une carte qui rétrécit. */
+.card:active { transform: translateY(3px); box-shadow: 0 0 0 rgb(var(--ink-rgb) / .8); }
 
-/* La vignette d'un produit sans photo. Le halo derrière le dessin a
-   sauté : il donnait à chaque case l'air d'être en promotion, y compris
-   celles qui n'ont pas encore d'image. */
 .card__art {
-  position: relative; aspect-ratio: 1; display: grid; place-items: center;
+  position: absolute; inset: 0; display: grid; place-items: center;
   background: rgb(var(--ink-rgb) / .45);
-  border-bottom: 1px solid var(--line-soft);
+  border: 0;
 }
-.card__art img { width: 74%; opacity: .5; }
+.card__art img { width: 66%; opacity: .45; }
 
+/* Une pastille penchée, comme collée à la main. Deux degrés suffisent :
+   au-delà on croit à un défaut d'affichage. */
 .card__badge {
-  position: absolute; top: 9px; left: 9px;
-  /* Une pastille de vingt caractères sortait de la vignette : on la borne
-     à la largeur disponible et on coupe proprement. */
-  max-width: calc(100% - 18px); overflow: hidden;
+  position: absolute; top: 8px; left: 8px; z-index: 3;
+  max-width: calc(100% - 16px); overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap;
-  /* Vert plein : c'est la couleur de ce qui est bon à savoir dans toute la
-     boutique. Le dégradé rose vers vert disait surtout « regarde comme je
-     brille », sur une vignette qui n'a que 170 px de large. */
   background: var(--neon);
   color: var(--ink); font-size: 10px; font-weight: 800;
-  letter-spacing: .04em; padding: 4px 8px; border: 0;
-  border-radius: 6px; box-shadow: none;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 8px; border: 2px solid var(--ink);
+  border-radius: 4px; box-shadow: none;
+  transform: rotate(-2deg);
 }
 
-.card__body { padding: 11px 12px 13px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.card__name { font-size: 18px; line-height: 1.12; letter-spacing: .01em; }
-.card__short { font-size: 12px; line-height: 1.3; color: var(--muted); font-weight: 600; flex: 1; }
-.card__foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; }
-/* Le prix est vert : dans toute la boutique, le vert veut dire « voilà
-   l'information ». C'est la seule chose qu'on lit sur une carte avant de
-   l'ouvrir. */
+/* Le bandeau du bas. Un dégradé sous lui, pour que le texte tienne même
+   sur une photo claire — sans ça, un nom blanc sur un emballage blanc
+   disparaît, et on ne le découvre que le jour où le vendeur poste cette
+   photo-là. */
+.card__body {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 26px 10px 9px;
+  display: flex; flex-direction: column; gap: 1px;
+  background: linear-gradient(180deg, transparent, rgb(var(--ink-rgb) / .92) 42%);
+}
+.card__name {
+  font-size: 15px; line-height: 1.05; letter-spacing: .01em;
+  text-transform: uppercase;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* L'accroche ne tient pas sur une carte superposée : elle vit dans la
+   fiche, où il y a la place de la lire. */
+.card__short { display: none; }
+.card__foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 5px; }
 .card__price { font-size: 19px; color: var(--neon); }
-.card__price small { font-family: 'Baloo 2', sans-serif; font-size: 10.5px; font-weight: 700; text-shadow: none;
-  -webkit-text-fill-color: rgb(var(--cream-rgb) / .7); color: rgb(var(--cream-rgb) / .7); background: none; }
+.card__price small {
+  font-family: 'Baloo 2', sans-serif; font-size: 10px; font-weight: 700;
+  text-shadow: none; color: rgb(var(--cream-rgb) / .72);
+}
 .card__add {
   width: 32px; height: 32px; flex: none; display: grid; place-items: center;
   color: var(--ink);
   background: var(--neon);
-  border: 0; border-radius: 10px;
-  font-size: 20px; line-height: 1; font-weight: 800; box-shadow: none;
+  border: 2px solid var(--ink); border-radius: 5px;
+  font-size: 19px; line-height: 1; font-weight: 800;
 }
 .card__add:active { background: var(--neon-deep); }
 
@@ -605,9 +655,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
    au milieu d'une surface sombre. D'où les deux jeux de règles. */
 .pdetail__art {
   display: grid; place-items: center; padding: 26px 0 20px;
+  /* Bord à bord. La fiche de Napoli pose la photo dans une carte arrondie,
+     au milieu de la gouttière : ici c'est une affiche, elle prend toute la
+     largeur de l'écran et se termine sur un rail jaune. */
+  margin: 0 calc(var(--gutter, 14px) * -1);
   background: rgb(var(--ink-rgb) / .45);
-  border: 1px solid var(--line-soft);
-  border-radius: 16px; overflow: hidden;
+  border: 0; border-bottom: 3px solid var(--neon);
+  border-radius: 0; overflow: hidden;
 }
 /* Le dessin par défaut, et lui seul : `>` est ce qui l'empêche d'atteindre
    les images de la galerie, qui vivent plus bas dans le même cadre. Sans ce
@@ -619,9 +673,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .pdetail__tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .tag {
   font-size: 11px; font-weight: 800; letter-spacing: .04em;
-  color: var(--neon); background: rgb(var(--neon-rgb) / .12);
-  border: 1px solid rgb(var(--neon-rgb) / .3); border-radius: 999px; padding: 4px 10px;
-  box-shadow: none;
+  /* Un autocollant : aplat jaune, contour d'encre, coin presque droit. */
+  color: var(--ink); background: var(--neon);
+  border: 2px solid var(--ink); border-radius: 3px; padding: 4px 10px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 0 rgb(var(--void-rgb) / .55);
 }
 .pdetail__name { font-size: 27px; line-height: 1.1; font-weight: 800; }
 .pdetail__desc { font-size: 14.5px; line-height: 1.55; margin: 10px 0 0; font-weight: 600; color: var(--muted); }
@@ -640,10 +696,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .variant {
   color: var(--cream);
   background: var(--panel);
-  border: var(--line) solid var(--line-soft); border-radius: 13px;
+  border: var(--line) solid var(--line-soft); border-radius: var(--radius);
+  box-shadow: 0 3px 0 rgb(var(--void-rgb) / .5);
   padding: 12px 14px; font-weight: 700; font-size: 14px;
   display: flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.15;
-  transition: background .16s ease, border-color .16s ease;
+  transition: background .16s ease, border-color .16s ease,
+              transform .1s ease, box-shadow .1s ease;
 }
 .variant__poids { font-size: 14.5px; font-weight: 800; }
 /* Le prix en vert, comme partout ailleurs : le vert désigne l'information
@@ -652,9 +710,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* Le format choisi : un fond teinté et un liseré, pas un aplat plein. Rempli
    de vert, il avalait son propre prix — qui est vert lui aussi. */
+/* Le format choisi s'enfonce : l'ombre dure tombe, la plaque descend de trois
+   pixels. On voit lequel est appuyé sans lire la couleur — ce qui compte quand
+   le jaune sert déjà au prix. */
 .variant[aria-pressed="true"] {
-  background: rgb(var(--neon-rgb) / .14);
-  border-color: var(--neon);
+  background: var(--neon); border-color: var(--ink); color: var(--ink);
+  transform: translateY(3px); box-shadow: 0 0 0 rgb(var(--void-rgb) / 0);
+}
+.variant[aria-pressed="true"] .variant__prix { color: var(--ink); }
+.variant:not([aria-pressed="true"]):active {
+  transform: translateY(3px); box-shadow: 0 0 0 rgb(var(--void-rgb) / 0);
 }
 .variant[disabled] .variant__prix { color: rgb(var(--cream-rgb) / .38); }
 
@@ -669,12 +734,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
    milieu du vide. */
 .points li::before {
   content: ''; position: absolute; left: 0; top: .52em;
-  width: 6px; height: 6px; border-radius: 50%; background: var(--neon);
+  width: 7px; height: 7px; border-radius: 1px; background: var(--neon);
+  transform: rotate(45deg);
 }
 
 .qty {
   display: flex; align-items: center; gap: 2px; flex: none;
-  border: var(--line) solid var(--line-soft); border-radius: 999px;
+  border: var(--line) solid var(--line-soft); border-radius: var(--radius);
   background: rgba(255, 255, 255, .06); overflow: hidden;
 }
 .qty button { width: 40px; height: 44px; background: none; border: 0; font-size: 22px; font-weight: 800; color: var(--cream); }
@@ -825,7 +891,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Un peu d'air : serré, l'accent des capitales se fait rogner. */
 .done__title { font-size: 28px; line-height: 1.18; margin: 0 0 6px; }
 .done__ref {
-  display: inline-block; margin: 0 0 12px; padding: 5px 13px; border-radius: 999px;
+  display: inline-block; margin: 0 0 12px; padding: 5px 13px; border-radius: var(--radius);
   font-family: var(--display); font-size: 17px; letter-spacing: .04em; color: var(--gold);
   background: rgb(var(--gold-rgb) / .12); border: 1px solid rgb(var(--gold-rgb) / .4);
 }
@@ -853,7 +919,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .order__ref { font-family: var(--display); font-weight: 700; font-synthesis-weight: none; font-size: 17px; letter-spacing: .02em; }
 .order__status {
   flex: none; font-size: 11px; font-weight: 800; letter-spacing: .03em;
-  border: 1px solid currentColor; border-radius: 999px; padding: 4px 10px;
+  border: 1px solid currentColor; border-radius: var(--radius); padding: 4px 10px;
 }
 .order__status--nouvelle { color: var(--gold); }
 .order__status--confirmee { color: rgb(var(--halo2-rgb)); }
@@ -1203,7 +1269,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Donner son avis : une ligne par produit, cinq boutons. */
 .avis__intro { margin: 0 0 16px; font-size: 13px; font-weight: 700; color: var(--muted); }
 .avis__facultatif {
-  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; letter-spacing: .04em;
+  padding: 1px 7px; border-radius: var(--radius); font-size: 10.5px; letter-spacing: .04em;
   color: var(--muted); background: rgb(var(--cream-rgb) / .07); text-transform: none;
 }
 .avis__note-vie { margin: 12px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
@@ -1286,7 +1352,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   color: var(--ink); background: var(--neon);
 }
 .profil__compte {
-  display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: 999px;
+  display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: var(--radius);
   font-size: 11px; background: rgb(var(--ink-rgb) / .22);
 }
 .profil__onglet[aria-selected="false"] .profil__compte { background: rgb(var(--cream-rgb) / .12); }
@@ -1362,7 +1428,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    même vidéo, et se superposer les rendrait illisibles toutes les deux. */
 .galerie__format {
   position: absolute; bottom: 8px; left: 8px; z-index: 2;
-  padding: 3px 9px; border-radius: 999px;
+  padding: 3px 9px; border-radius: var(--radius);
   background: var(--neon); color: var(--ink);
   font-size: 11.5px; font-weight: 800; letter-spacing: .03em;
 }
@@ -1437,46 +1503,49 @@ button { font: inherit; color: inherit; cursor: pointer; }
    carte finit dessous et personne ne peut l'ouvrir. */
 .page { padding-bottom: calc(var(--tabbar-h, 78px) + 24px); }
 
-/* La barre décolle du bord.
-   Collée en bas sur toute la largeur, elle fermait la page comme une
-   plinthe — et c'est le meuble qu'on retrouve dans toutes les boutiques
-   Telegram. Détachée, elle flotte au-dessus du catalogue : on voit que
-   la page continue dessous, et le pouce la trouve un peu plus haut,
-   c'est-à-dire plus près de là où il se repose. La marge du bas tient
-   compte de la barre d'accueil des téléphones sans bouton. */
+/* ── La barre du bas ─────────────────────────────────────────
+   Napoli la fait flotter, détachée du bord, coins ronds et ombre. Ici
+   elle est plaquée au bord et bordée de jaune en haut : une plinthe
+   assumée, comme le bandeau « OPEN 7/7 » d'une devanture.
+
+   L'onglet actif est un bloc jaune plein, texte en encre. Pas de
+   dégradé, pas de transparence : un bloc, comme sur une enseigne. */
 .tabbar {
   position: fixed; z-index: 40;
-  left: 14px; right: 14px; bottom: calc(12px + var(--safe-bottom));
+  left: 0; right: 0; bottom: 0;
   display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 4px; padding: 5px;
-  background: rgb(var(--night2-rgb) / .9);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--line-soft);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgb(var(--void-rgb) / .6);
+  gap: 0; padding: 0 0 var(--safe-bottom);
+  background: rgb(var(--void-rgb) / .97);
+  backdrop-filter: blur(14px);
+  border-top: 3px solid var(--neon);
 }
 .tabbar__item {
   position: relative;
-  display: grid; justify-items: center; gap: 4px;
-  padding: 9px 2px 8px;
-  border: 0; border-radius: 15px;
-  background: none; color: rgb(var(--cream-rgb) / .45);
-  font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
-  transition: color .16s ease, background-color .16s ease;
+  display: grid; justify-items: center; gap: 3px;
+  padding: 10px 2px 9px;
+  border: 0; border-radius: 0;
+  background: none; color: rgb(var(--cream-rgb) / .5);
+  font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  transition: color .12s ease, background-color .12s ease;
 }
 .tabbar__item svg { width: 21px; height: 21px; }
 .tabbar__item span { line-height: 1; }
+.tabbar__item[aria-selected='true'] { color: var(--ink); }
+.tabbar__item:active { background: rgb(var(--cream-rgb) / .08); }
 
-/* L'onglet actif est un bloc plein d'ivoire, texte en encre : dans une
-   barre flottante et sombre, c'est le contraste qui désigne, pas une
-   teinte posée sur un fond déjà coloré. Ni pastille translucide ni
-   soulignement sous le libellé — ces deux-là sont la signature de la
-   moitié des boutiques Telegram. */
-.tabbar__item[aria-selected='true'] {
-  color: var(--ink);
-  background: var(--neon);
+/* Le bloc de l'onglet actif glisse d'une case à l'autre, comme chez
+   Napoli — mais il est carré, plein bord à bord, et il touche le filet
+   jaune du haut. */
+.tabbar__curseur {
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: var(--curseur-l, 0px);
+  transform: translateX(var(--curseur-x, 0px));
+  background: var(--neon); border-radius: 0;
+  transition: transform .2s cubic-bezier(.3, .9, .3, 1), width .2s ease;
+  pointer-events: none;
 }
-.tabbar__item:active { color: var(--cream); background: rgb(var(--cream-rgb) / .07); }
+.tabbar__curseur--pose { transition: none; }
+.tabbar__item { position: relative; z-index: 1; }
 
 .tabbar__pastille {
   position: absolute; top: 5px; right: calc(50% - 20px);
@@ -1625,8 +1694,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .pretour {
   display: inline-flex; align-items: center; gap: 6px;
   margin: 0 0 12px; padding: 8px 14px 8px 10px;
-  border: 1px solid var(--line-soft); border-radius: 999px;
-  background: var(--panel); color: var(--muted);
+  border: var(--line) solid var(--neon); border-radius: var(--radius);
+  background: var(--panel); color: var(--neon);
+  text-transform: uppercase; letter-spacing: .06em;
   font-size: 13px; font-weight: 700;
 }
 .pretour__fleche { font-size: 19px; line-height: 1; margin-top: -2px; }
@@ -1634,15 +1704,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* La barre d'achat : fixée au-dessus des onglets, jamais dessous. */
 .pbar {
-  position: fixed; left: 14px; right: 14px; z-index: 35;
-  border-radius: 18px;
-  bottom: calc(var(--tabbar-h, 78px) + 8px);
+  /* Plaquée au bord, comme la barre d'onglets sous elle : les deux forment
+     un seul bloc en bas d'écran. La pilule flottante, elle, laissait voir la
+     page par-dessous des deux côtés et donnait deux objets là où il n'y en a
+     qu'un. */
+  position: fixed; left: 0; right: 0; z-index: 35;
+  border-radius: 0;
+  bottom: var(--tabbar-h, 78px);
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 9px 10px;
-  background: rgb(var(--night2-rgb) / .92);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--line-soft);
-  box-shadow: 0 10px 30px rgb(var(--void-rgb) / .6);
+  padding: 10px 14px;
+  background: var(--night-2);
+  border: 0; border-top: 3px solid var(--neon);
+  box-shadow: 0 -8px 24px rgb(var(--void-rgb) / .55);
 }
 
 /* ── Les carrousels du bas de fiche ──────────────────────── */
@@ -1675,7 +1748,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .suggestion__art {
   display: block; aspect-ratio: 1; overflow: hidden;
   background: rgb(var(--ink-rgb) / .45);
-  border: 1px solid var(--line-soft); border-radius: 13px;
+  border: var(--line) solid var(--line-soft); border-radius: var(--radius);
 }
 .suggestion__art img { width: 100%; height: 100%; object-fit: cover; }
 .suggestion__nom {
