@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 420" role="img" aria-label="Arc électrique">
+  <!-- Un arc de foudre, avec sa fourche. Dessiné en deux passes sur le même
+       tracé : une large en bleu diffus pour la lueur, une fine en blanc pour
+       le cœur. C'est ce qui fait qu'un éclair a l'air chaud au milieu et
+       froid autour, et ça coûte deux chemins au lieu d'un filtre de flou —
+       qui, sur une WebView de téléphone, repeint toute la couche à chaque
+       image.
+
+       Le tracé n'est pas régulier : les segments d'un vrai éclair n'ont ni
+       la même longueur ni le même angle, et une dent de scie régulière se
+       reconnaît immédiatement comme un dessin. -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M96 4 L62 96 L104 112 L44 214 L88 228 L30 416"
+          stroke="#7DCAFF" stroke-width="13" opacity=".38"/>
+    <path d="M104 112 L152 168 L120 178 L166 250"
+          stroke="#7DCAFF" stroke-width="9" opacity=".3"/>
+    <path d="M96 4 L62 96 L104 112 L44 214 L88 228 L30 416"
+          stroke="#EAF7FF" stroke-width="3.5"/>
+    <path d="M104 112 L152 168 L120 178 L166 250"
+          stroke="#EAF7FF" stroke-width="2.4" opacity=".85"/>
+  </g>
+</svg>
