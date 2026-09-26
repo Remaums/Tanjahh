@@ -55,6 +55,31 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 
+/* ── L'écran d'ouverture ─────────────────────────────────────
+   Ces trois-là sont déclarés avant `init()`, et pas plus bas avec le reste
+   de l'écran d'ouverture, pour deux raisons :
+
+   - `init()` les lit dès sa première ligne. Un `const` déclaré plus bas est
+     dans sa zone morte à cet instant : la boutique tombait sur une
+     ReferenceError au démarrage, avant d'avoir affiché quoi que ce soit ;
+   - `ouvertureDebut` doit marquer le début réel de l'ouverture. Posé plus
+     bas, il valait la fin de l'évaluation du module — donc un instant déjà
+     décalé de ce que voit le client. */
+
+/* Le film dure quatre secondes et boucle sans raccord ; sur une bonne
+   connexion, le catalogue arrive en trois cents millisecondes. Sans
+   plancher, l'écran d'ouverture apparaîtrait et disparaîtrait avant qu'on
+   ait vu l'image — autant ne pas mettre de vidéo du tout.
+
+   Neuf secondes, c'est un peu plus de deux boucles. C'est long pour
+   quelqu'un qui vient juste acheter, et c'est assumé : l'ouverture fait
+   partie de l'enseigne. En contrepartie la jauge du bas court sur exactement
+   cette durée — sans elle, un client qui attend neuf secondes devant une
+   vidéo croit que la boutique est plantée et ferme. */
+const OUVERTURE_MIN_MS = 9000;
+const ouvertureDebut = Date.now();
+let fermetureProgrammee = false;
+
 /* ── Démarrage ───────────────────────────────────────────── */
 
 init();
@@ -76,6 +101,7 @@ async function init() {
   // Avant tout le reste : l'écran d'ouverture est déjà affiché, son film doit
   // partir maintenant et pas après le catalogue.
   reglerLeFilm(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  lancerLaJauge();
 
   bindStaticHandlers();
   gateAge();
@@ -174,15 +200,6 @@ function chargerLaBoutiqueSignee() {
  * disparaître en fondu, et un élément arraché ne peut pas fondre. Il ne gêne
  * plus personne une fois transparent (`pointer-events: none`).
  */
-/* Le film dure quatre secondes ; sur une bonne connexion, le catalogue
-   arrive en trois cents millisecondes. Sans plancher, l'écran d'ouverture
-   apparaîtrait et disparaîtrait avant qu'on ait vu l'image — autant ne pas
-   mettre de vidéo du tout. Trois secondes, c'est assez pour que le plan se
-   lise, et ça s'arrête avant la fin de la boucle, donc on ne voit jamais le
-   raccord. */
-const OUVERTURE_MIN_MS = 3000;
-const ouvertureDebut = Date.now();
-let fermetureProgrammee = false;
 
 /**
  * Retire l'écran d'ouverture, en le laissant vivre ses trois secondes.
@@ -206,6 +223,22 @@ function retirerLeVoile({ aussitot = false } = {}) {
     return;
   }
   fermerLeVoile();
+}
+
+/**
+ * Lance la jauge de l'écran d'ouverture, sur la durée exacte du plancher.
+ *
+ * Elle part d'ici et non de la feuille de style pour que les deux horloges
+ * soient la même : le plancher se compte depuis `ouvertureDebut`, qui est
+ * fixé à l'évaluation de ce module, tandis qu'une animation CSS démarre au
+ * parsage de la feuille — une seconde plus tôt. La barre arrivait donc au
+ * bout avant que l'écran ne parte, ce qui est exactement l'image d'une
+ * application bloquée.
+ */
+function lancerLaJauge() {
+  const barre = document.querySelector('.charge__jauge span');
+  if (!barre) return;
+  barre.style.animation = `charge-jauge ${OUVERTURE_MIN_MS}ms linear forwards`;
 }
 
 function fermerLeVoile() {

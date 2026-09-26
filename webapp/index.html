@@ -45,8 +45,12 @@
          muted loop playsinline preload="auto"></video>
   <div class="charge__voile" aria-hidden="true"></div>
   <div class="charge__texte-zone">
-    <p class="charge__nom goldtext">TANJA HH 67</p>
     <p class="charge__texte" id="chargeTexte">Ouverture de la boutique…</p>
+    <!-- La jauge court sur la durée du plancher. Elle ne mesure pas le
+         chargement, qui est fini depuis longtemps : elle dit qu'on attend
+         quelque chose de prévu, et pas que ça a planté. Neuf secondes sans
+         aucun signe de progression, c'est une application gelée. -->
+    <div class="charge__jauge" aria-hidden="true"><span></span></div>
   </div>
 </div>
 
