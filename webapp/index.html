@@ -135,6 +135,15 @@
     </span>
   </div>
   <div class="topbar__actions">
+  <!-- La recherche se déplie depuis ici. Elle occupait une rangée fixe de
+       44 px en haut du catalogue, tout le temps, alors qu'on ne cherche que
+       par moments — et c'est autant de pixels pris aux produits. Le réglage
+       « recherche » de la boutique masque ce bouton comme il masquait la
+       rangée : la fonction n'a pas changé de statut, seulement de place. -->
+  <button class="findbtn" id="findBtn" type="button" hidden
+          aria-label="Chercher un produit" aria-expanded="false" aria-controls="findBar">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.8 15.8 21 21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+  </button>
   <button class="cartbtn" id="cartBtn" type="button" aria-label="Ouvrir le panier">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h3l2.6 11.2a2 2 0 0 0 2 1.6h7.1a2 2 0 0 0 2-1.5L21.5 8H7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg>
     <span class="cartbtn__count" id="cartCount" hidden>0</span>
@@ -155,7 +164,7 @@
 <main class="page">
 
 <!-- ══ Vue « Filtres » : la recherche et la grille ══ -->
-<section class="vue" id="vueFiltres" role="tabpanel" aria-label="Boutique">
+<section class="vue" id="vueCatalogue" role="tabpanel" aria-label="Catalogue">
 
   <!-- ══ Bannière ══ -->
   <!-- Le bandeau. Il remplace la pancarte en tôle, qui faisait 218 px et
@@ -178,13 +187,6 @@
       <p class="hero__sub">Meetup &amp; Livraison</p>
     </div>
   </section>
-
-  <div class="badges">
-    <span class="badge-chip">⚡ Réponse rapide</span>
-    <span class="badge-chip">🤝 Meetup</span>
-    <span class="badge-chip">🛵 Livraison</span>
-    <span class="badge-chip">📦 Emballage discret</span>
-  </div>
 
   <!-- ══ « La même chose » ══ ══════════════════════════════════
        N'apparaît que pour qui a déjà commandé ici : c'est le
@@ -417,9 +419,9 @@
 
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Navigation">
   <span class="tabbar__curseur tabbar__curseur--pose" id="tabbarCurseur" aria-hidden="true"></span>
-  <button class="tabbar__item" type="button" role="tab" data-onglet="filtres" aria-selected="true">
+  <button class="tabbar__item" type="button" role="tab" data-onglet="catalogue" aria-selected="true">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    <span>Filtres</span>
+    <span>Catalogue</span>
   </button>
   <button class="tabbar__item" type="button" role="tab" data-onglet="categories" aria-selected="false">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>

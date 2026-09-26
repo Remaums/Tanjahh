@@ -162,7 +162,15 @@ body {
 ::selection { background: rgb(var(--neon-rgb) / .3); color: var(--cream); }
 
 /* ── Recherche et tri ────────────────────────────────────── */
-.find { display: flex; gap: 8px; padding: 0 14px 4px; }
+/* Dépliée, la rangée s'ouvre : posée d'un coup elle ferait sauter tout le
+   catalogue d'un cran, et on ne saurait pas d'où elle vient. */
+.find { display: flex; gap: 8px; padding: 6px 14px; animation: deplier .18s ease both; }
+@keyframes deplier {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+[data-anim='off'] .find { animation: none; }
+@media (prefers-reduced-motion: reduce) { .find { animation: none; } }
 .find__box {
   position: relative; flex: 1; min-width: 0; display: flex; align-items: center;
 }
@@ -567,6 +575,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
    genre, et il annonce un nombre d'articles — ce qui n'est pas ce qu'on se
    demande devant un panier. Le montant, si. Panier vide, la pastille
    disparaît et il ne reste que l'icône. */
+/* La loupe de l'entête. Même gabarit que le panier qui la suit : deux
+   boutons côte à côte de tailles différentes se lisent comme deux niveaux
+   d'importance, alors qu'ils n'en ont qu'un. */
+.findbtn {
+  width: 38px; height: 38px; flex: none; display: grid; place-items: center;
+  border-radius: 50%; border: var(--line) solid var(--line-soft);
+  background: var(--panel); color: var(--cream);
+}
+.findbtn svg { width: 18px; height: 18px; }
+.findbtn[aria-expanded='true'] {
+  color: var(--neon); border-color: rgb(var(--neon-rgb) / .5);
+  background: rgb(var(--neon-rgb) / .12);
+}
+.findbtn:active { background: rgb(var(--cream-rgb) / .1); }
+
 .cartbtn {
   position: relative; flex: none;
   display: flex; align-items: center; gap: 8px;
@@ -665,17 +688,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   letter-spacing: .08em; color: rgb(var(--cream-rgb) / .8);
   max-width: none;
   text-shadow: 0 1px 10px rgb(var(--void-rgb) / .9);
-}
-
-/* ── Chips d'arguments ───────────────────────────────────── */
-.badges { display: flex; gap: 8px; overflow-x: auto; margin: 14px -14px 0; padding: 2px 14px 4px; scrollbar-width: none; }
-.badges::-webkit-scrollbar { display: none; }
-.badge-chip {
-  flex: none; font-size: 12px; font-weight: 700; white-space: nowrap;
-  color: var(--muted);
-  background: var(--panel);
-  border: var(--line) solid var(--line-soft);
-  border-radius: var(--radius); padding: 7px 14px;
 }
 
 /* ── Catégories ──────────────────────────────────────────── */

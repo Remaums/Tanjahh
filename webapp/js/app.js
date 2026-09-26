@@ -36,8 +36,8 @@ const state = {
   prenom: '',         // son prénom Telegram, pour lui montrer ce qu'il signerait
   favoris: new Set(), // les produits qu'il garde de côté
   preferences: {},    // ce qu'il accepte de recevoir
-  onglet: 'filtres',       // l'écran affiché : filtres, categories, contact, profil, produit
-  retour: 'filtres',       // l'onglet où la flèche de la fiche ramène
+  onglet: 'catalogue',     // l'écran affiché : catalogue, categories, contact, profil, produit
+  retour: 'catalogue',     // l'onglet où la flèche de la fiche ramène
   profilVue: 'commandes',  // l'onglet ouvert dans le profil
   avisTousVisibles: false,  // « voir tous les avis » d'une fiche
   blocked: false,     // compte privé de commande par le vendeur
@@ -264,6 +264,27 @@ function surveillerLeBandeau() {
     }
   }, { threshold: 0.12 });
   oeil.observe(film);
+}
+
+/**
+ * Replie la recherche, et efface ce qu'elle filtrait.
+ *
+ * Refermer la rangée sans vider le champ laisserait le catalogue filtré
+ * par un texte que plus personne ne voit : le client croirait la boutique
+ * à moitié vide. Le tri, lui, reste — c'est un ordre d'affichage, pas un
+ * filtre, et rien ne disparaît de l'écran à cause de lui.
+ */
+function replierLaRecherche() {
+  const barre = $('findBar');
+  if (!barre || barre.hidden) return;
+  barre.hidden = true;
+  $('findBtn')?.setAttribute('aria-expanded', 'false');
+  if (state.query) {
+    state.query = '';
+    $('findInput').value = '';
+    $('findClear').hidden = true;
+    renderGrid();
+  }
 }
 
 function lancerLaJauge() {
@@ -493,6 +514,17 @@ function bindStaticHandlers() {
   });
   $('promoApply').addEventListener('click', applyPromo);
   $('promoCode').addEventListener('keydown', (e) => e.key === 'Enter' && applyPromo());
+  $('findBtn').addEventListener('click', () => {
+    const ouverte = !$('findBar').hidden;
+    if (ouverte) replierLaRecherche();
+    else {
+      $('findBar').hidden = false;
+      $('findBtn').setAttribute('aria-expanded', 'true');
+      $('findInput').focus();
+    }
+    haptic('light');
+  });
+
   $('findInput').addEventListener('input', () => {
     state.query = $('findInput').value;
     renderGrid();
@@ -583,9 +615,15 @@ function applyFeatures() {
   const ongletProfil = $('tabbar').querySelector('[data-onglet="profil"]');
   ongletProfil.hidden = profilVide;
   $('tabbar').style.gridTemplateColumns = `repeat(${profilVide ? 3 : 4}, 1fr)`;
-  if (profilVide && state.onglet === 'profil') montrerLOnglet('filtres');
+  if (profilVide && state.onglet === 'profil') montrerLOnglet('catalogue');
   $('promoField').hidden = state.features.promos === false;
-  $('findBar').hidden = state.features.search === false;
+  // La recherche vit derrière la loupe de l'entête. Le réglage de la
+  // boutique masque le bouton ; la rangée, elle, reste repliée tant qu'on
+  // n'a pas appuyé dessus — et se replie si le vendeur coupe la fonction
+  // pendant qu'elle est ouverte.
+  const coupee = state.features.search === false;
+  $('findBtn').hidden = coupee;
+  if (coupee) replierLaRecherche();
 }
 
 /* ── Zones et créneaux ───────────────────────────────────── */
@@ -1081,7 +1119,7 @@ function mesurerLaBarre() {
 
 
 const ONGLETS = {
-  filtres: 'vueFiltres',
+  catalogue: 'vueCatalogue',
   categories: 'vueCategories',
   contact: 'vueContact',
   profil: 'vueProfil',
@@ -1104,7 +1142,7 @@ const VUES = { ...ONGLETS, produit: 'vueProduit' };
  * vient d'ouvrir donne l'impression d'avoir raté le début.
  */
 function montrerLOnglet(nom) {
-  if (!VUES[nom]) nom = 'filtres';
+  if (!VUES[nom]) nom = 'catalogue';
   const change = state.onglet !== nom;
 
   // D'où l'on vient, pour savoir où la flèche de la fiche doit ramener. On
@@ -3192,7 +3230,7 @@ function syncBackButton() {
 /** « Retour au catalogue », « Retour aux catégories »… — dire où l'on retombe. */
 function libelleDuRetour() {
   return {
-    filtres: 'Retour au catalogue',
+    catalogue: 'Retour au catalogue',
     categories: 'Retour aux catégories',
     contact: 'Retour',
     profil: 'Retour au profil',
