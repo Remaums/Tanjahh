@@ -129,6 +129,22 @@ export function assertConfigured({ exit = false } = {}) {
       "  ADMIN_IDS non défini : personne ne pourra ouvrir l'espace admin."
     );
   }
+  // Le cas où l'on croit avoir rempli : la valeur du modèle est toujours là.
+  // Elle n'est celle de personne, donc l'espace admin reste fermé, la porte
+  // du bot ne s'ouvre pour personne, et rien ne le dit — on cherche alors du
+  // côté du bot ou du tunnel un problème qui tient à cette ligne.
+  // Uniquement ce que .env.example contient vraiment : signaler une valeur
+  // qui n'y est pas reviendrait à accuser un identifiant légitime.
+  const DU_MODELE = ['123456789'];
+  const restes = config.adminIds.filter((id) => DU_MODELE.includes(id));
+  if (restes.length) {
+    console.warn(
+      `  ⚠ ADMIN_IDS contient encore ${restes.join(', ')}, la valeur du modèle.\n` +
+        "    Ce n'est l'identifiant de personne : l'espace admin restera fermé,\n" +
+        "    et l'épreuve d'entrée du bot ne te laissera pas passer.\n" +
+        '    Le tien : envoie /start au bot, il te l\'affiche.'
+    );
+  }
   if (!config.sellerUsername) {
     console.warn(
       '  SELLER_USERNAME non défini : le bouton "Commander" ne pourra pas ouvrir ta conversation.'
