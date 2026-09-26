@@ -1644,77 +1644,66 @@ button { font: inherit; color: inherit; cursor: pointer; }
    catalogue arrive en 80 ms. */
 .charge {
   position: fixed; inset: 0; z-index: 120;
-  display: grid; place-content: center; justify-items: center; gap: 14px;
+  overflow: hidden;
+  /* Le fond reste sous la vidéo : c'est lui qu'on voit si le fichier n'arrive
+     pas, et c'est lui qui borde le film sur un écran plus large que 9/16. */
   background: radial-gradient(120% 90% at 50% 20%, rgb(var(--night2-rgb)), rgb(var(--void-rgb)));
   transition: opacity .32s ease, visibility .32s;
+}
+
+/* ── Le film de la ruelle ────────────────────────────────────
+   Il est encodé en 9/16 avec ses propres bandes floutées en haut et en bas,
+   plutôt que laissé en 16/9 au milieu d'un écran noir : le fichier remplit
+   alors le téléphone sans qu'aucun pixel soit perdu, et les bandes servent
+   de fond au lettrage.
+
+   `object-fit: cover` finit le travail pour les proportions qui ne sont pas
+   exactement 9/16 — un téléphone très allongé, un pli ouvert. */
+.charge__film {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  /* Aucune commande, aucun appui : c'est un décor, pas un lecteur. */
+  pointer-events: none;
+}
+/* Le voile. Sans lui, « TANJA HH 67 » en blanc cassé se pose sur une ruelle
+   claire par endroits et devient illisible une image sur trois — un texte
+   sur une vidéo doit tenir sur toutes les images, pas sur la moyenne. */
+.charge__voile {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgb(var(--void-rgb) / .8) 0%, rgb(var(--void-rgb) / .4) 18%, transparent 34%),
+    linear-gradient(0deg, rgb(var(--void-rgb) / .94) 0%, rgb(var(--void-rgb) / .6) 20%, transparent 42%);
+}
+/* Le lettrage descend en bas : au centre il couvrait le personnage, qui est
+   exactement ce qu'on veut montrer. */
+.charge__texte-zone {
+  position: absolute; left: 0; right: 0;
+  bottom: calc(52px + var(--safe-bottom));
+  display: grid; justify-items: center; gap: 8px;
+  padding: 0 24px; text-align: center;
 }
 .charge[hidden] {
   display: grid !important;   /* on le fait disparaître en fondu, pas d'un coup */
   opacity: 0; visibility: hidden; pointer-events: none;
 }
-.charge__anneau {
-  position: relative; width: 104px; height: 104px;
-  display: grid; place-items: center;
+/* L'anneau qui tournait et l'éclair qui se déchargeait ont disparu avec le
+   film : deux choses qui bougent sur le même écran se disputent le regard,
+   et c'est la vidéo qu'on est censé regarder. */
+.charge__nom {
+  font-size: 34px; line-height: 1;
+  text-shadow: 0 2px 18px rgb(var(--void-rgb) / .9);
 }
-/* Le halo bleu qui se gonfle derrière l'éclair : la charge qui monte. */
-.charge__anneau::before {
-  content: ''; position: absolute; inset: -14px; border-radius: 50%;
-  background: radial-gradient(circle, rgb(var(--neon-rgb) / .34), transparent 66%);
-  animation: charge-monte 1.6s ease-in-out infinite;
-}
-.charge__arc {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 2.5px solid rgb(var(--line-rgb) / .18);
-  border-top-color: var(--neon);
-  border-right-color: rgb(var(--neon-rgb) / .35);
-  animation: charge-tour 1.05s linear infinite;
-}
-/* L'éclair ne respire pas, il se décharge : il encaisse la charge sans
-   bouger, puis claque d'un coup et blanchit. C'est la même grammaire que
-   les arcs du fond — un éclair ne fait pas de fondu. */
-.charge__eclair {
-  width: 52px; height: 52px; position: relative;
-  filter: drop-shadow(0 0 12px rgb(var(--jaune-rgb) / .65));
-  animation: charge-decharge 1.6s steps(1, end) infinite;
-}
-.charge__nom { font-size: 26px; line-height: 1; }
-.charge__texte { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); }
-
-@keyframes charge-tour { to { transform: rotate(360deg); } }
-@keyframes charge-monte {
-  0%, 100% { transform: scale(.82); opacity: .35; }
-  62%      { transform: scale(1.12); opacity: .9; }
-  70%      { transform: scale(1.3);  opacity: 0; }
-}
-@keyframes charge-decharge {
-  0%, 60% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 10px rgb(var(--jaune-rgb) / .5));
-  }
-  62% {
-    transform: scale(1.18);
-    filter: drop-shadow(0 0 30px rgb(var(--neon-rgb) / .95)) brightness(1.9);
-  }
-  68% {
-    transform: scale(1.04);
-    filter: drop-shadow(0 0 16px rgb(var(--neon-rgb) / .6)) brightness(1.2);
-  }
-  72%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 10px rgb(var(--jaune-rgb) / .5));
-  }
+.charge__texte {
+  margin: 0; font-size: 13px; font-weight: 600;
+  letter-spacing: .04em; color: rgb(var(--cream-rgb) / .78);
+  text-shadow: 0 1px 10px rgb(var(--void-rgb) / .9);
 }
 
-/* Le voile reste — c'est lui qui dit que ça charge — mais il cesse de
-   tourner : une boutique sobre doit rester lisible, pas immobile au
-   point d'avoir l'air figée. */
-[data-anim='off'] .charge__arc,
-[data-anim='off'] .charge__anneau::before,
-[data-anim='off'] .charge__eclair { animation: none; }
-[data-anim='off'] .charge__arc { border-top-color: var(--neon); }
-
+/* Le film s'arrête depuis le script, pas depuis la feuille de style : on ne
+   met pas une vidéo en pause en CSS. Il reste alors sur son affiche, qui est
+   la première image — l'écran d'ouverture garde donc son image, il cesse
+   seulement de bouger. */
 @media (prefers-reduced-motion: reduce) {
-  .charge__arc, .charge__eclair, .charge__anneau::before { animation: none; }
   .charge { transition: none; }
 }
 
@@ -2014,6 +2003,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   transition: opacity .25s ease, visibility .25s;
 }
 .vcharge--fini { opacity: 0; visibility: hidden; }
+/* L'anneau qui tourne pendant qu'une vidéo produit se charge. Il partage
+   son animation avec l'écran d'ouverture d'autrefois ; celui-ci est passé
+   au film, mais la rotation reste définie ici, où elle sert encore. */
+@keyframes charge-tour { to { transform: rotate(360deg); } }
 .vcharge__arc {
   width: 42px; height: 42px; border-radius: 50%;
   border: 3px solid rgb(var(--cream-rgb) / .22);

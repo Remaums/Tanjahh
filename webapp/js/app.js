@@ -73,6 +73,10 @@ async function init() {
 
   state.startProduct = produitDemande();
 
+  // Avant tout le reste : l'écran d'ouverture est déjà affiché, son film doit
+  // partir maintenant et pas après le catalogue.
+  reglerLeFilm(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+
   bindStaticHandlers();
   gateAge();
   montrerLeSquelette();
@@ -173,6 +177,27 @@ function chargerLaBoutiqueSignee() {
 function retirerLeVoile() {
   const voile = document.getElementById('charge');
   if (voile) voile.hidden = true;
+  // Le voile part en fondu, donc il reste dans la page. Une vidéo en boucle
+  // dans un élément transparent continue de décoder image après image : on
+  // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la
+  // boutique, batterie comprise.
+  reglerLeFilm(false);
+}
+
+/**
+ * Lance ou arrête le film de l'écran d'ouverture.
+ *
+ * `play()` rend une promesse qui est rejetée quand la WebView refuse la
+ * lecture — vieille version, économie de données, politique de lecture
+ * automatique. Ce n'est pas une erreur à remonter : l'affiche reste à
+ * l'écran et l'ouverture se passe très bien sans le film. D'où le `catch`
+ * vide, qui est ici un choix et non un oubli.
+ */
+function reglerLeFilm(jouer) {
+  const film = document.getElementById('chargeFilm');
+  if (!film) return;
+  if (jouer) film.play?.().catch(() => {});
+  else film.pause?.();
 }
 
 /** Change le mot sous l'anneau, quand l'attente a une raison qu'on sait dire. */
@@ -254,14 +279,17 @@ function appliquerLesAnimations() {
   const coupe = state.features.animations === false || sobre;
   document.documentElement.dataset.anim = coupe ? 'off' : 'on';
 
-  // Un GIF ne se met pas en pause : une balise image le joue en boucle et
-  // n'écoute personne. La seule façon de respecter « pas d'animations » est
-  // donc de lui donner une autre adresse — le même dessin, immobile.
-  const embleme = document.getElementById('heroEmbleme');
-  if (embleme) {
-    const voulu = coupe ? '/assets/ui/eclair.svg' : '/assets/ui/eclair.svg';
-    if (!embleme.src.endsWith(voulu)) embleme.src = voulu;
-  }
+  // L'emblème de la bannière est un SVG dont le grésillement vient du CSS :
+  // la règle [data-anim='off'] posée juste au-dessus l'a déjà éteint, il n'y
+  // a rien à faire de plus ici. Il y avait à cet endroit un échange d'adresse
+  // hérité de l'autre boutique, où l'emblème était un GIF — qui ne se met pas
+  // en pause et qu'il fallait donc remplacer par une image fixe. Les deux
+  // branches pointaient sur le même fichier : le code ne faisait rien.
+
+  // Le film de l'ouverture, lui, s'arrête vraiment. Il est en général déjà
+  // parti quand les réglages de la boutique arrivent, mais pas toujours : un
+  // catalogue lent le laisse à l'écran plusieurs secondes.
+  reglerLeFilm(!coupe && !document.getElementById('charge')?.hidden);
   return !coupe;
 }
 

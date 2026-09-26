@@ -26,12 +26,28 @@
 
 <!-- ══ Ouverture : le temps que le catalogue arrive ══ -->
 <div class="charge" id="charge">
-  <div class="charge__anneau" aria-hidden="true">
-    <span class="charge__arc"></span>
-    <img src="/assets/ui/eclair.svg" alt="" class="charge__eclair">
+  <!-- Le film de la ruelle, en fond de l'écran d'ouverture.
+
+       Pas d'attribut `autoplay` : c'est le script qui le lance, et seulement
+       si le téléphone ne demande pas moins de mouvement. Avec `autoplay`, la
+       vidéo partirait avant que le script ait pu dire non, et ce réglage est
+       souvent posé pour raison médicale.
+
+       `poster` n'est pas un ornement : c'est ce qui s'affiche tant que les
+       147 Ko n'ont pas fini d'arriver, et c'est aussi ce qui reste si la
+       WebView refuse la lecture. Sans lui, l'écran d'ouverture serait noir
+       pendant la seconde qui compte le plus.
+
+       `muted` est obligatoire pour que la lecture démarre sans geste du
+       client — même sur un fichier qui n'a aucune piste sonore. -->
+  <video class="charge__film" id="chargeFilm" aria-hidden="true"
+         src="/assets/ui/charge.mp4" poster="/assets/ui/charge-poster.jpg"
+         muted loop playsinline preload="auto"></video>
+  <div class="charge__voile" aria-hidden="true"></div>
+  <div class="charge__texte-zone">
+    <p class="charge__nom goldtext">TANJA HH 67</p>
+    <p class="charge__texte" id="chargeTexte">Ouverture de la boutique…</p>
   </div>
-  <p class="charge__nom goldtext">TANJA HH 67</p>
-  <p class="charge__texte" id="chargeTexte">Ouverture de la boutique…</p>
 </div>
 
 <!-- ══ La porte du bot : le calcul se fait dans la conversation ══ -->
