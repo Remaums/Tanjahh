@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 48" role="img" aria-label="Étincelle">
+  <!-- La petite étincelle qui saute autour de l'enseigne.
+       Elle n'est pas une réduction de eclair.svg : celui-ci porte un contour
+       d'encre de 5 unités, pensé pour un emblème de cent pixels. Ramené à
+       dix, ce contour mange le glyphe et il ne reste qu'un pâté sombre.
+       Celle-ci n'a pas de contour du tout — à cette taille, la forme suffit,
+       et c'est la lueur qui la détache du fond. -->
+  <path d="M15 1 L5 22 h7 L9 47 l10-23 h-7 Z" fill="#FFD21E"/>
+  <path d="M14 6 L8 20 h4 L10 38 l5-15 h-4 Z" fill="#FFF3C4" opacity=".75"/>
+</svg>

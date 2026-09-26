@@ -133,7 +133,15 @@
 <!-- ══ En-tête ══ -->
 <header class="topbar">
   <div class="topbar__brand">
-    <img src="/assets/ui/logo.png" alt="" class="topbar__logo">
+    <!-- L'enseigne et ses étincelles. Les trois éclairs sont des frères du
+         logo, pas ses enfants : posés dedans, ils seraient rognés par le
+         cercle. Le conteneur leur sert de repère, et ils débordent. -->
+    <span class="enseigne">
+      <img src="/assets/ui/logo.png" alt="" class="enseigne__logo">
+      <img src="/assets/ui/etincelle.svg" alt="" aria-hidden="true" class="enseigne__etincelle enseigne__etincelle--a">
+      <img src="/assets/ui/etincelle.svg" alt="" aria-hidden="true" class="enseigne__etincelle enseigne__etincelle--b">
+      <img src="/assets/ui/etincelle.svg" alt="" aria-hidden="true" class="enseigne__etincelle enseigne__etincelle--c">
+    </span>
     <span class="topbar__bloc">
       <span class="topbar__name goldtext" id="shopName">TANJA HH 67</span>
       <span class="topbar__sous" id="shopSous"></span>
