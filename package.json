@@ -1,7 +1,7 @@
 {
   "name": "tanja-hh-67",
   "version": "1.0.0",
-  "description": "Boutique Telegram — Mini App catalogue, panier et commande, thème électrique.",
+  "description": "Boutique Telegram — Mini App catalogue et fiches produits, commande par la conversation du vendeur, thème électrique.",
   "type": "module",
   "main": "server/index.js",
   "scripts": {
