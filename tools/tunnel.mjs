@@ -118,6 +118,24 @@ const guetter = (morceau) => {
     const arreter = () => { boutique.kill(); tunnel.kill(); process.exit(0); };
     process.on('SIGINT', arreter);
     process.on('SIGTERM', arreter);
+
+    // Les deux vivent ou meurent ensemble.
+    //
+    // Sans ça, une boutique qui refuse de démarrer — un port déjà pris, par
+    // exemple — laissait le tunnel ouvert sur du vide : l'adresse répondait,
+    // mais sur rien. On croyait à un problème de tunnel, et on cherchait du
+    // mauvais côté pendant que la vraie erreur avait défilé plus haut.
+    boutique.on('exit', (code) => {
+      if (code === 0) return;
+      dire();
+      dire(`${ANSI.jaune}La boutique s'est arrêtée (code ${code}).${ANSI.fin}`);
+      dire(`${ANSI.gris}La raison est écrite juste au-dessus. Le tunnel se ferme`);
+      dire(`avec elle : le laisser ouvert donnerait une adresse qui ne mène`);
+      dire(`nulle part.${ANSI.fin}`);
+      dire();
+      tunnel.kill();
+      process.exit(code ?? 1);
+    });
   }
 };
 
@@ -130,6 +148,21 @@ tunnel.on('error', (err) => {
 });
 
 tunnel.on('exit', (code) => {
+  if (trouvee) {
+    // Le tunnel avait donné son adresse, puis s'est arrêté. C'est l'erreur
+    // 1033 côté visiteur : Cloudflare connaît l'adresse mais ne joint plus
+    // personne derrière. Rien à réparer, il faut relancer — et l'adresse
+    // sera différente, un tunnel rapide en tire une neuve à chaque fois.
+    dire();
+    dire(`${ANSI.jaune}Le tunnel s'est fermé (code ${code}).${ANSI.fin}`);
+    dire(`${ANSI.gris}L'ancienne adresse ne répond plus : un visiteur y voit`);
+    dire(`« Error 1033 ». Relance la commande — la nouvelle adresse sera`);
+    dire(`différente, c'est le propre d'un tunnel rapide.`);
+    dire();
+    dire(`Pour une adresse qui ne change pas : un tunnel nommé ou Caddy,`);
+    dire(`voir docs/vps.md.${ANSI.fin}`);
+    process.exit(code ?? 0);
+  }
   if (!trouvee) {
     dire(`${ANSI.jaune}Le tunnel s'est arrêté sans donner d'adresse (code ${code}).${ANSI.fin}`);
     dire(`${ANSI.gris}Relance la commande ; si ça recommence, c'est en général un pare-feu`);
