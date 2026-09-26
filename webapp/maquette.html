@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TANJA HH 67 — trois structures</title>
+<link rel="stylesheet" href="/css/fonts.css">
+<style>
+/* ══ Maquette : trois structures de catalogue, même contenu ══
+   Ce fichier ne sert qu'à choisir. Il ne partage rien avec la boutique
+   sauf les polices et les dessins produits : chaque piste est écrite à
+   part, pour qu'aucune ne soit bridée par les règles de l'autre. */
+:root{
+  --nuit:#151719; --nuit2:#1b1d20; --panneau:#26292c; --panneau2:#1e2023;
+  --encre:#0c0d0e; --creme:#ecece9; --doux:#9a9d9f;
+  --jaune:#ffd21e; --bleu:#7dcaff; --ambre:#ff9e2c; --rouge:#ff3d3d;
+  --filet:rgba(148,150,148,.2);
+  --aff:'Bebas Neue',system-ui,sans-serif;
+  --txt:'Barlow',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#0a0b0c;font-family:var(--txt);color:var(--creme)}
+.planche{display:flex;gap:26px;padding:26px;align-items:flex-start}
+.tel{width:390px;height:844px;overflow:hidden;position:relative;
+  border-radius:26px;background:var(--nuit);flex:none;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.tel__in{position:absolute;inset:0;overflow:hidden}
+.et{font-family:var(--aff);font-size:19px;letter-spacing:.06em;color:var(--jaune);
+  margin:0 0 8px;text-transform:uppercase}
+.et small{display:block;font-family:var(--txt);font-size:12px;font-weight:500;
+  letter-spacing:0;color:var(--doux);text-transform:none;margin-top:3px;max-width:390px;line-height:1.45}
+.col{display:flex;flex-direction:column}
+img{display:block;max-width:100%}
+
+/* ─────────── commun : entête mince ─────────── */
+.tete{display:flex;align-items:center;gap:9px;padding:14px 16px 12px;
+  background:var(--nuit2);border-bottom:1px solid var(--filet)}
+.tete__nom{font-family:var(--aff);font-size:19px;letter-spacing:.05em;flex:1}
+.pastille{width:7px;height:7px;border-radius:50%;background:#5fd39a;flex:none}
+.tete__etat{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--doux);text-transform:uppercase}
+
+/* ══════════════ A — LA CARTE ══════════════ */
+.a-rech{display:flex;align-items:center;gap:8px;margin:12px 16px;padding:9px 12px;
+  background:var(--panneau2);border:1px solid var(--filet);border-radius:9px;
+  font-size:13px;color:var(--doux)}
+.a-sect{display:flex;align-items:baseline;gap:10px;padding:16px 16px 7px}
+.a-sect h3{margin:0;font-family:var(--aff);font-size:15px;letter-spacing:.16em;color:var(--ambre)}
+.a-sect i{flex:1;height:1px;background:var(--filet)}
+.a-sect b{font-size:10.5px;font-weight:700;color:var(--doux);letter-spacing:.06em}
+.a-ligne{display:flex;align-items:center;gap:11px;padding:9px 16px;
+  border-bottom:1px solid rgba(148,150,148,.09)}
+.a-vig{width:42px;height:42px;flex:none;border-radius:7px;background:rgba(12,13,14,.55);
+  border:1px solid var(--filet);display:grid;place-items:center;overflow:hidden}
+.a-vig img{width:78%}
+.a-txt{flex:1;min-width:0}
+.a-nom{font-size:14px;font-weight:600;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a-tar{display:flex;gap:7px;margin-top:3px;font-size:11.5px;color:var(--doux);font-variant-numeric:tabular-nums}
+.a-tar b{color:var(--jaune);font-weight:700}
+.a-tar span{white-space:nowrap}
+.a-plus{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(125,202,255,.4);background:rgba(125,202,255,.1);color:var(--bleu);font-size:17px}
+/* la ligne ouverte */
+.a-ouv{background:rgba(125,202,255,.05);border-left:2px solid var(--bleu);padding-left:14px}
+.a-det{padding:2px 16px 14px;display:flex;gap:12px}
+.a-det__ph{width:104px;height:104px;flex:none;border-radius:9px;background:rgba(12,13,14,.5);
+  border:1px solid var(--filet);display:grid;place-items:center}
+.a-det__ph img{width:72%}
+.a-det__c{flex:1;min-width:0;font-size:12.5px;line-height:1.45;color:var(--doux)}
+.a-fmt{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.a-fmt button{font-family:var(--txt);font-size:11.5px;font-weight:600;padding:6px 9px;border-radius:7px;
+  background:var(--panneau);border:1px solid var(--filet);color:var(--creme)}
+.a-fmt button.on{border-color:var(--bleu);background:rgba(125,202,255,.12);
+  box-shadow:0 0 16px rgba(125,202,255,.2)}
+.a-fmt button b{color:var(--jaune);display:block;font-family:var(--aff);font-size:15px;letter-spacing:.03em}
+.a-bas{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;
+  padding:12px 16px 18px;background:rgba(10,11,12,.96);border-top:1px solid var(--filet)}
+.a-bas__m{width:40px;height:40px;border-radius:9px;border:1px solid var(--filet);
+  background:var(--panneau);display:grid;place-items:center;gap:3px}
+.a-bas__m i{display:block;width:15px;height:1.5px;background:var(--creme)}
+.a-bas__p{flex:1;display:flex;align-items:center;justify-content:space-between;
+  padding:11px 15px;border-radius:9px;background:var(--bleu);color:var(--encre);
+  font-family:var(--aff);font-size:17px;letter-spacing:.05em;
+  box-shadow:0 0 24px rgba(125,202,255,.4)}
+
+/* ══════════════ B — LE MUR ══════════════ */
+.b-p{position:absolute;inset:0}
+.b-ph{position:absolute;inset:0;background:#121314}
+.b-ph img{width:100%;height:100%;object-fit:cover}
+.b-voile{position:absolute;inset:0;background:
+  linear-gradient(0deg,rgba(10,11,12,.97) 0%,rgba(10,11,12,.9) 30%,rgba(10,11,12,.35) 52%,transparent 68%),
+  linear-gradient(180deg,rgba(10,11,12,.55) 0%,transparent 16%)}
+.b-haut{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:16px}
+.b-cat{display:flex;gap:6px;flex:1;overflow:hidden}
+.b-cat span{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 11px;border-radius:20px;background:rgba(10,11,12,.6);backdrop-filter:blur(8px);
+  border:1px solid var(--filet);color:var(--doux);white-space:nowrap}
+.b-cat span.on{color:var(--encre);background:var(--jaune);border-color:transparent}
+.b-pan{width:38px;height:38px;flex:none;border-radius:50%;background:rgba(10,11,12,.6);
+  backdrop-filter:blur(8px);border:1px solid var(--filet);display:grid;place-items:center;position:relative}
+.b-pan b{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;
+  background:var(--rouge);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px}
+.b-info{position:absolute;left:0;right:0;bottom:0;padding:0 20px 96px}
+.b-tag{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ambre);border:1px solid rgba(255,158,44,.45);border-radius:4px;padding:3px 8px;margin-bottom:10px}
+.b-nom{font-family:var(--aff);font-size:40px;line-height:.94;letter-spacing:.02em;margin:0 0 6px;text-transform:uppercase}
+.b-crt{font-size:13px;color:var(--doux);line-height:1.4;margin:0 0 16px;max-width:30ch}
+.b-lig{display:flex;gap:8px;margin-bottom:14px}
+.b-lig button{flex:1;font-family:var(--txt);padding:9px 6px;border-radius:9px;background:rgba(38,41,44,.85);
+  border:1px solid var(--filet);color:var(--creme);font-size:11.5px;font-weight:600;text-align:center}
+.b-lig button.on{border-color:var(--bleu);background:rgba(125,202,255,.14);box-shadow:0 0 18px rgba(125,202,255,.22)}
+.b-lig button b{display:block;font-family:var(--aff);font-size:17px;color:var(--jaune);letter-spacing:.03em;margin-top:2px}
+.b-act{display:flex;gap:10px;align-items:center}
+.b-act__a{flex:1;padding:14px;border-radius:11px;background:var(--bleu);color:var(--encre);
+  font-family:var(--aff);font-size:19px;letter-spacing:.05em;text-align:center;
+  box-shadow:0 0 28px rgba(125,202,255,.45)}
+.b-act__c{width:50px;height:50px;border-radius:11px;border:1px solid var(--filet);
+  background:rgba(38,41,44,.85);display:grid;place-items:center;font-size:19px}
+.b-rail{position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:5px}
+.b-rail i{display:block;width:3px;height:16px;border-radius:2px;background:rgba(236,236,233,.22)}
+.b-rail i.on{background:var(--bleu);box-shadow:0 0 8px var(--bleu);height:26px}
+.b-suiv{position:absolute;left:0;right:0;bottom:0;height:76px;
+  background:linear-gradient(0deg,rgba(38,41,44,.9),transparent);
+  border-top:1px solid var(--filet);display:flex;align-items:center;gap:10px;padding:0 20px}
+.b-suiv small{font-size:10px;letter-spacing:.14em;color:var(--doux);text-transform:uppercase}
+
+/* ══════════════ C — LE COMPTOIR ══════════════ */
+.c-corps{position:absolute;inset:0;display:flex}
+.c-rail{width:66px;flex:none;background:var(--nuit2);border-right:1px solid var(--filet);
+  display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:3px}
+.c-rail__logo{width:34px;height:34px;border-radius:9px;background:var(--jaune);display:grid;place-items:center;
+  margin-bottom:12px;color:var(--encre);font-family:var(--aff);font-size:15px}
+.c-r{width:100%;padding:11px 4px;display:grid;justify-items:center;gap:5px;position:relative;
+  font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--doux)}
+.c-r span{font-size:17px;line-height:1}
+.c-r.on{color:var(--bleu)}
+.c-r.on::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;
+  background:var(--bleu);box-shadow:0 0 10px var(--bleu)}
+.c-r.on::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(125,202,255,.13),transparent)}
+.c-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.c-haut{display:flex;align-items:center;gap:9px;padding:13px 14px 11px;border-bottom:1px solid var(--filet)}
+.c-rech{flex:1;padding:8px 11px;border-radius:8px;background:var(--panneau2);
+  border:1px solid var(--filet);font-size:12.5px;color:var(--doux)}
+.c-tri{font-size:11px;color:var(--doux);white-space:nowrap}
+.c-titre{padding:14px 14px 3px;font-family:var(--aff);font-size:22px;letter-spacing:.04em}
+.c-titre b{font-family:var(--txt);font-size:11px;font-weight:600;color:var(--doux);letter-spacing:.06em}
+.c-grille{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px 14px}
+.c-c{border-radius:10px;overflow:hidden;background:var(--panneau2);border:1px solid rgba(255,255,255,.07);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.c-c__ph{aspect-ratio:1;display:grid;place-items:center;background:rgba(12,13,14,.45);position:relative}
+.c-c__ph img{width:62%}
+.c-c__ph b{position:absolute;top:6px;left:6px;font-size:8.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ambre);background:rgba(10,11,12,.75);
+  border:1px solid rgba(255,158,44,.4);border-radius:3px;padding:2px 5px}
+.c-c__b{padding:8px 9px 10px}
+.c-c__n{font-size:12px;font-weight:600;line-height:1.15;height:2.3em;overflow:hidden}
+.c-c__p{display:flex;align-items:baseline;justify-content:space-between;margin-top:5px}
+.c-c__p b{font-family:var(--aff);font-size:18px;color:var(--jaune);letter-spacing:.03em}
+.c-c__p i{font-style:normal;font-size:9.5px;color:var(--doux);letter-spacing:.06em}
+.c-pan{position:absolute;right:14px;bottom:18px;display:flex;align-items:center;gap:9px;
+  padding:11px 16px;border-radius:24px;background:var(--bleu);color:var(--encre);
+  font-family:var(--aff);font-size:16px;letter-spacing:.05em;
+  box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 26px rgba(125,202,255,.4)}
+</style></head><body>
+<div class="planche" id="planche"></div>
+<script>
+const EUR = (c) => (c/100).toLocaleString('fr-FR',{minimumFractionDigits:0}) + ' €';
+const P = [
+ {n:'Néon Kush',           c:'Fleurs',      a:'bud.svg',        s:'La classique de la maison, dense et collante.', b:'TOP VENTE', v:[['2 g',1200],['5 g',2700],['10 g',5000]]},
+ {n:'Yellow Neon Haze',    c:'Fleurs',      a:'bud-sativa.svg', s:'Sativa pétillante, agrumes et pin.',            b:'NOUVEAU',   v:[['2 g',1400],['5 g',3200],['10 g',6000]]},
+ {n:'Midnight Cookies',    c:'Fleurs',      a:'bud.svg',        s:'Hybride gourmande, biscuit et cacao.',          b:'',          v:[['2 g',1600],['5 g',3600]]},
+ {n:'Plasma Static — Banana Kush', c:'Résines', a:'jar.svg',   s:'Premium 2K26, nez banane mûre.',                b:'2K26',      v:[['1,2 g',2000],['5 g',7000],['10 g',13000]]},
+ {n:'Plasma Static — Bubble Gum',  c:'Résines', a:'jar.svg',   s:'Premium 2K26, nez bonbon rose.',                b:'2K26',      v:[['1,2 g',2000],['5 g',7000],['10 g',13000]]},
+ {n:'Brique 68',           c:'Résines',     a:'hash.svg',       s:'Résine pressée à la main, souple.',             b:'ARTISANAL', v:[['2 g',1800],['5 g',4000]]},
+ {n:'Dry Sift 68',         c:'Résines',     a:'hash.svg',       s:'Pollen tamisé à froid, blond et sec.',          b:'',          v:[['2 g',2500]]},
+ {n:'Space Brownie',       c:'Comestibles', a:'cookie.svg',     s:'Brownie fondant, dosage costaud.',              b:'FUN',       v:[['1 pc',800]]},
+ {n:'Gummies Néon',        c:'Comestibles', a:'cookie.svg',     s:'Bonbons fruités, dosage doux.',                 b:'',          v:[['12 pc',1500]]},
+ {n:'Grinder 68 · 4 parts',c:'Accessoires', a:'grinder.svg',    s:'Aluminium, 4 parties, tamis à pollen.',         b:'',          v:[['1 pc',2200]]},
+];
+const art = (f) => `/assets/products/${f}`;
+
+/* ── A : la carte ── */
+function A(){
+  const sections = ['Fleurs','Résines','Comestibles'];
+  const ligne = (p, ouverte) => ouverte ? `
+    <div class="a-ligne a-ouv">
+      <div class="a-vig"><img src="${art(p.a)}" alt=""></div>
+      <div class="a-txt"><div class="a-nom">${p.n}</div>
+        <div class="a-tar">${p.v.map(([l,c])=>`<span>${l} <b>${EUR(c)}</b></span>`).join('')}</div></div>
+      <div class="a-plus" style="transform:rotate(45deg)">+</div>
+    </div>
+    <div class="a-det">
+      <div class="a-det__ph"><img src="${art(p.a)}" alt=""></div>
+      <div class="a-det__c">${p.s} Texture souple, fumée longue. Servie sous scellé d'origine.
+        <div class="a-fmt">${p.v.map(([l,c],i)=>`<button class="${i===0?'on':''}">${l}<b>${EUR(c)}</b></button>`).join('')}</div>
+      </div>
+    </div>` : `
+    <div class="a-ligne">
+      <div class="a-vig"><img src="${art(p.a)}" alt=""></div>
+      <div class="a-txt"><div class="a-nom">${p.n}</div>
+        <div class="a-tar">${p.v.map(([l,c])=>`<span>${l} <b>${EUR(c)}</b></span>`).join('')}</div></div>
+      <div class="a-plus">+</div>
+    </div>`;
+  let h = `<div class="tete"><span class="pastille"></span>
+      <div class="tete__nom">TANJA HH 67</div><div class="tete__etat">Ouvert · 13h–00h</div></div>
+    <div class="a-rech">🔍 Chercher un produit, un format, un prix…</div>`;
+  for (const s of sections){
+    const lot = P.filter(p=>p.c===s);
+    h += `<div class="a-sect"><h3>${s.toUpperCase()}</h3><i></i><b>${lot.length}</b></div>`;
+    h += lot.map((p,i)=>ligne(p, s==='Résines' && i===0)).join('');
+  }
+  h += `<div class="a-bas"><div class="a-bas__m"><i></i><i></i><i></i></div>
+    <div class="a-bas__p"><span>Panier · 2 articles</span><span>40 €</span></div></div>`;
+  return h;
+}
+
+/* ── B : le mur ── */
+function B(){
+  const p = P[3];
+  return `<div class="b-p">
+    <div class="b-ph"><img src="/assets/ui/charge-poster.jpg" alt=""></div>
+    <div class="b-voile"></div>
+    <div class="b-haut">
+      <div class="b-cat"><span class="on">Résines</span><span>Fleurs</span><span>Comestibles</span></div>
+      <div class="b-pan">🛒<b>2</b></div>
+    </div>
+    <div class="b-rail"><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="b-info">
+      <span class="b-tag">Premium · 2K26</span>
+      <h2 class="b-nom">${p.n}</h2>
+      <p class="b-crt">${p.s} Texture souple, fumée douce et longue.</p>
+      <div class="b-lig">${p.v.map(([l,c],i)=>`<button class="${i===0?'on':''}">${l}<b>${EUR(c)}</b></button>`).join('')}</div>
+      <div class="b-act"><div class="b-act__a">Ajouter · 20 €</div><div class="b-act__c">♡</div></div>
+    </div>
+    <div class="b-suiv"><small>↓ Suivant</small><small style="color:#ecece9">Plasma Static — Bubble Gum</small></div>
+  </div>`;
+}
+
+/* ── C : le comptoir ── */
+function C(){
+  const rails = [['Tout','✦',1],['Fleurs','🌿',0],['Résines','🍫',0],['Comest.','🍪',0],['Access.','⚙️',0]];
+  const lot = P.filter(p=>p.c==='Résines').concat(P.filter(p=>p.c==='Fleurs')).slice(0,6);
+  return `<div class="c-corps">
+    <div class="c-rail"><div class="c-rail__logo">T</div>
+      ${rails.map(([n,e,on])=>`<div class="c-r ${on?'on':''}"><span>${e}</span>${n}</div>`).join('')}
+    </div>
+    <div class="c-main">
+      <div class="c-haut"><div class="c-rech">🔍 Chercher…</div><div class="c-tri">Tri ⌄</div></div>
+      <div class="c-titre">TOUT LE RAYON <b>· 13 produits</b></div>
+      <div class="c-grille">${lot.map(p=>`
+        <div class="c-c"><div class="c-c__ph">${p.b?`<b>${p.b}</b>`:''}<img src="${art(p.a)}" alt=""></div>
+          <div class="c-c__b"><div class="c-c__n">${p.n}</div>
+            <div class="c-c__p"><b>${EUR(p.v[0][1])}</b><i>dès ${p.v[0][0]}</i></div></div></div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="c-pan">🛒 2 · 40 €</div>`;
+}
+
+const pistes = [
+  ['A — La carte','Le catalogue devient une liste de prix. Chaque produit est une ligne : vignette, nom, et tous ses formats avec leurs prix, lisibles sans ouvrir. Un appui déplie la fiche sur place. Plus de bannière, plus de grille, plus de barre à quatre onglets : un menu et le panier en bas.',A],
+  ['B — Le mur','Un produit par écran, plein cadre, on fait défiler verticalement comme un fil. La photo vend, le nom et les formats sont posés dessus. Le rail de droite dit où on en est dans le rayon. Les catégories passent en haut, le panier aussi.',B],
+  ['C — Le comptoir','Les rayons quittent la barre du bas pour un rail vertical toujours visible à gauche. Le bas de l\'écran est libéré : le panier devient une pastille flottante. Grille dense de cartes compactes à droite.',C],
+];
+document.getElementById('planche').innerHTML = pistes.map(([t,d,f],i)=>`
+  <div class="col"><p class="et">${t}<small>${d}</small></p>
+  <div class="tel" id="tel${i}"><div class="tel__in">${f()}</div></div></div>`).join('');
+</script>
+</body></html>

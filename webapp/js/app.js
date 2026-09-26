@@ -139,7 +139,9 @@ async function init() {
     // simplement injoignable. Pour un client c'est une boutique abandonnée ;
     // pour le vendeur qui installe, c'est une fausse piste. On le dit donc en
     // clair, et on laisse de quoi réessayer.
-    retirerLeVoile({ aussitot: true });
+    // Pas de lever de rideau sur une panne : la décharge annonce une
+    // boutique qui s'ouvre, et ce qui s'affiche ici dit le contraire.
+    retirerLeVoile({ aussitot: true, rideau: false });
     montrerPanne(err);
     return;
   }
@@ -209,7 +211,7 @@ function chargerLaBoutiqueSignee() {
  * mauvaise nouvelle, c'est trois secondes prises à quelqu'un qui a déjà un
  * problème. Le plancher n'existe que pour donner à voir, pas pour retenir.
  */
-function retirerLeVoile({ aussitot = false } = {}) {
+function retirerLeVoile({ aussitot = false, rideau = true } = {}) {
   const voile = document.getElementById('charge');
   if (!voile || voile.hidden || fermetureProgrammee) return;
 
@@ -219,10 +221,10 @@ function retirerLeVoile({ aussitot = false } = {}) {
   const reste = OUVERTURE_MIN_MS - (Date.now() - ouvertureDebut);
   if (!aussitot && reste > 0 && anime()) {
     fermetureProgrammee = true;
-    setTimeout(fermerLeVoile, reste);
+    setTimeout(() => fermerLeVoile({ rideau }), reste);
     return;
   }
-  fermerLeVoile();
+  fermerLeVoile({ rideau });
 }
 
 /**
@@ -241,9 +243,32 @@ function lancerLaJauge() {
   barre.style.animation = `charge-jauge ${OUVERTURE_MIN_MS}ms linear forwards`;
 }
 
-function fermerLeVoile() {
+/**
+ * La décharge jaune du lever de rideau.
+ *
+ * Elle part après le voile et non avec lui : l'écran d'ouverture est au
+ * premier plan et s'efface en fondu sur trois dixièmes de seconde, si bien
+ * qu'une rafale lancée en même temps se jouerait derrière lui et serait à
+ * moitié finie quand on la verrait. D'où le décalage, calé sur ce fondu.
+ *
+ * La classe est retirée à la fin : laissée en place, elle rejouerait la
+ * rafale au prochain changement d'onglet, chaque fois que le navigateur
+ * recalcule les animations de la couche.
+ */
+function decharger() {
+  if (!anime()) return;
+  const couche = document.querySelector('.fx');
+  if (!couche) return;
+  setTimeout(() => {
+    couche.classList.add('fx--arrivee');
+    setTimeout(() => couche.classList.remove('fx--arrivee'), 1800);
+  }, 280);
+}
+
+function fermerLeVoile({ rideau = true } = {}) {
   const voile = document.getElementById('charge');
   if (voile) voile.hidden = true;
+  if (rideau) decharger();
   // Le voile part en fondu, donc il reste dans la page. Une vidéo en boucle
   // dans un élément transparent continue de décoder image après image : on
   // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la

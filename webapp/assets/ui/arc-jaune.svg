@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 420" role="img" aria-label="Décharge jaune">
+  <!-- La décharge de l'arrivée. Même construction que arc.svg — une passe
+       large et diffuse pour la lueur, une fine et claire pour le cœur —
+       mais en jaune d'enseigne, et avec une fourche plus ouverte : celle-ci
+       ne fait pas partie du décor, elle annonce l'entrée dans la boutique,
+       donc elle occupe plus de largeur.
+
+       Le cœur n'est pas jaune pur mais presque blanc : un éclair est blanc
+       en son centre, et du jaune sur du jaune ne donne aucun relief. -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M88 4 L48 92 L96 106 L30 208 L82 224 L18 416"
+          stroke="#FFD21E" stroke-width="15" opacity=".34"/>
+    <path d="M96 106 L158 156 L118 172 L172 244"
+          stroke="#FFD21E" stroke-width="11" opacity=".28"/>
+    <path d="M88 4 L48 92 L96 106 L30 208 L82 224 L18 416"
+          stroke="#FFF3C4" stroke-width="3.8"/>
+    <path d="M96 106 L158 156 L118 172 L172 244"
+          stroke="#FFF3C4" stroke-width="2.6" opacity=".85"/>
+  </g>
+</svg>

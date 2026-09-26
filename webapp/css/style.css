@@ -271,6 +271,69 @@ body {
   92%, 100% { opacity: 0; }
 }
 
+/* ── La décharge de l'arrivée ────────────────────────────────
+   Quand le catalogue apparaît, trois arcs jaunes tombent d'un coup et la
+   boutique s'éclaire. Une seule fois : c'est un lever de rideau, pas un
+   élément de décor. Le décor, lui, reste bleu et continue en boucle
+   derrière — les deux ne se confondent donc jamais.
+
+   Le jaune est la couleur de l'enseigne, réservée ailleurs au logo et aux
+   prix. Elle sort ici parce que c'est précisément le moment où la boutique
+   se présente.
+
+   Rien ne joue tant que la classe n'est pas posée : les arcs sont à zéro,
+   et c'est le script qui déclenche, après le départ du voile. Une animation
+   qui partirait au chargement de la feuille serait finie avant que le
+   catalogue ne soit là. */
+.fx__coup {
+  position: absolute; width: 210px; opacity: 0;
+  will-change: opacity;
+}
+.fx__coup--a { top: -10%; left: -50px; transform: rotate(-11deg); }
+.fx__coup--b { top: -14%; right: -60px; width: 235px; transform: rotate(15deg) scaleX(-1); }
+.fx__coup--c { top: -18%; left: 40%; width: 165px; transform: rotate(4deg); }
+
+.fx__eclat-jaune {
+  position: absolute; inset: 0; opacity: 0;
+  background: radial-gradient(110% 65% at 50% -8%, rgb(var(--jaune-rgb) / .55), transparent 72%);
+}
+
+/* Les trois arcs ne tombent pas ensemble : décalés de deux dixièmes, ils
+   font une rafale. Ensemble, ils feraient un seul flash. */
+.fx--arrivee .fx__coup--a     { animation: coup-arrivee 1.1s steps(1, end) 0s    1; }
+.fx--arrivee .fx__coup--c     { animation: coup-arrivee 1.1s steps(1, end) .19s  1; }
+.fx--arrivee .fx__coup--b     { animation: coup-arrivee 1.1s steps(1, end) .42s  1; }
+.fx--arrivee .fx__eclat-jaune { animation: eclat-arrivee 1.5s steps(1, end) 0s 1; }
+
+/* La rafale se lit sur presque tout le cycle, là où les arcs du décor
+   passent l'essentiel du leur à zéro : ici on ne cache pas l'éclair, on le
+   montre, et la durée courte suffit à ce qu'il ne s'installe pas. */
+@keyframes coup-arrivee {
+  0%        { opacity: 0; }
+  6%        { opacity: 1; }
+  16%       { opacity: .18; }
+  26%       { opacity: 1; }
+  44%       { opacity: .45; }
+  70%, 100% { opacity: 0; }
+}
+@keyframes eclat-arrivee {
+  0%        { opacity: 0; }
+  4%        { opacity: .62; }
+  11%       { opacity: .1; }
+  19%       { opacity: .7; }
+  32%       { opacity: .2; }
+  60%, 100% { opacity: 0; }
+}
+
+/* Sans mouvement, pas de lever de rideau : le catalogue arrive, c'est
+   tout. Les arcs jaunes n'ont pas d'équivalent immobile — un éclair figé
+   en travers de l'écran resterait là sans rien vouloir dire. */
+[data-anim='off'] .fx__coup,
+[data-anim='off'] .fx__eclat-jaune { animation: none !important; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .fx__coup, .fx__eclat-jaune { animation: none !important; opacity: 0; }
+}
+
 /* Un orage qui claque toutes les neuf secondes derrière une liste qu'on
    lit, c'est insupportable pour qui a coupé les animations — et c'est
    souvent un réglage posé pour raison médicale. Les arcs restent, fixes
