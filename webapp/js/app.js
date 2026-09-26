@@ -113,7 +113,7 @@ async function init() {
     // simplement injoignable. Pour un client c'est une boutique abandonnée ;
     // pour le vendeur qui installe, c'est une fausse piste. On le dit donc en
     // clair, et on laisse de quoi réessayer.
-    retirerLeVoile();
+    retirerLeVoile({ aussitot: true });
     montrerPanne(err);
     return;
   }
@@ -174,7 +174,41 @@ function chargerLaBoutiqueSignee() {
  * disparaître en fondu, et un élément arraché ne peut pas fondre. Il ne gêne
  * plus personne une fois transparent (`pointer-events: none`).
  */
-function retirerLeVoile() {
+/* Le film dure quatre secondes ; sur une bonne connexion, le catalogue
+   arrive en trois cents millisecondes. Sans plancher, l'écran d'ouverture
+   apparaîtrait et disparaîtrait avant qu'on ait vu l'image — autant ne pas
+   mettre de vidéo du tout. Trois secondes, c'est assez pour que le plan se
+   lise, et ça s'arrête avant la fin de la boucle, donc on ne voit jamais le
+   raccord. */
+const OUVERTURE_MIN_MS = 3000;
+const ouvertureDebut = Date.now();
+let fermetureProgrammee = false;
+
+/**
+ * Retire l'écran d'ouverture, en le laissant vivre ses trois secondes.
+ *
+ * `aussitot` sert au cas de panne : quand la boutique est injoignable, faire
+ * patienter trois secondes de plus devant une vidéo avant d'annoncer la
+ * mauvaise nouvelle, c'est trois secondes prises à quelqu'un qui a déjà un
+ * problème. Le plancher n'existe que pour donner à voir, pas pour retenir.
+ */
+function retirerLeVoile({ aussitot = false } = {}) {
+  const voile = document.getElementById('charge');
+  if (!voile || voile.hidden || fermetureProgrammee) return;
+
+  // Le plancher ne s'applique que s'il y a quelque chose à regarder. Sous
+  // « moins de mouvement » le film ne joue pas : retenir trois secondes
+  // devant une image fixe, ce n'est plus une ouverture, c'est une attente.
+  const reste = OUVERTURE_MIN_MS - (Date.now() - ouvertureDebut);
+  if (!aussitot && reste > 0 && anime()) {
+    fermetureProgrammee = true;
+    setTimeout(fermerLeVoile, reste);
+    return;
+  }
+  fermerLeVoile();
+}
+
+function fermerLeVoile() {
   const voile = document.getElementById('charge');
   if (voile) voile.hidden = true;
   // Le voile part en fondu, donc il reste dans la page. Une vidéo en boucle
