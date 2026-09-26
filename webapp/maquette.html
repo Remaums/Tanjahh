@@ -160,6 +160,77 @@ img{display:block;max-width:100%}
   padding:11px 16px;border-radius:24px;background:var(--bleu);color:var(--encre);
   font-family:var(--aff);font-size:16px;letter-spacing:.05em;
   box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 26px rgba(125,202,255,.4)}
+
+/* ══════════════ ACCUEILS : le haut de l'écran ══════════════
+   Trois façons de commencer la page. Le bas — grille, barre — est le même
+   partout : la seule variable est ce qu'on met au-dessus des produits, et
+   combien de pixels ça coûte avant le premier prix. */
+.h-tete{display:flex;align-items:center;gap:9px;padding:13px 16px;background:var(--nuit2);
+  border-bottom:1px solid var(--filet)}
+.h-tete__n{font-family:var(--aff);font-size:19px;letter-spacing:.05em;flex:1}
+.h-pan{width:34px;height:34px;border-radius:50%;border:1px solid var(--filet);
+  background:var(--panneau);display:grid;place-items:center;font-size:15px;position:relative}
+.h-pan b{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;
+  background:var(--rouge);color:#fff;font-size:9.5px;display:grid;place-items:center;padding:0 4px}
+
+/* 1 — la réglette : tout l'essentiel sur une ligne */
+.h1-reg{display:flex;align-items:center;gap:0;padding:0;background:var(--nuit2);
+  border-bottom:1px solid var(--filet);font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase}
+.h1-reg div{flex:1;padding:9px 6px;text-align:center;color:var(--doux);position:relative}
+.h1-reg div+div::before{content:'';position:absolute;left:0;top:7px;bottom:7px;width:1px;background:var(--filet)}
+.h1-reg b{color:#5fd39a}
+.h1-reg i{font-style:normal;color:var(--jaune)}
+
+/* 2 — le film en bandeau */
+.h2-band{position:relative;height:132px;overflow:hidden;border-bottom:1px solid var(--filet)}
+.h2-band img{width:100%;height:100%;object-fit:cover;object-position:50% 34%}
+.h2-band .v{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,11,12,.9) 0%,rgba(10,11,12,.35) 52%,transparent 78%)}
+.h2-band .t{position:absolute;left:16px;top:50%;transform:translateY(-50%)}
+.h2-band .t h2{margin:0;font-family:var(--aff);font-size:27px;letter-spacing:.04em;line-height:1}
+.h2-band .t p{margin:4px 0 0;font-size:11px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--jaune)}
+.h2-band .t small{display:block;margin-top:2px;font-size:10.5px;color:var(--doux);letter-spacing:.06em}
+
+/* 3 — les pastilles */
+.h3-past{display:flex;gap:13px;padding:13px 16px 11px;overflow:hidden;border-bottom:1px solid var(--filet)}
+.h3-p{width:58px;flex:none;text-align:center}
+.h3-p__c{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:23px;
+  background:var(--panneau2);border:2px solid var(--filet)}
+.h3-p--on .h3-p__c{border-color:var(--jaune);box-shadow:0 0 14px rgba(255,210,30,.3)}
+.h3-p span{display:block;margin-top:5px;font-size:9px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--doux);line-height:1.2}
+.h3-p--on span{color:var(--jaune)}
+
+/* grille commune aux trois accueils */
+.h-cats{display:flex;gap:7px;padding:11px 16px 4px;overflow:hidden}
+.h-cats span{font-size:11px;font-weight:700;padding:6px 11px;border-radius:7px;white-space:nowrap;
+  background:var(--panneau2);border:1px solid var(--filet);color:var(--doux)}
+.h-cats span.on{background:var(--jaune);color:var(--encre);border-color:transparent}
+.h-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:11px 16px}
+.h-c{border-radius:10px;overflow:hidden;background:var(--panneau2);
+  border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.h-c__p{aspect-ratio:1;display:grid;place-items:center;background:rgba(12,13,14,.45);position:relative}
+.h-c__p img{width:60%}
+.h-c__p b{position:absolute;top:6px;left:6px;font-size:8.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ambre);background:rgba(10,11,12,.75);
+  border:1px solid rgba(255,158,44,.4);border-radius:3px;padding:2px 5px}
+.h-c__b{padding:8px 10px 10px}
+.h-c__n{font-size:12.5px;font-weight:600;line-height:1.15;height:2.3em;overflow:hidden}
+.h-c__t{display:flex;align-items:baseline;justify-content:space-between;margin-top:5px}
+.h-c__t b{font-family:var(--aff);font-size:18px;color:var(--jaune);letter-spacing:.03em}
+.h-c__t i{font-style:normal;font-size:9.5px;color:var(--doux)}
+.h-bar{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);
+  background:rgba(10,11,12,.96);border-top:1px solid var(--filet)}
+.h-bar div{padding:10px 2px 12px;display:grid;justify-items:center;gap:4px;font-size:9px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doux);position:relative}
+.h-bar div span{font-size:16px;line-height:1}
+.h-bar div.on{color:var(--bleu)}
+.h-bar div.on::before{content:'';position:absolute;top:0;left:22%;right:22%;height:2px;
+  background:var(--bleu);box-shadow:0 0 10px var(--bleu)}
+.pli{position:absolute;left:0;right:0;height:1px;background:rgba(255,61,61,.55);z-index:9}
+.pli::after{content:'PLI — ce qui est en dessous demande de défiler';position:absolute;right:6px;top:3px;
+  font-size:8px;letter-spacing:.08em;color:#ff6b6b;text-transform:uppercase}
 </style></head><body>
 <div class="planche" id="planche"></div>
 <script>
@@ -264,5 +335,51 @@ const pistes = [
 document.getElementById('planche').innerHTML = pistes.map(([t,d,f],i)=>`
   <div class="col"><p class="et">${t}<small>${d}</small></p>
   <div class="tel" id="tel${i}"><div class="tel__in">${f()}</div></div></div>`).join('');
+
+/* ── Les trois accueils ── */
+const grilleH = (n) => {
+  const lot = P.slice(0,n);
+  return `<div class="h-cats"><span class="on">Tout</span><span>Fleurs</span><span>Résines</span><span>Comestibles</span><span>Pa</span></div>
+  <div class="h-g">${lot.map(p=>`
+    <div class="h-c"><div class="h-c__p">${p.b?`<b>${p.b}</b>`:''}<img src="${art(p.a)}" alt=""></div>
+      <div class="h-c__b"><div class="h-c__n">${p.n}</div>
+        <div class="h-c__t"><b>${EUR(p.v[0][1])}</b><i>dès ${p.v[0][0]}</i></div></div></div>`).join('')}
+  </div>
+  <div class="h-bar"><div class="on"><span>▦</span>Catalogue</div><div><span>☰</span>Rayons</div>
+    <div><span>💬</span>Contact</div><div><span>👤</span>Profil</div></div>`;
+};
+const teteH = () => `<div class="h-tete"><span class="pastille"></span>
+  <div class="h-tete__n">TANJA HH 67</div><div class="h-pan">🛒<b>2</b></div></div>`;
+
+function H1(){ return teteH() + `
+  <div class="h1-reg"><div><b>● Ouvert</b></div><div>13H – 00H</div><div><i>Meet up</i> · Livraison</div></div>`
+  + grilleH(6) + `<div class="pli" style="top:844px"></div>`; }
+
+function H2(){ return teteH() + `
+  <div class="h2-band"><img src="/assets/ui/charge-poster.jpg" alt=""><div class="v"></div>
+    <div class="t"><h2>ÇA CIRCULE</h2><p>Ouvert 7/7 · 13h – 00h</p><small>Meet up ou livraison</small></div></div>`
+  + grilleH(6) + `<div class="pli" style="top:844px"></div>`; }
+
+function H3(){ return teteH() + `
+  <div class="h3-past">
+    <div class="h3-p h3-p--on"><div class="h3-p__c">⚡</div><span>2K26</span></div>
+    <div class="h3-p"><div class="h3-p__c">🆕</div><span>Nouveau</span></div>
+    <div class="h3-p"><div class="h3-p__c">🔥</div><span>Top</span></div>
+    <div class="h3-p"><div class="h3-p__c">📦</div><span>Packs</span></div>
+    <div class="h3-p"><div class="h3-p__c">🚚</div><span>Livr.</span></div>
+  </div>`
+  + grilleH(6) + `<div class="pli" style="top:844px"></div>`; }
+
+const accueils = [
+  ['1 — La réglette','Aucune bannière. Le nom, l\'état et le panier sur une ligne, puis une réglette qui dit l\'essentiel — ouvert, horaires, meet up ou livraison — en 34 px. Le premier prix apparaît à 168 px du haut au lieu de 470.',H1],
+  ['2 — Le film en bandeau','La bannière devient une bande de 132 px prise dans le film de l\'ouverture, avec le nom et les horaires posés dessus. On garde une image forte, mais couchée : elle coûte trois fois moins de hauteur que la pancarte.',H2],
+  ['3 — Les pastilles','Pas de bannière : une rangée de raccourcis ronds — 2K26, nouveautés, top ventes, packs, livraison. Ils remplacent le slogan par quelque chose sur quoi on appuie, et tiennent en 96 px.',H3],
+];
+const p2 = document.createElement('div');
+p2.className = 'planche';
+p2.innerHTML = accueils.map(([t,d,f],i)=>`
+  <div class="col"><p class="et">${t}<small>${d}</small></p>
+  <div class="tel" id="acc${i}"><div class="tel__in">${f()}</div></div></div>`).join('');
+document.body.appendChild(p2);
 </script>
 </body></html>
