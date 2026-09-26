@@ -237,6 +237,35 @@ function retirerLeVoile({ aussitot = false, rideau = true } = {}) {
  * bout avant que l'écran ne parte, ce qui est exactement l'image d'une
  * application bloquée.
  */
+/**
+ * Met le film du bandeau sous surveillance.
+ *
+ * Une balise vidéo en boucle continue de décoder image après image quand
+ * elle est sortie de l'écran : le bandeau est en haut de la page, donc il
+ * disparaît au premier défilement et personne ne le regarde pendant qu'il
+ * cherche un produit plus bas. On le met en pause dès qu'il sort, on le
+ * relance quand il revient.
+ *
+ * `preload="none"` dans le balisage va avec : le fichier est le même que
+ * celui de l'écran d'ouverture, donc déjà en cache à cet instant, et il
+ * n'y a aucune raison d'en redemander une copie au serveur.
+ *
+ * Sans IntersectionObserver — vieille WebView — on ne joue pas du tout :
+ * l'affiche reste, et c'est préférable à une vidéo qui tournerait pour
+ * rien jusqu'à la fermeture de la boutique.
+ */
+function surveillerLeBandeau() {
+  const film = document.getElementById('heroFilm');
+  if (!film || typeof IntersectionObserver !== 'function') return;
+  const oeil = new IntersectionObserver((entrees) => {
+    for (const e of entrees) {
+      if (e.isIntersecting && anime()) film.play?.().catch(() => {});
+      else film.pause?.();
+    }
+  }, { threshold: 0.12 });
+  oeil.observe(film);
+}
+
 function lancerLaJauge() {
   const barre = document.querySelector('.charge__jauge span');
   if (!barre) return;
@@ -269,6 +298,11 @@ function fermerLeVoile({ rideau = true } = {}) {
   const voile = document.getElementById('charge');
   if (voile) voile.hidden = true;
   if (rideau) decharger();
+  // Le bandeau ne prend vie qu'ici. IntersectionObserver regarde la fenêtre,
+  // pas ce qui est posé par-dessus : lancée au démarrage, la surveillance
+  // aurait trouvé le bandeau « visible » sous l'écran d'ouverture et fait
+  // décoder deux vidéos à la fois pour n'en montrer qu'une.
+  surveillerLeBandeau();
   // Le voile part en fondu, donc il reste dans la page. Une vidéo en boucle
   // dans un élément transparent continue de décoder image après image : on
   // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la
@@ -382,6 +416,12 @@ function appliquerLesAnimations() {
   // parti quand les réglages de la boutique arrivent, mais pas toujours : un
   // catalogue lent le laisse à l'écran plusieurs secondes.
   reglerLeFilm(!coupe && !document.getElementById('charge')?.hidden);
+
+  // Et celui du bandeau avec lui — mais on ne fait qu'arrêter ici, jamais
+  // démarrer : cette fonction tourne avant le départ du voile, et c'est
+  // l'observateur qui décide quand le bandeau est réellement à l'écran.
+  // Lui, il consulte `anime()`, qui vient d'être mis à jour.
+  if (coupe) document.getElementById('heroFilm')?.pause?.();
   return !coupe;
 }
 

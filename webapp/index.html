@@ -158,22 +158,30 @@
 <section class="vue" id="vueFiltres" role="tabpanel" aria-label="Boutique">
 
   <!-- ══ Bannière ══ -->
+  <!-- Le bandeau. Il remplace la pancarte en tôle, qui faisait 218 px et
+       repoussait le premier prix à 655 px d'un écran qui en fait 844 : il
+       fallait défiler pour voir ce que la boutique vend et à combien.
+
+       Le film est celui de l'ouverture, déjà en cache à cet instant — le
+       bandeau ne coûte donc aucun octet de plus. Il se met en pause dès
+       qu'on le fait défiler hors de l'écran : une vidéo en boucle décode
+       image après image même invisible, et personne ne regarde un bandeau
+       en cherchant un produit plus bas. -->
   <section class="hero">
-    <div class="hero__halo" aria-hidden="true"></div>
-    <!-- L'emblème de la maison, dans le coin de la bannière. Animé, mais
-         lentement : il donne un signe de vie à l'écran d'accueil sans se
-         disputer l'attention avec les photos de produits. -->
-    <img class="hero__embleme" id="heroEmbleme" src="/assets/ui/eclair.svg" alt="" aria-hidden="true">
+    <video class="hero__film" id="heroFilm" aria-hidden="true"
+           src="/assets/ui/charge.mp4" poster="/assets/ui/charge-poster.jpg"
+           muted loop playsinline preload="none"></video>
+    <div class="hero__voile" aria-hidden="true"></div>
     <div class="hero__body">
-      <p class="hero__eyebrow">Open 7/7 · 13h – 00h</p>
-      <h1 class="hero__title goldtext">Ça circule<br>tous les jours</h1>
-      <p class="hero__sub">Meet up ou livraison. Tu choisis dans le menu, on règle le reste en message.</p>
+      <h1 class="hero__title goldtext">Ça circule</h1>
+      <p class="hero__eyebrow">Ouvert 7/7 · 13h – 00h</p>
+      <p class="hero__sub">Meetup &amp; Livraison</p>
     </div>
   </section>
 
   <div class="badges">
     <span class="badge-chip">⚡ Réponse rapide</span>
-    <span class="badge-chip">🤝 Meet up</span>
+    <span class="badge-chip">🤝 Meetup</span>
     <span class="badge-chip">🛵 Livraison</span>
     <span class="badge-chip">📦 Emballage discret</span>
   </div>

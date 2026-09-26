@@ -606,104 +606,66 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .page { position: relative; z-index: 1; padding: 16px 14px calc(28px + var(--safe-bottom)); max-width: 640px; margin: 0 auto; }
 
 /* ── Bannière ────────────────────────────────────────────── */
-/* La bannière, c'est l'écriteau du visuel : une tôle usée, jaunie par le
-   temps, cerclée de rouille et vissée aux quatre coins. Elle porte
-   exactement ce que porte le vrai panneau — les horaires, le mode de
-   remise — et elle est la seule surface claire de l'écran, donc la
-   première chose qu'on lit.
+/* ── Le bandeau ──────────────────────────────────────────────
+   La pancarte en tôle qui occupait cette place faisait 218 px : la
+   première carte tombait à 463 px et le premier prix à 655 px, sur un
+   écran qui en fait 844. Autrement dit, un client ouvrait la boutique,
+   lisait un slogan, et devait défiler pour voir ce qu'on vend.
 
-   La version d'avant était un rectangle noir à filet jaune, c'est-à-dire
-   une carte d'application avec une bordure. Celle-ci est un objet. */
+   Le bandeau fait 132 px, bord à bord. Il garde une image forte — le film
+   de l'ouverture, couché — mais il la couche justement : le premier prix
+   remonte à 461 px, et deux produits entiers tiennent à l'écran.
+
+   Bord à bord et non dans la gouttière : une bande d'image qui s'arrête à
+   quatorze pixels du bord redevient une carte, c'est-à-dire l'objet qu'on
+   vient de retirer. */
 .hero {
   position: relative; overflow: hidden;
-  padding: 20px 16px 22px;
-  color: #2a1d11;
-  background-color: #c6ad80;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23r)' opacity='.5'/%3E%3C/svg%3E"),
-    radial-gradient(120% 90% at 20% 10%, rgb(226 205 166 / .85), transparent 60%),
-    radial-gradient(90% 70% at 100% 100%, rgb(var(--rouille-rgb) / .55), transparent 65%);
-  background-size: 120px 120px, auto, auto;
-  background-blend-mode: overlay, normal, normal;
-  border: 4px solid rgb(var(--rouille-rgb));
-  border-radius: 3px;
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / .18),
-    inset 0 -18px 34px rgb(var(--rouille-rgb) / .3),
-    0 14px 30px rgb(0 0 0 / .55);
+  height: 132px;
+  margin: -16px calc(var(--gutter, 14px) * -1) 0;
+  background: var(--panel-2);
+  border: 0; border-bottom: 1px solid rgb(var(--jaune-rgb) / .3);
 }
-/* Les quatre vis. Deux pseudo-éléments portent chacun deux points par
-   dégradé radial : c'est ce qui accroche la tôle au mur, et c'est ce
-   qui empêche le panneau de flotter comme un rectangle. */
-.hero::before, .hero::after {
-  content: ''; position: absolute; left: 9px; right: 9px; height: 7px;
-  background:
-    radial-gradient(circle at 3px 50%, rgb(60 42 26 / .9) 0 3px, transparent 3.5px) left / 50% 100% no-repeat,
-    radial-gradient(circle at calc(100% - 3px) 50%, rgb(60 42 26 / .9) 0 3px, transparent 3.5px) right / 50% 100% no-repeat;
-  pointer-events: none; z-index: 2;
-}
-.hero::before { top: 9px; }
-.hero::after  { bottom: 9px; }
-/* Le halo vert qui noyait la bannière ne reste qu'en trace, dans un coin :
-   assez pour que la surface ne soit pas un rectangle gris, pas assez pour
-   qu'on le voie avant le titre. */
-.hero__halo {
-  position: absolute; inset: -60% -30% auto; height: 170%;
-  background: radial-gradient(45% 45% at 78% 45%, rgb(var(--rouille-rgb) / .28), transparent 70%);
-  mix-blend-mode: multiply;
+.hero__film {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  /* Le sujet du plan est au centre haut : un cadrage centré lui coupait le
+     front. On remonte le point d'ancrage plutôt que de rogner l'image. */
+  object-position: 50% 34%;
   pointer-events: none;
 }
-.hero__body { position: relative; z-index: 1; }
-/* La ligne d'horaires, en bandeau plein sur toute la largeur de la
-   plaque — c'est ce qu'on lit en premier sur une devanture. */
-.hero__eyebrow {
-  display: block; margin: -20px -16px 14px; padding: 7px 16px;
-  font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
-  color: #f2e6d2; background: rgb(var(--rouille-rgb));
+/* Le voile part de la gauche, là où se pose le texte, et laisse l'image
+   respirer à droite. Un voile uniforme éteindrait tout le bandeau pour ne
+   rendre lisibles que trois lignes. */
+.hero__voile {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgb(var(--void-rgb) / .92) 0%, rgb(var(--void-rgb) / .45) 54%, transparent 80%),
+    linear-gradient(0deg, rgb(var(--void-rgb) / .5) 0%, transparent 42%);
 }
-/* Sur la tôle claire, le texte est brun foncé : le blanc cassé des titres
-   du reste de l'écran y serait illisible, et la lueur froide n'a rien à
-   faire sur une surface éclairée au lampadaire. */
+.hero__body {
+  position: absolute; left: var(--gutter, 14px); top: 50%;
+  transform: translateY(-50%); z-index: 1; max-width: 62%;
+}
 .hero__title {
-  font-size: clamp(34px, 11vw, 48px); line-height: .94;
-  text-transform: uppercase; font-weight: 400;
-  color: #24180d; text-shadow: 0 1px 0 rgb(255 255 255 / .22);
+  font-size: clamp(26px, 8vw, 32px); line-height: .96;
+  text-transform: uppercase; font-weight: 400; margin: 0;
+  text-shadow: 0 2px 14px rgb(var(--void-rgb) / .9);
+}
+/* Les horaires en jaune d'enseigne : c'est la deuxième chose qu'on vient
+   vérifier après le prix, et la seule information du bandeau qui change. */
+.hero__eyebrow {
+  display: block; margin: 5px 0 0; padding: 0;
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--jaune); background: none;
+  text-shadow: 0 1px 10px rgb(var(--void-rgb) / .9);
 }
 .hero__sub {
-  margin: 10px 0 0; font-size: 13.5px; line-height: 1.4;
-  color: rgb(42 29 17 / .82); font-weight: 600; max-width: 24ch;
+  margin: 2px 0 0; font-size: 11px; font-weight: 600;
+  letter-spacing: .08em; color: rgb(var(--cream-rgb) / .8);
+  max-width: none;
+  text-shadow: 0 1px 10px rgb(var(--void-rgb) / .9);
 }
-/* Éclair filigrane dans le coin : le décor de la bannière depuis que
-   la mascotte a disparu. */
-/* Le filigrane du coin n'est plus un dessin fixe mais l'emblème animé.
-   Posé en `img` plutôt qu'en fond : un fond ne se remplace pas par une
-   image fixe quand le client a coupé les animations, alors qu'une balise,
-   si — il suffit de lui changer d'adresse. */
-.hero__embleme {
-  position: absolute; right: 12px; bottom: 12px; z-index: 1;
-  /* L'éclair de l'enseigne, pour de bon. À quatorze pour cent d'opacité
-     dans un coin, c'était un filigrane que personne ne voyait ; c'est
-     l'emblème de la maison, il est sur le panneau et il se voit.
-     Le halo jaune le décolle de la tôle, qui est claire elle aussi. */
-  width: 104px; height: auto; opacity: 1;
-  transform: rotate(9deg);
-  pointer-events: none; user-select: none;
-  filter: drop-shadow(0 3px 5px rgb(60 42 26 / .45));
-  animation: gresille 4.5s steps(1, end) infinite;
-}
-/* Un néon fatigué ne clignote pas régulièrement : il s'éteint un
-   vingtième de seconde, se rallume, retombe, puis tient. Trois images
-   suffisent à le dire ; en dessous on croit à un défaut d'affichage,
-   au-dessus ça devient une animation et ça fatigue. */
-@keyframes gresille {
-  0%, 70%   { opacity: 1; filter: drop-shadow(0 3px 5px rgb(60 42 26 / .45)); }
-  71%       { opacity: .45; }
-  72%       { opacity: 1; }
-  76%       { opacity: .6; }
-  77%, 100% { opacity: 1; }
-}
-[data-anim='off'] .hero__embleme { animation: none; }
-@media (prefers-reduced-motion: reduce) { .hero__embleme { animation: none; } }
 
 /* ── Chips d'arguments ───────────────────────────────────── */
 .badges { display: flex; gap: 8px; overflow-x: auto; margin: 14px -14px 0; padding: 2px 14px 4px; scrollbar-width: none; }
