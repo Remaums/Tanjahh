@@ -187,8 +187,13 @@ await saveSettings({ features: { photos: true } });
   const INCONNU = { id: 900000 + Math.floor(Math.random() * 90000), is_bot: false, first_name: 'Passant' };
   await oublier(INCONNU.id);
 
+  // On cherche le clavier dans TOUS les appels, pas seulement le premier.
+  // Après un bouton, Telegram reçoit d'abord un accusé sans clavier, et le
+  // message porteur des six réponses n'arrive qu'ensuite : ne lire que e[0]
+  // rendait une liste vide, qu'on pouvait alors comparer à n'importe quoi.
   const boutons = (e) =>
-    (e[0]?.payload?.reply_markup?.inline_keyboard ?? []).flat().map((b) => b.callback_data);
+    ((e.find((x) => x?.payload?.reply_markup?.inline_keyboard)
+      ?.payload?.reply_markup?.inline_keyboard) ?? []).flat().map((b) => b.callback_data);
 
   e = await jouer(message(INCONNU, '/start'));
   check('Un inconnu tombe sur un calcul', /Combien font/.test(dit(e)), dit(e).slice(0, 60));
@@ -219,7 +224,18 @@ await saveSettings({ features: { photos: true } });
   check('Une mauvaise réponse est refusée', /pas ça/i.test(dit(e)), dit(e).slice(0, 40));
   check('Et il reste des essais', /2 essais/.test(dit(e)), dit(e).slice(0, 60));
   const apresErreur = dit(e).match(/Combien font (\d+) ([+−]) (\d+)/);
-  check('Un nouveau calcul est tiré', apresErreur[0] !== enonce[0], `${enonce[0]} → ${apresErreur[0]}`);
+  // On compare le tirage entier — énoncé ET ordre des six boutons — et non le
+  // seul énoncé. Il n'y a qu'une centaine d'énoncés possibles : deux tirages
+  // successifs retombent sur le même environ une fois sur cinquante, et le
+  // test échouait alors sans qu'aucune règle soit enfreinte. Le mélange des
+  // boutons, lui, ajoute 720 possibilités : un tirage vraiment refait se
+  // distingue du précédent à coup sûr en pratique, et un calcul reposé tel
+  // quel — ce que le test cherche à interdire — reste détecté, puisqu'il
+  // arriverait avec ses boutons inchangés.
+  const tirage = (enonceLu, boutonsLus) => `${enonceLu[0]} | ${boutonsLus.join(',')}`;
+  check('Un nouveau calcul est tiré',
+    tirage(apresErreur, boutons(e).map((d) => Number(d.split(':')[1]))) !== tirage(enonce, choix),
+    `${enonce[0]} → ${apresErreur[0]}`);
   check("La porte est toujours fermée", (await estPasse(INCONNU.id)) === false);
 
   // Trois erreurs valent une attente : c'est ce qui rend l'essai systématique
