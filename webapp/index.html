@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="theme-color" content="#0b0d14">
 <title>TANJA HH 67 — Boutique</title>
-<link rel="icon" href="/assets/ui/eclair.svg">
+<!-- L'enseigne de la maison. Le PNG servi fait 192 px : le logo
+     s'affiche à 34, et même sur un écran à trois fois la densité
+     cela laisse de la marge. Le 512 est dans le dossier pour la
+     photo de profil du bot, il n'est pas chargé par la page. -->
+<link rel="icon" href="/assets/ui/logo.png">
+<link rel="apple-touch-icon" href="/assets/ui/logo.png">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -128,7 +133,7 @@
 <!-- ══ En-tête ══ -->
 <header class="topbar">
   <div class="topbar__brand">
-    <img src="/assets/ui/eclair.svg" alt="" class="topbar__eclair">
+    <img src="/assets/ui/logo.png" alt="" class="topbar__logo">
     <span class="topbar__bloc">
       <span class="topbar__name goldtext" id="shopName">TANJA HH 67</span>
       <span class="topbar__sous" id="shopSous"></span>
