@@ -1136,7 +1136,7 @@ if (standalone) {
       });
   }
 
-  app.listen(config.port, config.host, async () => {
+  const serveur = app.listen(config.port, config.host, async () => {
     console.log(`  Boutique servie sur http://${config.host}:${config.port}`);
     if (config.webappUrl) console.log(`  URL publique déclarée : ${config.webappUrl}`);
     console.log(`  Stockage : ${storageKind}`);
@@ -1166,6 +1166,30 @@ if (standalone) {
       console.warn('  ⚠ Aucun administrateur : /admin refusera tout le monde et rien ne sera gérable.');
       console.warn('    Renseigne ADMIN_IDS dans .env (envoie /start au bot pour connaître ton identifiant).');
     }
+  });
+
+  // Sans ça, un port déjà pris remonte en « Unhandled 'error' event » : dix
+  // lignes de trace de pile qui nomment node:net et pas la boutique, alors
+  // que la cause est presque toujours la même — une autre boutique, ou une
+  // ancienne instance restée en vie. On le dit, avec le moyen de le voir et
+  // celui de le corriger.
+  serveur.on('error', (err) => {
+    if (err.code !== 'EADDRINUSE') throw err;
+    const source = process.env.PORT
+      ? 'PORT, lu dans ton .env'
+      : "la valeur par défaut — ni .env ni ligne PORT n'ont été trouvés";
+    console.error(`\n  ✖ Le port ${config.port} est déjà pris.\n`);
+    console.error(`  Ce port vient de ${source}.\n`);
+    console.error('  Deux causes, presque toujours :\n');
+    console.error('    1. Un autre programme écoute déjà dessus — souvent');
+    console.error('       une seconde boutique. Deux boutiques sur la même');
+    console.error('       machine ont besoin de deux ports distincts ET de');
+    console.error('       deux dossiers séparés : mets PORT=3100 dans le .env');
+    console.error("       de celle-ci si l'autre occupe déjà 3000.\n");
+    console.error('    2. Une instance précédente tourne encore.');
+    console.error(`       Pour voir qui :   ss -lptn 'sport = :${config.port}'`);
+    console.error('       Pour la couper :  kill <le PID affiché>\n');
+    process.exit(1);
   });
 
   // Un secret de webhook traînant dans l'environnement n'empêche plus rien,
