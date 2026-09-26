@@ -366,7 +366,7 @@ body {
 
 /* ── Typographie d'affiche ───────────────────────────────── */
 h1, h2, h3, .display,
-.topbar__name, .card__name, .card__price, .cart__total strong {
+.topbar__name, .card__name, .card__price {
   font-family: var(--display);
   /* Bebas Neue n'existe qu'en 400 : on demande 700 pour que la police de
      secours reste grasse, et on coupe la fausse graisse pour ne pas
@@ -590,29 +590,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .findbtn:active { background: rgb(var(--cream-rgb) / .1); }
 
-.cartbtn {
-  position: relative; flex: none;
-  display: flex; align-items: center; gap: 8px;
-  height: 40px; padding: 0 12px;
-  color: var(--neon);
-  background: rgb(var(--neon-rgb) / .1);
-  border: var(--line) solid rgb(var(--neon-rgb) / .34);
-  border-radius: 999px; box-shadow: none;
-  transition: transform .12s ease;
-}
-.cartbtn:active { transform: scale(.96); }
-.cartbtn svg { width: 21px; height: 21px; fill: currentColor; }
-.cartbtn__total {
-  font-size: 13.5px; font-weight: 800; letter-spacing: -.01em;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
-}
 /* Le nombre d'articles reste accessible aux lecteurs d'écran, mais ne
    s'affiche plus : le montant le remplace à l'œil. */
-.cartbtn__count {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
-  clip-path: inset(50%); white-space: nowrap;
-}
-.cartbtn__count.pop { animation: pop .35s ease; }
 @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.45)} 100%{transform:scale(1)} }
 
 /* Bandeau de fermeture : visible sans masquer le catalogue, on peut
@@ -808,19 +787,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
   letter-spacing: .06em; text-transform: uppercase;
   text-shadow: none; color: rgb(var(--cream-rgb) / .55);
 }
-.card__add {
-  width: 34px; height: 34px; flex: none; display: grid; place-items: center;
-  color: var(--neon);
-  background: rgb(var(--neon-rgb) / .1);
-  border: 1px solid rgb(var(--neon-rgb) / .4); border-radius: 50%;
-  font-size: 19px; line-height: 1; font-weight: 700;
-  transition: background .14s ease, box-shadow .14s ease;
+/* Le rond « + » ajoutait au panier. Il n'y a plus de panier : une carte
+   mène à sa fiche, et c'est là qu'on commande. Un chevron le dit sans
+   promettre une action qui n'existe pas — un « + » sur une carte annonce
+   un ajout en un geste, et le tenir ensuite pour un simple lien est le
+   genre de petit mensonge qui use la confiance. */
+.card__fleche {
+  flex: none; font-size: 20px; line-height: 1;
+  color: rgb(var(--cream-rgb) / .35);
+  transition: color .14s ease, transform .14s ease;
 }
-/* L'appui l'allume : le halo froid de l'éclair, une fois, à l'endroit
-   exact où le doigt s'est posé. */
-.card__add:active {
-  background: rgb(var(--neon-rgb) / .3);
-  box-shadow: 0 0 18px rgb(var(--neon-rgb) / .55);
+.card:active .card__fleche {
+  color: var(--neon); transform: translateX(2px);
 }
 
 .empty { text-align: center; padding: 30px 0; color: var(--muted); }
@@ -984,60 +962,22 @@ button { font: inherit; color: inherit; cursor: pointer; }
   transform: rotate(45deg);
 }
 
-.qty {
-  display: flex; align-items: center; gap: 2px; flex: none;
-  border: var(--line) solid var(--line-soft); border-radius: var(--radius);
-  background: rgba(255, 255, 255, .06); overflow: hidden;
-}
-.qty button { width: 40px; height: 44px; background: none; border: 0; font-size: 22px; font-weight: 800; color: var(--cream); }
-.qty button:active { background: rgb(var(--neon-rgb) / .22); }
-.qty span { min-width: 26px; text-align: center; font-weight: 800; font-size: 17px; }
 
 /* ── Panier ──────────────────────────────────────────────── */
-.cart__title { font-size: 32px; padding: 20px 16px 4px; }
-.cart__list { list-style: none; margin: 0; padding: 10px 14px 0; display: flex; flex-direction: column; gap: 10px; }
+/* Le titre d'une feuille. Il s'appelait `.cart__title` du temps où le
+   panier était la seule feuille de la boutique ; il ne reste que celle des
+   avis, et elle mérite un nom qui ne parle pas d'un panier disparu. */
+.feuille__titre { font-size: 32px; padding: 20px 16px 4px; }
 
 /* Un nom de produit sans espace ne doit pas sortir de sa carte : le
    débordement était masqué par la page, donc invisible à la mesure, mais bien
    là à l'écran. */
-.card__name, .card__short, .cart-item__name, .cart-item__meta,
+.card__name, .card__short,
 .pdetail__name, .pdetail__desc, .order__items li, .toast,
-.done__lines li, .promo__status, .cart__hint {
-  overflow-wrap: anywhere;
-}
 
-.cart-item {
-  display: flex; align-items: center; gap: 11px;
-  background: var(--panel);
-  border: var(--line) solid var(--line-soft);
-  border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow-sm);
-}
-.cart-item__art {
-  width: 52px; height: 52px; flex: none; display: grid; place-items: center;
-  background: rgb(var(--ink-rgb) / .45);
-  border: 1px solid var(--line-soft); border-radius: 12px;
-}
-.cart-item__art img { width: 80%; }
-.cart-item__info { flex: 1; min-width: 0; }
-.cart-item__name { display: block; font-weight: 800; font-size: 14.5px; line-height: 1.2; }
-.cart-item__meta { display: block; font-size: 12px; color: var(--muted); font-weight: 700; }
-.cart-item__ctl { display: flex; align-items: center; gap: 2px; flex: none; }
-.cart-item__ctl button {
-  width: 30px; height: 30px; display: grid; place-items: center;
-  color: var(--cream); background: rgba(255, 255, 255, .07);
-  border: 1px solid var(--line-soft); border-radius: 9px;
-  font-size: 17px; font-weight: 800; line-height: 1;
-}
-.cart-item__ctl button:active { background: rgb(var(--neon-rgb) / .25); }
-.cart-item__ctl span { min-width: 24px; text-align: center; font-weight: 800; font-size: 15px; }
 
 /* Une ligne qu'on ne peut plus servir doit se voir avant le bouton. */
-.cart-item--short { border-color: rgb(var(--gold-rgb) / .55); background: rgb(var(--gold-rgb) / .07); }
-.cart-item__short { display: block; font-size: 11.5px; font-weight: 800; color: var(--gold); margin-top: 2px; }
 
-.cart__empty { text-align: center; padding: 26px 20px; }
-.cart__empty-eclair { width: 84px; margin: 0 auto 12px; opacity: .8; filter: drop-shadow(0 0 20px rgb(var(--neon-rgb) / .5)); }
-.cart__empty p { font-weight: 700; color: var(--muted); margin: 0; }
 
 .field { display: block; padding: 16px 14px 4px; }
 .field span { font-size: 13px; font-weight: 800; display: block; margin-bottom: 6px; color: var(--muted); }
@@ -1056,7 +996,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Une adresse tient en plusieurs lignes : elles se suivent sans intitulé
    intermédiaire, comme sur une enveloppe. */
 .field input + input, .field input + .champs-deux { margin-top: 7px; }
-.champs-deux { display: grid; grid-template-columns: 5.5rem 1fr; gap: 7px; }
 
 /* « La même chose » : un raccourci d'habitué, pas une réclame. Il a la forme
    d'une ligne qu'on touche, pas d'un bouton d'appel à l'action. */
@@ -1074,21 +1013,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .reprise__texte span { color: var(--muted); font-weight: 600; overflow-wrap: anywhere; }
 .reprise__fleche { color: var(--neon); font-size: 22px; font-weight: 800; }
 
-.cart__total { flex: 1 1 auto; min-width: 0; line-height: 1.05; }
-.cart__total span { display: block; font-size: 11.5px; font-weight: 700; color: var(--muted); }
 /* Le plus gros montant de la boutique : il n'avait aucune couleur et
    héritait du blanc cassé du texte courant. */
-.cart__total strong { font-size: 28px; color: var(--jaune); }
 /* Sur un écran étroit, un libellé de total un peu long poussait le bouton
    Commander hors de la barre. La barre passe à la ligne plutôt que d'expulser
    ce sur quoi il faut appuyer. */
-.sheet__bar--cart { gap: 10px 14px; }
 .sheet__bar--cart .btn--grow { min-width: 9rem; }
 @media (max-width: 380px) {
   .sheet__bar--cart .btn--grow { flex-basis: 100%; }
 }
 
-.modes { display: flex; gap: 9px; }
 .mode {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
   padding: 11px 8px; font-weight: 800; font-size: 14px; color: var(--cream);
@@ -1108,46 +1042,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Le code se saisit en majuscules, l'invite reste une phrase normale. */
 .promo input::placeholder { text-transform: none; letter-spacing: 0; }
 .promo .btn { flex: none; padding: 0 16px; font-size: 13px; }
-.promo__status {
-  margin: 7px 0 0; font-size: 12.5px; font-weight: 800; line-height: 1.35;
-  color: var(--muted);
-}
-.promo__status--ok { color: var(--neon); }
-.promo__status--ko { color: var(--gold); }
 
 /* Le prix barré rassure : on voit ce qu'on aurait payé sans la remise. */
-.cart__total small {
-  display: block; font-size: 12px; font-weight: 800; color: var(--muted);
-  text-decoration: line-through; text-decoration-color: rgb(var(--cream-rgb) / .5);
-}
 
-.cart__hint {
-  margin: 12px 14px 0; padding: 10px 12px; border-radius: 12px;
-  font-size: 13px; font-weight: 700; line-height: 1.4;
-  color: var(--gold); background: rgb(var(--gold-rgb) / .12);
-  border: 1px solid rgb(var(--gold-rgb) / .4);
-}
 
 /* ── Commande enregistrée ────────────────────────────────── */
 .done { text-align: center; padding: 28px 20px 8px; }
-.done__seal {
-  display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 14px;
-  font-size: 28px; font-weight: 800; color: var(--ink);
-  background: var(--neon);
-  border-radius: 50%; box-shadow: none;
-}
 /* Un peu d'air : serré, l'accent des capitales se fait rogner. */
-.done__title { font-size: 28px; line-height: 1.18; margin: 0 0 6px; }
-.done__ref {
-  display: inline-block; margin: 0 0 12px; padding: 5px 13px; border-radius: var(--radius);
-  font-family: var(--display); font-size: 17px; letter-spacing: .04em; color: var(--gold);
-  background: rgb(var(--gold-rgb) / .12); border: 1px solid rgb(var(--gold-rgb) / .4);
-}
-.done__text { margin: 0 auto 14px; max-width: 30ch; font-weight: 700; color: var(--muted); line-height: 1.45; }
-.done__lines { list-style: none; margin: 0; padding: 0; font-size: 13.5px; font-weight: 700; }
-.done__lines li { padding: 3px 0; }
 /* Le total de la commande, seule ligne en gras du récapitulatif. */
-.done__lines li b { color: var(--jaune); }
 
 .gate__link {
   display: block; width: 100%; margin-top: 12px; padding: 6px;
@@ -1216,7 +1118,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* La famille d'affiche s'applique au prix, mais pas son remplissage : sans
    cette ligne, le dégradé de .goldtext repeindrait le prix en blanc. */
 .card__price { -webkit-text-fill-color: var(--jaune); }
-.card--soldout .card__add { background: rgba(255, 255, 255, .1); color: var(--muted); box-shadow: none; }
+.card--soldout .card__fleche { color: rgb(var(--cream-rgb) / .2); }
 .card__badge--out { background: rgb(var(--ink-rgb) / .85); border-color: var(--line-soft); box-shadow: none; color: var(--muted); }
 
 .variant[disabled] {
@@ -1225,7 +1127,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .variant[disabled] small { color: inherit; }
 
-.qty button[disabled] { opacity: .3; pointer-events: none; }
 
 /* ── Photos ──────────────────────────────────────────────── */
 /* Une vraie photo remplit son cadre au lieu de flotter dans le halo, avec
@@ -1277,13 +1178,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* Une copie de la vignette, posée en `fixed` le temps du vol, puis retirée.
    `pointer-events: none` : elle traverse l'écran, elle ne doit rien bloquer. */
-.vol {
-  position: fixed; z-index: 95; pointer-events: none;
-  border-radius: 12px; overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform .55s cubic-bezier(.5, -0.2, .7, 1), opacity .55s ease-in;
-}
-.vol img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* La pastille du panier a déjà son `pop` : on ne l'empile pas, on la laisse
    dire « c'est arrivé » au moment où la vignette la rejoint. */
@@ -1331,23 +1225,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* ── Widget : la progression vers un palier ──────────────── */
 
 .jauge { margin: 10px 0 2px; }
-.jauge__texte {
-  display: flex; justify-content: space-between; gap: 10px;
-  font-size: 12px; font-weight: 800; margin-bottom: 6px;
-}
-.jauge__texte span:last-child { color: var(--muted); font-weight: 700; white-space: nowrap; }
-.jauge__piste {
-  height: 7px; border-radius: 999px; overflow: hidden;
-  background: rgb(var(--ink-rgb) / .55);
-}
-.jauge__barre {
-  height: 100%; border-radius: 999px; width: 0;
-  background: linear-gradient(90deg, var(--neon-deep), var(--neon));
-  box-shadow: 0 0 10px rgb(var(--neon-rgb) / .5);
-  transition: width .5s cubic-bezier(.22, .9, .3, 1);
-}
-.jauge--atteint .jauge__barre { background: linear-gradient(90deg, var(--gold-lo), var(--gold)); }
-.jauge--atteint .jauge__texte span:first-child { color: var(--gold); }
 
 /* ── Quand le mouvement n'est pas souhaité ───────────────── */
 
@@ -1365,8 +1242,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 [data-anim='off'] .tabbar__curseur { transition: none; }
 [data-anim='off'] .statut__pastille { animation: none; }
 [data-anim='off'] .squelette::after { animation: none; }
-[data-anim='off'] .jauge__barre { transition: none; }
-[data-anim='off'] .cartbtn__count.pop { animation: none; }
 
 /* ── Galerie de la fiche produit ─────────────────────────── */
 
@@ -1448,8 +1323,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   object-fit: cover; opacity: 1; filter: none;
 }
 
-.cart-item__art--photo { overflow: hidden; background: rgb(var(--ink-rgb) / .5); }
-.cart-item__art--photo img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ── Avis ─────────────────────────────────────────────────────
    Les étoiles portent l'or de l'affiche, pas le néon : le néon

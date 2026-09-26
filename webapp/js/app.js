@@ -44,7 +44,6 @@ const state = {
   mode: 'pickup',
   captcha: null,      // épreuve en cours
   selection: [],      // tuiles touchées
-  cart: loadCart(),
   startProduct: null, // produit demandé par un lien direct, à ouvrir une fois entré
   current: null, // produit ouvert dans la fiche
   currentVariant: null,
@@ -93,7 +92,6 @@ async function init() {
     tg.setBackgroundColor?.(night);
     tg.enableClosingConfirmation?.();
     tg.BackButton?.onClick(revenirEnArriere);
-    tg.MainButton?.onClick(() => openSheet('cartSheet'));
   }
 
   state.startProduct = produitDemande();
@@ -159,10 +157,8 @@ async function init() {
   renderClosedBanner();
   renderSousTitre();
   renderStatut();
-  renderModes();
   renderCategories();
   renderGrid();
-  renderCart();
   retirerLeVoile();
   mesurerLaBarre();
   placerLeCurseur();
@@ -460,7 +456,6 @@ function bindStaticHandlers() {
   });
   $('ageNo').addEventListener('click', () => (tg ? tg.close() : window.history.back()));
 
-  $('cartBtn').addEventListener('click', () => openSheet('cartSheet'));
   for (const bouton of $('tabbar').querySelectorAll('.tabbar__item')) {
     bouton.addEventListener('click', () => {
       montrerLOnglet(bouton.dataset.onglet);
@@ -490,10 +485,6 @@ function bindStaticHandlers() {
   $('verifAction').addEventListener('click', () => (tg ? tg.close() : window.history.back()));
   $('porteAction').addEventListener('click', () => (tg ? tg.close() : window.history.back()));
   $('porteRetry').addEventListener('click', () => reprendreSiLaPorteEstOuverte({ dire: true }));
-  $('checkout').addEventListener('click', checkout);
-  // Facultatif, et c'est tout l'enjeu : la commande est déjà partie, ce bouton
-  // ne sert qu'à ceux qui veulent ajouter un mot.
-  $('doneChat').addEventListener('click', () => openSellerChat(state.lastMessage));
   $('suggestionAvis').addEventListener('click', () => ouvrirLAvis(state.avisADonner[0]));
   $('avisEnvoyer').addEventListener('click', envoyerLAvis);
   for (const choix of $('avisSignature').querySelectorAll('.signature__choix')) {
@@ -514,8 +505,6 @@ function bindStaticHandlers() {
     $('verification').hidden = true;
     toast('Tu pourras commander une fois ta pièce validée.');
   });
-  $('promoApply').addEventListener('click', applyPromo);
-  $('promoCode').addEventListener('keydown', (e) => e.key === 'Enter' && applyPromo());
   $('findBtn').addEventListener('click', () => {
     const ouverte = !$('findBar').hidden;
     if (ouverte) replierLaRecherche();
@@ -541,27 +530,13 @@ function bindStaticHandlers() {
     state.sort = $('findSort').value;
     renderGrid();
   });
-  $('reprise').addEventListener('click', () => reprendreLaCommande());
-  $('orderPostal').addEventListener('input', () => {
-    state.zone = findZone($('orderPostal').value);
-    renderCart();
-  });
-  $('orderSlot').addEventListener('change', () => {
-    state.slotId = $('orderSlot').value;
-    renderCart();
-  });
-  $('promoCode').addEventListener('input', () => {
-    if (!promoError) return;
-    promoError = null;
-    renderCart();
-  });
-
   $('pGalleryPrev').addEventListener('click', () => glisserGalerie(-1));
   $('pGalleryNext').addEventListener('click', () => glisserGalerie(1));
 
-  $('qtyMinus').addEventListener('click', () => setQty(state.currentQty - 1));
-  $('qtyPlus').addEventListener('click', () => setQty(state.currentQty + 1));
-  $('addToCart').addEventListener('click', addCurrentToCart);
+  $('commander').addEventListener('click', commanderCeProduit);
+  // « La même chose » : le raccourci de l'habitué. Il remplissait le panier,
+  // il rouvre maintenant la conversation avec les mêmes articles écrits.
+  $('reprise').addEventListener('click', () => commanderDeNouveau(state.derniere));
   $('notifyMe').addEventListener('click', joinWaitlist);
 
   for (const el of document.querySelectorAll('[data-close]')) {
@@ -570,39 +545,6 @@ function bindStaticHandlers() {
   document.addEventListener('keydown', (e) => e.key === 'Escape' && revenirEnArriere());
 }
 
-/* ── Retrait ou livraison ────────────────────────────────── */
-
-function renderModes() {
-  const { pickup, delivery } = state.fulfillment;
-  // Un seul mode possible : inutile de faire choisir.
-  $('modeField').hidden = !(pickup && delivery);
-  if (!(pickup && delivery)) return;
-
-  // Le tarif affiché est celui qui sera facturé : la zone reconnue l'emporte
-  // sur les conditions générales, et un franco atteint le ramène à zéro.
-  const fee = deliveryFeeIfDelivering(cartTotal());
-  const options = [
-    ['pickup', '🏠 Retrait', 'sur place'],
-    ['delivery', '🛵 Livraison', fee ? formatPrice(fee) : 'offerte'],
-  ];
-
-  $('modes').replaceChildren(
-    ...options.map(([value, label, detail]) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'mode';
-      btn.setAttribute('aria-pressed', String(state.mode === value));
-      btn.innerHTML = `${label}<small>${escapeHtml(detail)}</small>`;
-      btn.addEventListener('click', () => {
-        state.mode = value;
-        haptic('light');
-        renderModes();
-        renderCart();
-      });
-      return btn;
-    })
-  );
-}
 
 /** Retire de l'interface ce que la boutique n'offre pas en ce moment. */
 function applyFeatures() {
@@ -618,7 +560,6 @@ function applyFeatures() {
   ongletProfil.hidden = profilVide;
   $('tabbar').style.gridTemplateColumns = `repeat(${profilVide ? 3 : 4}, 1fr)`;
   if (profilVide && state.onglet === 'profil') montrerLOnglet('catalogue');
-  $('promoField').hidden = state.features.promos === false;
   // La recherche vit derrière la loupe de l'entête. Le réglage de la
   // boutique masque le bouton ; la rangée, elle, reste repliée tant qu'on
   // n'a pas appuyé dessus — et se replie si le vendeur coupe la fonction
@@ -665,35 +606,6 @@ function deliveryFeeFor(subtotal) {
   return state.mode === 'delivery' ? deliveryFeeIfDelivering(subtotal) : 0;
 }
 
-/** Dit tout de suite si on descend jusque chez lui, et à quelles conditions. */
-function renderZoneStatus() {
-  const el = $('zoneStatus');
-  const code = $('orderPostal').value.trim();
-
-  // Sans zone déclarée, la boutique livre partout : un code postal n'a alors
-  // rien à dire, et « on ne livre pas encore le 68100 » sous l'adresse d'une
-  // boutique qui livre partout fait renoncer pour rien.
-  if (!code || !state.zones.length) {
-    el.hidden = true;
-    return;
-  }
-  if (!state.zone) {
-    el.textContent = `On ne livre pas encore le ${code}. Le retrait sur place reste possible.`;
-    el.hidden = false;
-    el.classList.add('promo__status--ko');
-    el.classList.remove('promo__status--ok');
-    return;
-  }
-
-  const details = [
-    state.zone.fee ? `${formatPrice(state.zone.fee)} de livraison` : 'livraison offerte',
-    state.zone.minimumOrder ? `minimum ${formatPrice(state.zone.minimumOrder)}` : null,
-  ].filter(Boolean);
-  el.textContent = `${state.zone.name} · ${details.join(' · ')}`;
-  el.hidden = false;
-  el.classList.add('promo__status--ok');
-  el.classList.remove('promo__status--ko');
-}
 
 /** Charge les créneaux encore réservables. Silencieux en cas d'échec : le
  *  serveur revalide de toute façon, et une commande sans créneau vaut mieux
@@ -707,36 +619,9 @@ async function loadSlots() {
     state.slots = data.slots ?? [];
     // Le créneau choisi a pu se remplir pendant que le panier était ouvert.
     if (!state.slots.some((s) => s.id === state.slotId && !s.full)) state.slotId = '';
-    renderSlots();
   } catch {
     /* réseau capricieux : on garde ce qu'on a */
   }
-}
-
-function renderSlots() {
-  const select = $('orderSlot');
-  const options = [
-    Object.assign(document.createElement('option'), {
-      value: '', textContent: state.slots.length ? 'Choisis un créneau' : 'Aucun créneau disponible',
-      disabled: true,
-    }),
-    ...state.slots.map((slot) =>
-      Object.assign(document.createElement('option'), {
-        value: slot.id,
-        // Un créneau complet reste affiché : le faire disparaître donnerait
-        // l'impression d'un bug à qui l'avait vu une minute plus tôt.
-        textContent: slot.full
-          ? `${slot.label} — complet`
-          : slot.left <= 2
-            ? `${slot.label} — ${slot.left} place${slot.left > 1 ? 's' : ''}`
-            : slot.label,
-        disabled: slot.full,
-      })
-    ),
-  ];
-  select.replaceChildren(...options);
-  select.value = state.slotId;
-  if (!select.value) select.selectedIndex = 0;
 }
 
 /* ── Remises ─────────────────────────────────────────────── */
@@ -760,12 +645,6 @@ function tierDiscountFor(subtotal) {
   };
 }
 
-/** Remise finalement appliquée : le code saisi ou le palier, le meilleur. */
-function currentDiscount(subtotal) {
-  const palier = tierDiscountFor(subtotal);
-  if (state.promo && state.promo.discount >= palier.discount) return state.promo;
-  return palier.discount > 0 ? { ...palier, code: null, source: 'tier' } : { discount: 0, label: null };
-}
 
 /**
  * Dernier refus de code, retenu jusqu'à la prochaine saisie.
@@ -774,51 +653,12 @@ function currentDiscount(subtotal) {
  * remise automatique en cours : le client voyait sa saisie ne rien faire, sans
  * savoir pourquoi.
  */
-let promoError = null;
 
 /** Encourage sans mentir : le prochain palier et ce qu'il manque pour l'avoir. */
 function nextTierHint(subtotal) {
   const next = state.tiers.filter((t) => subtotal < t.from).sort((a, b) => a.from - b.from)[0];
   if (!next) return '';
   return `−${next.percent} % dès ${formatPrice(next.from)} : il manque ${formatPrice(next.from - subtotal)}.`;
-}
-
-async function applyPromo() {
-  const input = $('promoCode');
-  const code = input.value.trim();
-  const lines = detailedCart();
-
-  if (!code) {
-    state.promo = null;
-    promoError = null;
-    showPromoStatus('', null);
-    renderCart();
-    return;
-  }
-  if (!lines.length) return showPromoStatus('Ajoute d\'abord un article.', false);
-
-  const button = $('promoApply');
-  button.disabled = true;
-  promoError = null;
-  try {
-    const result = await previewPromo(code, lines);
-    // Le serveur peut préférer le palier au code : dans ce cas il ne renvoie
-    // pas de code, et le dire évite de faire croire que la saisie n'a rien fait.
-    state.promo = result.code ? result : null;
-    showPromoStatus(
-      result.code
-        ? `Code ${result.code} appliqué : −${formatPrice(result.discount)}`
-        : `Ta remise automatique (${result.label}) est plus avantageuse : on la garde.`,
-      true
-    );
-    haptic('success');
-  } catch (err) {
-    state.promo = null;
-    promoError = err.message;
-  } finally {
-    button.disabled = false;
-    renderCart();
-  }
 }
 
 async function previewPromo(code, lines) {
@@ -838,42 +678,12 @@ async function previewPromo(code, lines) {
   return data;
 }
 
-function showPromoStatus(message, ok) {
-  const el = $('promoStatus');
-  el.textContent = message;
-  el.hidden = !message;
-  el.classList.toggle('promo__status--ok', ok === true);
-  el.classList.toggle('promo__status--ko', ok === false);
-}
-
 /**
  * Le panier a bougé alors qu'un code était posé : son montant a changé, et il
  * peut même ne plus être valable (minimum de panier). On revalide au calme
  * plutôt qu'à chaque appui sur « + ».
  */
 let promoTimer;
-function revalidatePromo() {
-  if (!state.promo) return;
-  clearTimeout(promoTimer);
-  promoTimer = setTimeout(async () => {
-    const lines = detailedCart();
-    const code = state.promo?.code;
-    if (!code || !lines.length) {
-      state.promo = null;
-      showPromoStatus('', null);
-      renderCart();
-      return;
-    }
-    try {
-      const result = await previewPromo(code, lines);
-      state.promo = result.code ? result : null;
-    } catch (err) {
-      state.promo = null;
-      promoError = err.message;
-    }
-    renderCart();
-  }, 400);
-}
 
 /**
  * Le bandeau d'état, avec le décompte jusqu'au prochain basculement.
@@ -935,41 +745,6 @@ function rafraichirLeDecompte() {
     : `${verbe} dans ${minutes} min`;
 }
 
-/**
- * La jauge de progression vers le prochain avantage.
- *
- * @returns {boolean} vrai si elle s'affiche — la phrase des paliers s'efface
- *   alors, pour ne pas dire deux fois la même chose.
- *
- * Un client à qui il manque cinq euros pour la livraison offerte les ajoute
- * presque toujours — encore faut-il qu'il le sache, et qu'il voie de combien
- * il s'en approche. La barre dit d'un coup d'œil ce qu'une phrase dit moins
- * vite.
- */
-function renderJauge(subtotal) {
-  const jauge = $('jauge');
-  if (state.features.animations === false) {
-    jauge.hidden = true;
-    return false;
-  }
-
-  const objectif = prochainObjectif(subtotal);
-  if (!objectif) {
-    jauge.hidden = true;
-    return false;
-  }
-
-  jauge.hidden = false;
-  jauge.classList.toggle('jauge--atteint', objectif.atteint);
-  $('jaugeTexte').textContent = objectif.texte;
-  $('jaugeReste').textContent = objectif.atteint
-    ? '✓'
-    : `plus que ${formatPrice(objectif.seuil - subtotal)}`;
-  // La largeur est bornée : au-delà du seuil, la barre est pleine, pas plus.
-  const part = Math.max(4, Math.min(100, Math.round((subtotal / objectif.seuil) * 100)));
-  $('jaugeBarre').style.width = `${objectif.atteint ? 100 : part}%`;
-  return true;
-}
 
 /**
  * Le prochain avantage à atteindre, ou celui qu'on vient d'obtenir.
@@ -1041,7 +816,6 @@ async function loadMe() {
     const me = await res.json();
     state.blocked = Boolean(me.blocked);
     renderClosedBanner();
-    renderCart();
     return me;
   } catch (err) {
     console.error(err);
@@ -1856,7 +1630,7 @@ function productCard(product) {
       ${note ? `<span class="card__note">${etoiles(note.moyenne)} <small>${note.nombre}</small></span>` : ''}
       <span class="card__foot">
         <span class="card__price goldtext">${fromLabel}${formatPrice(product.price)}</span>
-        <span class="card__add" aria-hidden="true">+</span>
+        <span class="card__fleche" aria-hidden="true">›</span>
       </span>
     </div>`;
 
@@ -1917,7 +1691,7 @@ function openProduct(product) {
   if (!coeur.hidden) peindreLeCoeur(coeur, product.id);
 
   renderVariants();
-  setQty(1);
+  majBarreDeCommande();
   // Chaque fiche repart repliée : « voir tous les avis » d'un produit n'a pas à
   // décider de l'affichage du suivant.
   state.avisTousVisibles = false;
@@ -2333,7 +2107,7 @@ function renderVariants() {
       btn.addEventListener('click', () => {
         state.currentVariant = v.id;
         renderVariants();
-        setQty(state.currentQty);
+        majBarreDeCommande();
         // La galerie suit le format choisi : c'est tout l'intérêt de rattacher
         // une photo à une variété. Sans ce saut, le client choisit « Bubble
         // Gum » et continue de regarder la photo de la Banana Kush.
@@ -2345,35 +2119,36 @@ function renderVariants() {
   );
 }
 
-function setQty(next) {
+/**
+ * Met la barre de commande à jour pour le format choisi.
+ *
+ * Elle s'appelait `setQty` et réglait un compteur de quantité. Le compteur
+ * est parti avec le panier — une quantité se dit en deux mots dans la
+ * conversation — mais tout le reste de ce que faisait la fonction est
+ * toujours nécessaire : décider entre commander et se faire prévenir, et
+ * écrire le prix du format sur le bouton.
+ */
+function majBarreDeCommande() {
   const product = state.current;
   const available = product ? remainingFor(product, state.currentVariant) : 0;
+  state.currentQty = 1;
 
-  state.currentQty = Math.min(99, Math.max(1, next), Math.max(1, available));
-  $('qtyValue').textContent = state.currentQty;
-
-  const addButton = $('addToCart');
+  const bouton = $('commander');
   const notify = $('notifyMe');
 
   if (available <= 0) {
     // Épuisé : plutôt qu'un bouton mort, on propose d'être prévenu — sauf si
     // la liste d'attente est coupée, auquel cas il n'y a rien à promettre.
-    addButton.hidden = true;
-    $('qtyValue').closest('.qty').hidden = true;
+    bouton.hidden = true;
     notify.hidden = state.features.waitlist === false;
     if (!notify.hidden) refreshWaitlistButton();
     return;
   }
 
-  addButton.hidden = false;
-  $('qtyValue').closest('.qty').hidden = false;
+  bouton.hidden = false;
   notify.hidden = true;
-  addButton.disabled = false;
-  addButton.firstChild.textContent = 'Ajouter · ';
-  $('pPrice').textContent = formatPrice(unitPrice(product, state.currentVariant) * state.currentQty);
-
-  // On signale la fin de série : c'est ce qui fait bouger un panier.
-  $('qtyPlus').disabled = state.currentQty >= available;
+  bouton.disabled = false;
+  $('pPrice').textContent = formatPrice(unitPrice(product, state.currentVariant));
 }
 
 /* ── Liste d'attente ─────────────────────────────────────── */
@@ -2434,45 +2209,6 @@ async function joinWaitlist() {
 
 /* ── Panier ──────────────────────────────────────────────── */
 
-/**
- * Relit le panier laissé par la visite précédente, en s'en méfiant.
- *
- * Ce contenu a pu être trafiqué, tronqué, ou écrit par une version plus
- * ancienne de la boutique. Sans nettoyage, une ligne à `null` faisait planter
- * le rendu, une quantité en texte affichait « NaN € » avec un bouton
- * Commander toujours actif, et une quantité négative sortait un total négatif.
- * Rien de tout ça n'aurait été accepté par le serveur — autant ne pas le
- * montrer au client.
- */
-function loadCart() {
-  let raw;
-  try {
-    raw = JSON.parse(localStorage.getItem(CART_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-  if (!Array.isArray(raw)) return [];
-
-  // Les doublons sont fusionnés plutôt qu'empilés : deux lignes du même
-  // article se comptaient deux fois dans le badge et dans le total.
-  const parCle = new Map();
-  for (const ligne of raw) {
-    if (!ligne || typeof ligne !== 'object') continue;
-
-    const id = typeof ligne.id === 'string' ? ligne.id.trim() : '';
-    if (!id) continue;
-
-    const variantId = typeof ligne.variantId === 'string' && ligne.variantId ? ligne.variantId : null;
-    const quantity = Math.floor(Number(ligne.quantity));
-    if (!Number.isFinite(quantity) || quantity < 1) continue;
-
-    const key = `${id}::${variantId ?? ''}`;
-    const dejaLa = parCle.get(key);
-    const total = Math.min(99, (dejaLa?.quantity ?? 0) + quantity);
-    parCle.set(key, { key, id, variantId, quantity: total });
-  }
-  return [...parCle.values()].slice(0, CART_MAX_LINES);
-}
 
 /* ── « La même chose » ───────────────────────────────────── */
 
@@ -2558,538 +2294,12 @@ function reprendreLesLignes(commande) {
   return { dispo, manquants };
 }
 
-/** Remet la dernière commande dans le panier, et dit ce qui a changé. */
-function reprendreLaCommande(commande) {
-  const { dispo, manquants } = reprendreLesLignes(commande ?? state.derniere ?? {});
-  if (!dispo.length) {
-    toast("Rien de cette commande n'est disponible en ce moment.");
-    return;
-  }
 
-  // Un panier déjà rempli ne se remplace pas dans le dos de celui qui l'a
-  // rempli : on demande.
-  if (state.cart.length && !confirm('Remplacer ton panier par ta dernière commande ?')) return;
 
-  state.cart = dispo.map(({ key, id, variantId, quantity }) => ({ key, id, variantId, quantity }));
-  saveCart();
-  renderCart();
-  revalidatePromo();
-  closeSheets();
-  openSheet('cartSheet');
-  haptic('success');
 
-  const rabotes = dispo.filter((l) => l.rabote).length;
-  toast(
-    [
-      `${dispo.length} article${dispo.length > 1 ? 's' : ''} remis au panier`,
-      manquants.length ? `${manquants.length} indisponible${manquants.length > 1 ? 's' : ''}` : '',
-      rabotes ? 'quantité ajustée au stock' : '',
-    ]
-      .filter(Boolean)
-      .join(' · ')
-  );
-}
 
-function saveCart() {
-  try { localStorage.setItem(CART_KEY, JSON.stringify(state.cart)); } catch {}
-}
 
-function addCurrentToCart() {
-  const product = state.current;
-  if (!product) return;
 
-  const key = `${product.id}::${state.currentVariant ?? ''}`;
-  const available = stockOf(product, state.currentVariant);
-  const existing = state.cart.find((l) => l.key === key);
-  if (existing) {
-    existing.quantity = Math.min(99, available, existing.quantity + state.currentQty);
-  } else {
-    state.cart.push({
-      key,
-      id: product.id,
-      variantId: state.currentVariant,
-      quantity: state.currentQty,
-    });
-  }
-
-  saveCart();
-  renderCart();
-  revalidatePromo();
-
-  // La vignette part vers le panier AVANT la fermeture de la fiche : c'est
-  // d'elle qu'on relève la position de départ, et une feuille refermée n'a
-  // plus de position.
-  const decollage = volVersLePanier();
-  montrerLOnglet(state.retour);
-  haptic('success');
-  toast(`${product.name} ajouté au panier 🛒`);
-
-  // La pastille saute quand la vignette la rejoint, pas avant : les deux
-  // gestes racontent alors la même chose au même moment.
-  const sauter = () => {
-    const badge = $('cartCount');
-    badge.classList.remove('pop');
-    void badge.offsetWidth; // force le redémarrage de l'animation
-    badge.classList.add('pop');
-  };
-  decollage ? decollage.then(sauter) : sauter();
-}
-
-/**
- * Fait voler la vignette du produit jusqu'au bouton du panier.
- *
- * Une copie posée par-dessus la page le temps du trajet : l'original ne bouge
- * pas, et la copie ne bloque aucun appui puisqu'elle ne reçoit pas les clics.
- * Rien de tout ça n'est nécessaire au fonctionnement — sans animation, la
- * fonction rend `null` et le panier se remplit pareil.
- *
- * @returns {Promise<void>|null} tenue jusqu'à l'arrivée, ou null si immobile.
- */
-function volVersLePanier() {
-  if (!anime()) return null;
-
-  const source = $('pGallery').hidden
-    ? $('pImage')
-    : $('pGalleryTrack').querySelector('img');
-  const cible = $('cartBtn');
-  if (!source || !cible) return null;
-
-  const depart = source.getBoundingClientRect();
-  const arrivee = cible.getBoundingClientRect();
-  if (!depart.width || !arrivee.width) return null;
-
-  const copie = document.createElement('div');
-  copie.className = 'vol';
-  copie.style.left = `${depart.left}px`;
-  copie.style.top = `${depart.top}px`;
-  copie.style.width = `${depart.width}px`;
-  copie.style.height = `${depart.height}px`;
-
-  const image = document.createElement('img');
-  image.src = source.currentSrc || source.src;
-  image.alt = '';
-  copie.append(image);
-  document.body.append(copie);
-
-  const dx = arrivee.left + arrivee.width / 2 - (depart.left + depart.width / 2);
-  const dy = arrivee.top + arrivee.height / 2 - (depart.top + depart.height / 2);
-  const echelle = Math.max(0.12, arrivee.width / Math.max(1, depart.width));
-
-  return new Promise((fini) => {
-    requestAnimationFrame(() => {
-      copie.style.transform = `translate(${dx}px, ${dy}px) scale(${echelle})`;
-      copie.style.opacity = '0.35';
-    });
-    // `transitionend` peut ne jamais venir — onglet en arrière-plan, animation
-    // interrompue : le délai de secours garantit qu'on retire toujours la copie.
-    let retire = false;
-    const nettoyer = () => {
-      if (retire) return;
-      retire = true;
-      copie.remove();
-      fini();
-    };
-    copie.addEventListener('transitionend', nettoyer, { once: true });
-    setTimeout(nettoyer, 700);
-  });
-}
-
-/** Enrichit les lignes du panier avec les données produit à jour. */
-function detailedCart() {
-  return state.cart
-    .map((line) => {
-      const product = state.products.find((p) => p.id === line.id);
-      if (!product) return null;
-      const variant = product.variants?.find((v) => v.id === line.variantId) ?? null;
-      const price = variant?.price ?? product.price;
-      // Le stock a pu fondre depuis que l'article est au panier : la ligne
-      // porte de quoi le dire, plutôt que d'annoncer un total qu'on ne
-      // pourra pas honorer.
-      const stock = stockOf(product, line.variantId);
-      return {
-        ...line, product, variant, unitPrice: price, stock,
-        lineTotal: price * line.quantity,
-        short: Math.max(0, line.quantity - stock),
-      };
-    })
-    .filter(Boolean);
-}
-
-function cartTotal() {
-  return detailedCart().reduce((sum, l) => sum + l.lineTotal, 0);
-}
-
-function renderCart() {
-  const lines = detailedCart();
-  const count = lines.reduce((sum, l) => sum + l.quantity, 0);
-
-  const badge = $('cartCount');
-  badge.textContent = `${count} article${count > 1 ? 's' : ''}`;
-  badge.hidden = count === 0;
-
-  // Le montant sur la pastille : c'est la question qu'on se pose devant un
-  // panier, pas le nombre de lignes. Panier vide, il n'y a rien à dire.
-  const pastille = $('cartTotalPill');
-  pastille.hidden = count === 0;
-  pastille.textContent = count === 0 ? '' : formatPrice(cartTotal());
-  // Le profil affiche le même nombre : sans ça, il restait sur la valeur
-  // qu'il avait à l'ouverture pendant qu'on remplissait le panier derrière.
-  if (state.onglet === 'profil') renderChiffres();
-
-  const subtotal = cartTotal();
-  const fee = deliveryFeeFor(subtotal);
-  const remise = currentDiscount(subtotal);
-  const { minimum, franco } = conditions(subtotal);
-  // Minimum et franco se jugent sur le panier avant remise, comme le serveur.
-  const manque = Math.max(0, minimum - subtotal);
-
-  $('cartEmpty').hidden = lines.length > 0;
-  $('noteField').hidden = lines.length === 0;
-  $('promoField').hidden = lines.length === 0 || state.features.promos === false;
-
-  const livraison = state.mode === 'delivery';
-  $('modeField').hidden = lines.length === 0 || !(state.fulfillment.pickup && state.fulfillment.delivery);
-  $('contactField').hidden = lines.length === 0;
-  // L'adresse est demandée dès qu'on livre, zones ou pas : c'est le livreur
-  // qui en a besoin, pas le calcul des frais.
-  $('addressField').hidden = lines.length === 0 || !livraison;
-  $('slotField').hidden = lines.length === 0 || !state.slotsEnabled;
-  $('slotFieldLabel').textContent = livraison ? 'Créneau de livraison' : 'Créneau de retrait';
-  renderZoneStatus();
-  renderModes();
-
-  // Avec un vrai sélecteur de créneau, inviter à en demander un dans la note
-  // enverrait deux réponses contradictoires au vendeur.
-  $('orderNote').placeholder = state.slotsEnabled
-    ? 'Point de retrait, code de la porte, question…'
-    : 'Créneau souhaité, point de retrait, question…';
-
-  $('contactLabel').textContent = livraison
-    ? 'Téléphone (pour te prévenir à l\'arrivée)'
-    : 'Téléphone (optionnel)';
-
-  // Bloquer le bouton plutôt que laisser partir une commande que le serveur
-  // refusera : le client verrait un aller-retour pour rien.
-  const zoneManquante = livraison && state.zones.length > 0 && !state.zone;
-  const creneauManquant = state.slotsEnabled && !state.slotId;
-  const rupture = lines.some((l) => l.short > 0);
-  $('checkout').disabled =
-    lines.length === 0 || state.blocked || !state.opening.open || manque > 0
-    || zoneManquante || creneauManquant || rupture;
-  $('checkout').textContent = state.blocked
-    ? 'Commande impossible'
-    : !state.opening.open
-      ? 'Boutique fermée'
-      : rupture
-        ? 'Ajuste ton panier'
-        : creneauManquant && !zoneManquante && manque === 0 && lines.length
-          ? 'Choisis un créneau'
-          : 'Commander';
-
-  const details = [
-    remise.discount ? `remise ${formatPrice(remise.discount)} déduite` : null,
-    fee ? `dont ${formatPrice(fee)} de livraison` : null,
-  ].filter(Boolean);
-  $('cartTotalLabel').textContent = details.length ? `Total · ${details.join(', ')}` : 'Total';
-  $('cartTotal').textContent = formatPrice(subtotal - remise.discount + fee);
-
-  // Prix barré : ce que le panier aurait coûté sans la remise.
-  const strike = $('cartStrike');
-  strike.hidden = remise.discount === 0;
-  strike.textContent = remise.discount ? formatPrice(subtotal + fee) : '';
-
-  // La jauge se calcule avant l'affichage des remises : c'est elle qui décide
-  // si la phrase des paliers a encore quelque chose à ajouter.
-  const jaugeVisible = renderJauge(subtotal);
-
-  if (promoError) {
-    showPromoStatus(promoError, false);
-  } else if (remise.discount && remise.label) {
-    showPromoStatus(
-      remise.source === 'tier'
-        ? `Remise automatique ${remise.label} : −${formatPrice(remise.discount)}`
-        : `Code ${remise.code} : ${remise.label}, soit −${formatPrice(remise.discount)}`,
-      true
-    );
-  } else if (!state.promo && !$('promoCode').value.trim()) {
-    // La jauge dit déjà ce qui manque, et mieux : répéter la phrase
-    // juste au-dessus d'elle ferait lire deux fois la même chose.
-    showPromoStatus(jaugeVisible ? '' : nextTierHint(subtotal), null);
-  }
-
-  const hint = $('cartHint');
-  const manquants = lines.filter((l) => l.short > 0);
-  if (manquants.length) {
-    hint.textContent =
-      manquants.length === 1
-        ? `${manquants[0].product.name} : ${manquants[0].stock ? `il n'en reste que ${manquants[0].stock}` : 'plus de stock'}. Ajuste la quantité pour continuer.`
-        : `${manquants.length} articles ne sont plus disponibles en quantité voulue. Ajuste ton panier pour continuer.`;
-    hint.hidden = false;
-  } else if (manque > 0 && lines.length) {
-    const ou = state.zone ? ` pour ${state.zone.name}` : '';
-    hint.textContent = `Commande minimum${ou} ${formatPrice(minimum)} : il manque ${formatPrice(manque)}.`;
-    hint.hidden = false;
-  } else if (livraison && fee && franco !== null && lines.length) {
-    hint.textContent = `Livraison offerte à partir de ${formatPrice(franco)} : il manque ${formatPrice(franco - subtotal)}.`;
-    hint.hidden = false;
-  } else {
-    hint.hidden = true;
-  }
-
-  $('cartList').replaceChildren(...lines.map(cartRow));
-  syncMainButton();
-}
-
-function cartRow(line) {
-  const li = document.createElement('li');
-  li.className = line.short ? 'cart-item cart-item--short' : 'cart-item';
-  li.innerHTML = `
-    <span class="cart-item__art${photoDeVitrine(line.product) ? ' cart-item__art--photo' : ''}"><img src="${escapeHtml(photoDeVitrine(line.product) ?? line.product.image)}" alt=""></span>
-    <span class="cart-item__info">
-      <span class="cart-item__name">${escapeHtml(line.product.name)}</span>
-      <span class="cart-item__meta">${line.variant ? escapeHtml(line.variant.label) + ' · ' : ''}${formatPrice(line.lineTotal)}</span>
-      ${line.short ? `<span class="cart-item__short">${line.stock ? `il n'en reste que ${line.stock}` : 'épuisé'}</span>` : ''}
-    </span>
-    <span class="cart-item__ctl">
-      <button type="button" data-act="minus" aria-label="Retirer un">−</button>
-      <span>${line.quantity}</span>
-      <button type="button" data-act="plus" aria-label="Ajouter un">+</button>
-    </span>`;
-
-  li.querySelector('[data-act="minus"]').addEventListener('click', () => changeLine(line.key, -1));
-  li.querySelector('[data-act="plus"]').addEventListener('click', () => changeLine(line.key, +1));
-  return li;
-}
-
-function changeLine(key, delta) {
-  const line = state.cart.find((l) => l.key === key);
-  if (!line) return;
-
-  const product = state.products.find((p) => p.id === line.id);
-  if (delta > 0 && product && line.quantity >= stockOf(product, line.variantId)) {
-    toast('Stock maximum atteint');
-    return;
-  }
-
-  line.quantity += delta;
-  if (line.quantity < 1) state.cart = state.cart.filter((l) => l.key !== key);
-  saveCart();
-  renderCart();
-  revalidatePromo();
-  haptic('light');
-}
-
-/* ── Commande ────────────────────────────────────────────── */
-
-async function checkout() {
-  const lines = detailedCart();
-  if (!lines.length) return;
-
-  const note = $('orderNote').value.trim();
-  const contact = $('orderContact').value.trim();
-  const adresse = adresseSaisie();
-
-  // On vérifie avant de toucher au bouton : désactivé puis abandonné en
-  // « Préparation… », il restait mort jusqu'à ce que le panier bouge, et le
-  // client n'avait plus rien sur quoi appuyer.
-  if (state.mode === 'delivery') {
-    // Le même reproche que le serveur, mais tout de suite, et le doigt posé
-    // sur le champ qui manque : un aller-retour pour rien décourage.
-    const manque = adresseIncomplete(adresse);
-    if (manque) {
-      toast(manque.texte);
-      $(manque.champ).focus();
-      return;
-    }
-  }
-
-  const button = $('checkout');
-  button.disabled = true;
-  button.textContent = 'Préparation…';
-
-  // Figés avant l'envoi : la commande réussie efface le code consommé et le
-  // créneau réservé, et le récapitulatif doit quand même les porter.
-  const remise = currentDiscount(cartTotal());
-  const creneau = state.slots.find((s) => s.id === state.slotId) ?? null;
-  const zone = state.zone;
-
-  // On enregistre la commande côté serveur pour avoir une référence et une
-  // trace. Si le serveur ne répond pas, on continue quand même : l'essentiel
-  // est que le client arrive dans la conversation avec son récapitulatif.
-  let reference = null;
-  try {
-    const res = await fetch('/api/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Telegram-Init-Data': tg?.initData ?? '',
-        'X-Shop-Pass': readPass() ?? '',
-      },
-      body: JSON.stringify({
-        items: lines.map((l) => ({ id: l.id, variantId: l.variantId, quantity: l.quantity })),
-        mode: state.mode,
-        promoCode: state.promo?.code ?? null,
-        postalCode: adresse.postalCode || null,
-        slotId: state.slotId || null,
-        address: state.mode === 'delivery' ? adresse : null,
-        contact,
-        note,
-      }),
-    });
-    if (res.ok) {
-      reference = (await res.json()).reference;
-      // Le code vient d'être consommé côté serveur : le garder ferait échouer
-      // la commande suivante avec un message incompréhensible.
-      if (state.promo) {
-        state.promo = null;
-        promoError = null;
-        $('promoCode').value = '';
-        showPromoStatus('', null);
-      }
-      // Une place vient d'être prise : la liste et le choix repartent à neuf.
-      state.slotId = '';
-      loadSlots();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      // Le laissez-passer a expiré : on refait l'épreuve plutôt que d'envoyer
-      // le client dans la conversation avec une commande non enregistrée.
-      if (data.error === 'VERIFICATION_REQUISE') {
-        closeSheets();
-        await gateVerification();
-        button.disabled = false;
-        button.textContent = 'Commander';
-        return;
-      }
-      if (data.error === 'CAPTCHA_REQUIS') {
-        writePass('');
-        closeSheets();
-        await openCaptcha();
-        button.disabled = false;
-        button.textContent = 'Commander';
-        return;
-      }
-      // Quelque chose a bougé sous nos pieds : un dernier article emporté par
-      // un autre client, un créneau qui vient de se remplir. On relit les deux
-      // plutôt que de deviner lequel — le refus est un chemin rare, et un code
-      // 409 recouvre justement les deux cas.
-      await Promise.all([refreshCatalog(), loadSlots()]);
-
-      // Un refus est un refus. Poursuivre vers la conversation du vendeur
-      // enverrait quand même la commande — un compte bloqué, une boutique
-      // fermée ou un article épuisé arriveraient chez le vendeur comme si de
-      // rien n'était, en contournant précisément ce qu'on vient de refuser.
-      toast(data.error ?? 'Commande refusée.');
-      button.disabled = false;
-      button.textContent = 'Commander';
-      renderCart();
-      return;
-    }
-  } catch (err) {
-    // Serveur injoignable, et non refus : là, on continue. Sans commande
-    // enregistrée, personne n'est prévenu : c'est le seul cas où le client est
-    // emmené dans la conversation du vendeur, plus bas.
-    console.warn('Enregistrement de la commande impossible :', err);
-  }
-
-  const message = buildOrderMessage(lines, note, reference, contact, remise, creneau, zone, adresse);
-  // Gardé pour le bouton « Une question au vendeur » : le client peut envoyer
-  // son récapitulatif s'il en a envie, mais plus rien ne l'y pousse.
-  state.lastMessage = message;
-
-  button.disabled = false;
-  button.textContent = 'Commander';
-  haptic('success');
-
-  // Commande écrite côté serveur : le panier a fait son travail. Le laisser
-  // plein invitait à réappuyer sur Commander — et à réserver le stock une
-  // seconde fois sans que rien ne le dise.
-  if (reference) {
-    showOrderDone(reference, lines, remise, creneau, zone);
-    // La commande qu'on vient de passer devient celle qu'on pourra reprendre.
-    chargerLaDerniereCommande();
-    // Et une commande plus ancienne a pu devenir notable entre-temps.
-    chargerLesAvisADonner();
-    state.cart = [];
-    saveCart();
-    renderCart();
-    // Le stock vient de bouger : sans ce rafraîchissement, la grille propose
-    // encore des articles qu'on vient soi-même d'emporter.
-    refreshCatalog();
-  } else {
-    // Rien n'a été enregistré : le serveur n'a pas répondu, donc le vendeur
-    // n'a rien reçu et ne recevra rien. La conversation est le dernier chemin
-    // qui reste à cette commande — c'est le seul cas où on y emmène le client.
-    openSellerChat(message);
-  }
-}
-
-/** L'adresse telle qu'elle est écrite, sans juger de ce qui manque. */
-function adresseSaisie() {
-  const propre = (id) => $(id).value.replace(/\s+/g, ' ').trim();
-  return {
-    street: propre('orderStreet'),
-    complement: propre('orderComplement'),
-    postalCode: propre('orderPostal'),
-    city: propre('orderCity'),
-  };
-}
-
-/**
- * Ce qui manque pour qu'un livreur trouve la porte.
- *
- * Les mêmes règles que le serveur, qui reste seul juge : celles-ci ne sont là
- * que pour dire tout de suite quel champ remplir. Le numéro de rue n'est pas
- * exigé — un lieu-dit n'en a pas, et refuser sa commande coûterait plus cher
- * qu'une adresse imprécise.
- */
-function adresseIncomplete(adresse) {
-  if (adresse.street.length < 5) {
-    return { champ: 'orderStreet', texte: 'Indique la rue et le numéro.' };
-  }
-  if (!/^\d{2,6}$/.test(adresse.postalCode)) {
-    return { champ: 'orderPostal', texte: 'Indique ton code postal.' };
-  }
-  if (adresse.city.length < 2) return { champ: 'orderCity', texte: 'Indique la ville.' };
-  return null;
-}
-
-/** Accusé de réception : sans lui, rien dans l'app ne dit que c'est parti. */
-function showOrderDone(reference, lines, remise, creneau, zone) {
-  const subtotal = lines.reduce((sum, l) => sum + l.lineTotal, 0);
-  const fee = deliveryFeeFor(subtotal);
-
-  $('doneRef').textContent = reference;
-  // Le vendeur est prévenu côté serveur : demander au client d'envoyer lui-même
-  // le récapitulatif faisait arriver la commande deux fois, et laissait croire
-  // qu'elle n'était pas passée tant qu'il n'avait pas appuyé sur Envoyer.
-  // L'accusé du bot, lui, est une fonctionnalité que le vendeur peut couper —
-  // promettre une confirmation qui n'arrivera jamais vaut moins que se taire.
-  $('doneText').textContent =
-    state.features.clientNotifications === false
-      ? 'On a reçu ta commande, le vendeur est prévenu. Il revient vers toi très vite.'
-      : 'On a reçu ta commande, le vendeur est prévenu. La confirmation arrive dans la conversation du bot.';
-
-  // Écrire au vendeur reste possible, mais sans compte configuré le bouton
-  // n'avait qu'un message d'erreur à offrir.
-  $('doneChat').hidden = !state.shop.sellerUsername;
-
-  const lignes = [
-    ...lines.map((l) => `${l.quantity} × ${l.product.name}${l.variant ? ` (${l.variant.label})` : ''}`),
-    state.mode === 'delivery' ? `🛵 Livraison${zone ? ` — ${zone.name}` : ''}` : '🏠 Retrait sur place',
-    creneau ? `🕒 ${creneau.label}` : null,
-    remise.discount ? `Remise${remise.code ? ` ${remise.code}` : ''} : −${formatPrice(remise.discount)}` : null,
-    `<b>Total : ${formatPrice(subtotal - remise.discount + fee)}</b>`,
-  ].filter(Boolean);
-
-  $('doneLines').replaceChildren(
-    ...lignes.map((texte) => {
-      const li = document.createElement('li');
-      li.innerHTML = texte.startsWith('<b>') ? texte : escapeHtml(texte);
-      return li;
-    })
-  );
-  openSheet('doneSheet');
-}
 
 /** Relit le catalogue pour que les stocks affichés soient ceux du serveur. */
 async function refreshCatalog() {
@@ -3109,38 +2319,80 @@ async function refreshCatalog() {
   }
 }
 
-function buildOrderMessage(lines, note, reference, contact, remise, creneau, zone, adresse) {
-  const parts = [`Bonjour ! Je souhaite commander sur ${state.shop.shopName} 🌿`, ''];
+/**
+ * Le message qu'on dépose dans la conversation du vendeur.
+ *
+ * Il ne récapitule plus un panier, une adresse, un créneau et une remise :
+ * cette boutique ne prend pas la commande, elle amène le client au vendeur
+ * avec ce qu'il faut pour que la conversation commence au bon endroit. Le
+ * nom exact du produit et le format choisi, donc — le reste (quantité,
+ * remise, remise en main propre ou livraison) se dit en deux phrases, et
+ * mieux que par un formulaire.
+ */
+function buildOrderMessage(produit, variante) {
+  const format = variante ? ` — ${variante.label}` : '';
+  const prix = variante?.price ?? produit.price;
+  return [
+    `Bonjour ! Je voudrais commander sur ${state.shop.shopName} ⚡`,
+    '',
+    `• ${produit.name}${format}${prix ? ` — ${formatPrice(prix)}` : ''}`,
+  ].join('\n');
+}
 
-  for (const line of lines) {
-    const variant = line.variant ? ` (${line.variant.label})` : '';
-    parts.push(`• ${line.quantity} × ${line.product.name}${variant} — ${formatPrice(line.lineTotal)}`);
+/**
+ * Commande le produit ouvert : on part dans la conversation du vendeur.
+ *
+ * Il n'y a pas de panier dans cette boutique et rien n'est enregistré ici.
+ * L'application sert à choisir — voir les produits, comparer les formats,
+ * lire les avis — et la commande se passe entre le client et le vendeur.
+ * D'où le peu de choses que fait ce bouton : construire une phrase juste,
+ * et ouvrir Telegram dessus.
+ *
+ * La fiche se referme derrière : au retour de Telegram, revenir sur une
+ * fiche avec son bouton « Commander » encore là laisse croire que rien
+ * n'est parti, et on commande deux fois.
+ */
+function commanderCeProduit() {
+  const produit = state.current;
+  if (!produit) return;
+  if (!state.shop.sellerUsername) {
+    toast("Le compte vendeur n'est pas encore configuré.");
+    return;
   }
+  const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
+  openSellerChat(buildOrderMessage(produit, variante));
+  haptic('success');
+  montrerLOnglet(state.retour);
+}
 
-  const subtotal = cartTotal();
-  const fee = deliveryFeeFor(subtotal);
-  parts.push('', state.mode === 'delivery' ? '🛵 Livraison' : '🏠 Retrait sur place');
-  if (zone) parts.push(`Secteur : ${zone.name}`);
-  if (creneau) parts.push(`Créneau : ${creneau.label}`);
-  if (remise.discount) {
-    parts.push(`Sous-total : ${formatPrice(subtotal)}`);
-    parts.push(`Remise${remise.code ? ` ${remise.code}` : ''} : −${formatPrice(remise.discount)}`);
+/**
+ * Recommande ce qui avait déjà été commandé une fois.
+ *
+ * Le bouton vit sur une commande passée, dans le profil. Il remplissait le
+ * panier ; il rouvre maintenant la conversation avec les mêmes articles
+ * écrits dedans. Les commandes d'avant sont les seules qu'on verra jamais
+ * là — cette boutique n'en enregistre plus — mais tant qu'elles sont là,
+ * le raccourci reste le plus court chemin pour en repasser une.
+ */
+function commanderDeNouveau(commande) {
+  if (!commande?.items?.length) return;
+  if (!state.shop.sellerUsername) {
+    toast("Le compte vendeur n'est pas encore configuré.");
+    return;
   }
-  if (fee) parts.push(`Frais de livraison : ${formatPrice(fee)}`);
-  parts.push(`Total : ${formatPrice(subtotal - remise.discount + fee)}`);
-  if (reference) parts.push(`Réf : ${reference}`);
-  if (state.mode === 'delivery' && adresse?.street) {
-    parts.push('', 'Adresse :');
-    parts.push(adresse.street);
-    if (adresse.complement) parts.push(adresse.complement);
-    parts.push(`${adresse.postalCode} ${adresse.city}`.trim());
-    if (contact) parts.push(`Téléphone : ${contact}`);
-  } else if (contact) {
-    parts.push(`Contact : ${contact}`);
-  }
-  if (note) parts.push('', `Note : ${note}`);
-
-  return parts.join('\n');
+  const lignes = commande.items.map((item) => {
+    const produit = state.products.find((p) => p.id === item.id);
+    const nom = produit?.name ?? item.name ?? 'Article';
+    const variante = produit?.variants?.find((v) => v.id === item.variantId);
+    const format = variante ? ` — ${variante.label}` : '';
+    return `• ${item.quantity} × ${nom}${format}`;
+  });
+  openSellerChat([
+    `Bonjour ! Je voudrais recommander la même chose sur ${state.shop.shopName} ⚡`,
+    '',
+    ...lignes,
+  ].join('\n'));
+  haptic('success');
 }
 
 /** Ouvre la conversation du vendeur avec le récapitulatif pré-rempli. */
@@ -3205,7 +2457,7 @@ function orderCard(order) {
     reprise.className = 'btn btn--ghost btn--block';
     reprise.type = 'button';
     reprise.textContent = '🔁 Reprendre cette commande';
-    reprise.addEventListener('click', () => reprendreLaCommande(order));
+    reprise.addEventListener('click', () => commanderDeNouveau(order));
     card.append(reprise);
   }
   return card;
@@ -3254,7 +2506,6 @@ function openSheet(id) {
   syncMainButton();
   // Les places partent pendant qu'on remplit son panier : on rafraîchit à
   // l'ouverture plutôt que de servir la liste chargée au démarrage.
-  if (id === 'cartSheet') loadSlots();
 }
 
 function closeSheets() {
@@ -3269,22 +2520,17 @@ function closeSheets() {
   syncMainButton();
 }
 
-/** Le bouton natif de Telegram sert de raccourci vers le panier. */
+/**
+ * Le bouton natif de Telegram.
+ *
+ * Il affichait le total du panier et y menait. Sans panier il n'a plus rien
+ * à annoncer : le geste d'achat vit dans la fiche produit, et un bouton
+ * système qui doublerait celui de la page dirait deux fois la même chose à
+ * deux endroits. On le cache, sans quoi il resterait affiché avec le texte
+ * de la session précédente.
+ */
 function syncMainButton() {
-  const main = tg?.MainButton;
-  if (!main) return;
-
-  const subtotal = cartTotal();
-  const total = subtotal - currentDiscount(subtotal).discount + deliveryFeeFor(subtotal);
-  const sheetOpen = [...document.querySelectorAll('.sheet')].some((s) => !s.hidden);
-
-  if (total > 0 && !sheetOpen) {
-    main.setText(`VOIR MON PANIER · ${formatPrice(total)}`);
-    main.setParams?.({ color: themeHex('--neon-rgb', '#c6ff3d'), text_color: themeHex('--ink-rgb', '#030c08') });
-    main.show();
-  } else {
-    main.hide();
-  }
+  tg?.MainButton?.hide();
 }
 
 /* ── Utilitaires ─────────────────────────────────────────── */
@@ -3322,11 +2568,15 @@ function isSoldOut(product) {
     : stockOf(product) <= 0;
 }
 
-/** Ce qu'il reste après déduction de ce qui est déjà dans le panier. */
+/**
+ * Ce qu'il reste en stock.
+ *
+ * La fonction retranchait ce que le panier tenait déjà en réserve. Sans
+ * panier, rien n'est réservé côté client : le stock affiché est celui du
+ * serveur, tel quel.
+ */
 function remainingFor(product, variantId) {
-  const key = `${product.id}::${variantId ?? ''}`;
-  const inCart = state.cart.find((l) => l.key === key)?.quantity ?? 0;
-  return Math.max(0, stockOf(product, variantId) - inCart);
+  return Math.max(0, stockOf(product, variantId));
 }
 
 function unitPrice(product, variantId) {
@@ -3945,7 +3195,6 @@ function renderChiffres(commandes) {
   if (Number.isFinite(commandes)) commandesConnues = commandes;
 
   const lignes = [
-    ['panier', state.cart.reduce((somme, l) => somme + l.quantity, 0), 'Panier'],
     ['commandes', commandesConnues ?? '—', 'Commandes'],
     ['favoris', state.favoris?.size ?? 0, 'Favoris'],
     ['produits', state.products.length, 'Produits'],
