@@ -1,10 +1,24 @@
-# 🌿 Napoli Coffee — boutique Telegram Mini App
+# ⚡ TANJA HH 67 — boutique Telegram Mini App
 
-Une boutique au **design néon nuit** qui s'ouvre directement dans Telegram : catalogue en
-images, fiches produits, panier, et un bouton **Commander** qui enregistre la commande et
-te l'envoie dans ta messagerie, sans que le client ait à écrire quoi que ce soit.
+Une boutique qui s'ouvre directement dans Telegram : catalogue en images, fiches
+produits, et un bouton **Commander** qui ouvre ta conversation avec le produit et
+le format déjà écrits.
+
+**Il n'y a pas de panier.** L'application sert à choisir — voir les produits,
+comparer les formats, lire les avis — et la commande se passe entre le client et
+toi, dans la conversation. Rien n'est enregistré côté boutique : ni référence, ni
+décompte de stock automatique.
 
 ![Aperçu](docs/apercu.png)
+
+> **Note sur ce document.** Les sections ci-dessous — mise en route, espace
+> admin, mise en ligne, sécurité — sont à jour. Plus bas, certaines pages
+> décrivent encore le panier, les codes promo, les paliers de remise, les zones
+> de livraison et les créneaux : ces mécanismes existent toujours côté serveur
+> et dans l'espace admin, mais la boutique ne s'en sert plus depuis qu'on
+> commande par la conversation. Rien n'a été supprimé, donc tout reste
+> réactivable — mais ne cherche pas ces écrans dans l'application, ils n'y sont
+> plus.
 
 ---
 
@@ -12,57 +26,63 @@ te l'envoie dans ta messagerie, sans que le client ait à écrire quoi que ce so
 
 ```
 Client → /start dans le bot → bouton « Ouvrir la boutique »
-       → Mini App (catalogue, panier)
-       → « Commander » → commande enregistrée
-                       → notification admin dans ta messagerie
-                       → accusé de réception au client dans le bot
+       → Mini App (catalogue, fiches, formats)
+       → « Commander · 70 € »
+       → ta conversation s'ouvre, message déjà écrit :
+         « Bonjour ! Je voudrais commander sur TANJA HH 67 ⚡
+           • Plasma Static — Banana Kush — 5 g — 70 € »
+       → tu réponds, vous convenez du reste (quantité, remise en
+         main propre ou livraison, heure) en conversation
 ```
-
-Le client n'a rien d'autre à faire : tu reçois la commande dans ta messagerie perso,
-avec le détail, l'adresse et une référence. Il garde un bouton « Une question au
-vendeur » s'il veut ajouter un mot, mais rien ne l'y oblige.
-
-> Si le serveur est injoignable au moment du clic, la commande n'a pas été enregistrée :
-> là seulement, l'app ouvre ta conversation avec le récapitulatif pré-rempli, pour que la
-> commande ne disparaisse pas.
 
 ---
 
 ## Mise en route
 
+Trois étapes, dans cet ordre. Compter vingt minutes la première fois.
+
 ### 1. Créer le bot
 
 1. Sur Telegram, écris à **[@BotFather](https://t.me/BotFather)**.
-2. `/newbot` → choisis un nom et un identifiant (`ma_boutique_bot`).
-3. BotFather te donne un **token** du type `123456:ABC-DEF...` → garde-le secret.
+2. `/newbot` → choisis un nom, puis un identifiant qui finit par `bot`
+   (`tanja_hh_67_bot`).
+3. BotFather te donne un **token** du type `123456:ABC-DEF…` → garde-le secret,
+   il donne le contrôle complet du bot.
 
 ### 2. Installer le projet
 
 ```bash
-git clone <ce-dépôt>
-cd Telegram-app
+git clone https://github.com/Remaums/Tanjahh
+cd Tanjahh
 npm install
 cp .env.example .env
 ```
 
-Ouvre `.env` et remplis :
+`.env` n'existe pas avant cette copie : il contient tes secrets, il est donc
+ignoré par git. Son nom commence par un point, donc **il est invisible** dans un
+explorateur de fichiers tant que tu n'affiches pas les fichiers cachés (`ls -a`
+en terminal).
+
+Ouvre-le. Tout ce qui est propre à Tanja y est déjà juste ; **trois lignes** sont
+à remplir, chacune marquée `À REMPLIR` :
 
 | Variable | À quoi ça sert |
 |---|---|
-| `BOT_TOKEN` | Le token donné par BotFather |
-| `WEBAPP_URL` | L'URL **HTTPS** publique de la boutique (obligatoire, Telegram refuse le HTTP) |
-| `SELLER_USERNAME` | **Ton pseudo Telegram sans le `@`** — sert au bouton « une question au vendeur » et au filet si le serveur est injoignable |
-| `ADMIN_CHAT_ID` | Ton ID numérique : c'est là que le bot dépose les commandes, les alertes de stock et les messages des clients. Non renseigné, il prend le premier `ADMIN_IDS` |
-| `BOT_USERNAME` | Le pseudo du bot sans le `@` — sert aux liens directs et aux QR codes (facultatif : demandé à Telegram sinon) |
-| `SHOP_NAME` | Le nom affiché en haut de la boutique |
-| `CURRENCY` | `EUR`, `CHF`, `CAD`… |
+| `BOT_TOKEN` | Le token de BotFather. **Obligatoire même pour un simple aperçu** : il sert à vérifier la signature de Telegram, et le serveur refuse de démarrer sans lui |
+| `ADMIN_CHAT_ID` | Ton identifiant Telegram, un nombre. C'est là que le bot dépose les alertes et les messages des clients |
+| `ADMIN_IDS` | Qui peut ouvrir l'espace admin. Le même nombre, en général |
 
-> Pour trouver ton `ADMIN_CHAT_ID` : lance le bot, envoie-lui `/start`, il t'affiche ton ID.
->
-> Les commandes arrivent par le bot, **pas** par ta messagerie perso : la Mini App
-> n'ouvre plus ta conversation avec un récapitulatif à envoyer. C'est
-> `ADMIN_CHAT_ID` (ou, à défaut, le premier `ADMIN_IDS`) qui décide où elles
-> tombent.
+> Pour connaître ton identifiant : lance la boutique, envoie `/start` au bot, il
+> te l'affiche.
+
+Les autres lignes sont déjà remplies et méritent d'être comprises plutôt que
+modifiées :
+
+| Variable | Pourquoi c'est déjà juste |
+|---|---|
+| `SELLER_USERNAME=tanjahh67` | **La pièce maîtresse.** Sans panier, c'est cette conversation-là que « Commander » ouvre. Mal renseigné, plus rien ne se commande |
+| `PORT=3100` | Et non 3000 : c'est ce qui permet de faire tourner deux boutiques sur la même machine |
+| `WEBAPP_URL` | À remplir à l'étape 4, quand tu auras une adresse HTTPS |
 
 ### 3. Lancer
 
@@ -70,7 +90,10 @@ Ouvre `.env` et remplis :
 npm start
 ```
 
-La boutique est servie sur `http://localhost:3000`, le bot démarre en parallèle.
+La boutique est servie sur `http://localhost:3100`, le bot démarre en parallèle.
+Ouvre cette adresse dans un navigateur : tu dois voir le catalogue. Si oui, la
+moitié du travail est faite — il ne reste qu'à la rendre joignable depuis un
+téléphone.
 
 ### 4. Exposer en HTTPS
 
@@ -78,14 +101,18 @@ Telegram n'ouvre une Mini App que derrière une URL **HTTPS**. Pour tester depui
 téléphone sans déployer :
 
 ```bash
-npx cloudflared tunnel --url http://localhost:3000
-# ou : ngrok http 3000
+npx cloudflared tunnel --url http://localhost:3100
 ```
 
-Copie l'URL `https://…` obtenue dans `WEBAPP_URL`, puis relance `npm start`.
+Copie l'adresse `https://…trycloudflare.com` qu'il affiche dans `WEBAPP_URL`, puis
+relance `npm start`. Envoie `/start` au bot : le bouton « Ouvrir la boutique »
+apparaît.
 
-Pour de la mise en production, n'importe quel hébergeur Node avec HTTPS fait l'affaire
-(Railway, Render, Fly.io, un VPS derrière Caddy ou Nginx…).
+**Ce tunnel-là est fait pour essayer, pas pour vendre.** L'adresse change à chaque
+redémarrage, et tout s'arrête dès que tu fermes ton ordinateur. Pour que des
+clients s'en servent, il faut que la boutique tourne en permanence quelque part :
+voir **[docs/vps.md](docs/vps.md)**, qui va du VPS vide au bouton dans Telegram, et
+`bash deploy/installer.sh` qui en exécute les étapes mécaniques.
 
 ### 5. Le bouton en bas à gauche du chat
 
