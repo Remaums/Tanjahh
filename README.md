@@ -101,12 +101,26 @@ Telegram n'ouvre une Mini App que derrière une URL **HTTPS**. Pour tester depui
 téléphone sans déployer :
 
 ```bash
-npx cloudflared tunnel --url http://localhost:3100
+npm run public
 ```
 
-Copie l'adresse `https://…trycloudflare.com` qu'il affiche dans `WEBAPP_URL`, puis
-relance `npm start`. Envoie `/start` au bot : le bouton « Ouvrir la boutique »
+Une seule commande : elle ouvre le tunnel, **affiche l'adresse seule**, l'inscrit
+dans `WEBAPP_URL` et démarre la boutique — dans cet ordre, puisque la boutique lit
+`.env` au démarrage. Envoie `/start` au bot : le bouton « Ouvrir la boutique »
 apparaît.
+
+`npm run tunnel` fait la même chose sans lancer la boutique, si elle tourne déjà
+dans une autre fenêtre.
+
+> **Installe `cloudflared` une fois, et ce sera instantané.** Sans lui, le script
+> passe par `npx`, qui retélécharge quarante mégaoctets à chaque lancement — c'est
+> là que part la minute d'attente.
+>
+> | | |
+> |---|---|
+> | Windows | `winget install Cloudflare.cloudflared` |
+> | macOS | `brew install cloudflared` |
+> | Linux | `sudo apt install cloudflared` |
 
 **Ce tunnel-là est fait pour essayer, pas pour vendre.** L'adresse change à chaque
 redémarrage, et tout s'arrête dès que tu fermes ton ordinateur. Pour que des
