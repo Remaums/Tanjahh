@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TANJA HH 67 — cinq typographies</title>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/style.css">
+<!-- Les polices candidates sont servies par la boutique, pas par Google :
+     le navigateur de cette machine refuse le certificat du mandataire de
+     sortie, et la planche comparait cinq fois la police de secours du
+     système sans le dire. Un fichier local ne ment pas. -->
+<link rel="stylesheet" href="/assets/fonts-essai/essai.css">
+<style>
+/* ══ Maquette : cinq couples de polices ════════════════════════
+   Les colonnes sont rigoureusement identiques — même grille, mêmes
+   produits, mêmes couleurs, même casse, mêmes tailles. Seules deux
+   variables changent : --display (ce qui s'annonce) et --sans (ce qui
+   se lit). C'est la seule façon de juger une police : si une colonne
+   changeait aussi de casse ou d'interlettrage, on comparerait des mises
+   en page, pas des caractères.
+
+   Les polices sont téléchargées dans assets/fonts-essai/, le temps de
+   choisir ; ce dossier disparaît ensuite. Celle qui
+   sera retenue sera téléchargée et servie par la boutique, comme les
+   autres : une Mini App qui dépend d'un domaine tiers en 4G met une
+   seconde de plus à afficher son premier mot. */
+body { padding: 0; margin: 0; }
+.planche { display: flex; gap: 20px; padding: 24px; align-items: flex-start; }
+.col { width: 330px; flex: none; }
+.col > h2 {
+  font-family: 'Inter', system-ui, sans-serif; font-weight: 800;
+  font-size: 15px; letter-spacing: .02em; color: var(--jaune);
+  margin: 0 0 3px; text-transform: none;
+}
+.col > .quoi {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px; line-height: 1.5; color: var(--muted);
+  margin: 0 0 12px; min-height: 92px;
+}
+.tel {
+  border-radius: 18px; overflow: hidden; background: var(--night);
+  border: 1px solid rgb(255 255 255 / .08); padding: 12px;
+}
+.tel .grid { grid-template-columns: repeat(2, 1fr); }
+
+/* Un faux bandeau : la vidéo n'a rien à dire sur une police, et son
+   mouvement attirerait l'œil au lieu du texte. */
+.bandeau {
+  height: 96px; margin: -12px -12px 10px; padding: 0 12px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: linear-gradient(100deg, rgb(var(--void-rgb) / .92), rgb(var(--gold-rgb) / .22));
+  border-bottom: 1px solid rgb(var(--jaune-rgb) / .35);
+}
+.bandeau h1 { font-family: var(--display); font-size: 30px; margin: 0; letter-spacing: .02em; }
+.bandeau .h { font-family: var(--sans); font-size: 11.5px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--jaune); margin-top: 2px; }
+.bandeau .s { font-family: var(--sans); font-size: 12px; color: rgb(var(--cream-rgb) / .8); }
+.enseigne-t { font-family: var(--display); font-size: 19px; letter-spacing: .04em; }
+.chips { display: flex; gap: 7px; margin: 0 0 10px; overflow: hidden; }
+.chip {
+  font-family: var(--sans); font-size: 12.5px; font-weight: 700;
+  padding: 7px 12px; border-radius: 999px; white-space: nowrap;
+  background: rgb(var(--panel-rgb) / .6); border: 1px solid var(--line-soft);
+}
+.corps {
+  font-family: var(--sans); font-size: 12.5px; line-height: 1.55;
+  color: rgb(var(--cream-rgb) / .78); margin: 10px 0 0;
+}
+.prixdemo { font-family: var(--display); font-size: 21px; color: var(--jaune); letter-spacing: .02em; }
+
+/* A · L'affiche — Anton, la plus lourde des grotesques condensées, et
+   Inter, le caractère d'écran le plus lisible qui soit. Contraste maximal
+   entre ce qui crie et ce qui se lit. */
+.ref { --display: 'Bebas Neue', system-ui, sans-serif; --sans: 'Barlow', system-ui, sans-serif; }
+.a { --display: 'Anton', system-ui, sans-serif; --sans: 'Inter', system-ui, sans-serif; }
+/* B · Le streetwear — Archivo Black et Archivo : une seule famille, donc
+   le titre et le texte partagent leur squelette. Plus resserré, plus
+   « marque », moins criard qu'Anton. */
+.b { --display: 'Archivo Black', system-ui, sans-serif; --sans: 'Archivo', system-ui, sans-serif; }
+/* C · L'arcade — Chakra Petch, un caractère à angles coupés, de borne
+   d'arcade et d'écran de jeu. C'est le plus proche de l'éclair et du néon,
+   et le plus risqué : il date vite. */
+.c { --display: 'Chakra Petch', system-ui, sans-serif; --sans: 'Inter', system-ui, sans-serif; }
+/* D · Le moderne — Space Grotesk seule, pour les titres comme pour le
+   texte. Une famille unique tient toujours ensemble ; ses détails un peu
+   bizarres lui évitent d'être fade. */
+.d { --display: 'Space Grotesk', system-ui, sans-serif; --sans: 'Space Grotesk', system-ui, sans-serif; }
+/* E · L'enseigne — Unbounded, géométrique et très large, avec Plus Jakarta
+   Sans dessous. La plus typée des cinq : elle décide de l'allure de la
+   boutique à elle seule, ce qui est sa qualité et son danger. */
+.e { --display: 'Unbounded', system-ui, sans-serif; --sans: 'Plus Jakarta Sans', system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<div class="planche" id="planche"></div>
+<script type="module">
+const cat = await (await fetch('/api/catalog')).json();
+const produits = (cat.products ?? cat).slice(0, 4);
+
+const pistes = [
+  ['ref', 'Actuelle — Bebas Neue + Barlow',
+   "Celle que tu veux changer, dans les mêmes conditions que les autres. Bebas Neue est condensée et n’existe qu’en capitales : c’est ce qui permet aux noms longs de tenir en entier."],
+  ['a', 'A · L’affiche — Anton + Inter',
+   "La plus lourde des grotesques condensées, et le caractère d’écran le plus lisible qui soit. Contraste maximal entre ce qui crie et ce qui se lit. Anton n’a qu’une graisse : il ne sait que crier."],
+  ['b', 'B · Le streetwear — Archivo Black + Archivo',
+   "Une seule famille pour le titre et le texte : ils partagent leur squelette, donc la page tient toute seule. Plus resserré et plus « marque » qu’Anton, moins criard."],
+  ['c', 'C · L’arcade — Chakra Petch + Inter',
+   "Des angles coupés, de borne d’arcade et d’écran de jeu. C’est le plus proche de l’éclair et du néon — et le plus risqué des cinq : ce genre de caractère date vite."],
+  ['d', 'D · Le moderne — Space Grotesk',
+   "Une famille unique pour tout. Ses détails un peu bizarres — le a, le g, le chiffre 1 — lui évitent d’être fade. La plus sobre, celle qui laissera le plus de place à tes photos."],
+  ['e', 'E · L’enseigne — Unbounded + Plus Jakarta Sans',
+   "Géométrique et très large. La plus typée des cinq : elle décide de l’allure de la boutique à elle seule, ce qui est sa qualité et son danger. Les noms longs y tiennent mal."],
+];
+
+document.getElementById('planche').innerHTML = pistes.map(([cls, titre, texte]) => `
+  <div class="col ${cls}">
+    <h2>${titre}</h2>
+    <p class="quoi">${texte}</p>
+    <div class="tel">
+      <div class="bandeau">
+        <h1>ÇA CIRCULE</h1>
+        <span class="h">Ouvert 7/7 · 13h – 00h</span>
+        <span class="s">Meetup &amp; Livraison</span>
+      </div>
+      <div class="chips"><span class="chip">🌿 Fleurs</span><span class="chip">🍫 Résines</span><span class="chip">🍪 Comestibles</span></div>
+      <div class="grid">${produits.map((p, i) => `
+        <button class="card" type="button">
+          <div class="card__art">
+            ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ''}
+            <img src="${p.image}" alt="" loading="lazy">
+          </div>
+          <div class="card__body">
+            <span class="card__foot">
+              <span class="card__name">${p.name}</span>
+              <span class="card__fleche" aria-hidden="true">›</span>
+            </span>
+          </div>
+        </button>`).join('')}</div>
+      <p class="corps">${produits[0].description ?? produits[0].short ?? ''}</p>
+      <p><span class="prixdemo">20 €</span> <span class="corps" style="display:inline">· 1,2 g</span></p>
+    </div>
+  </div>`).join('');
+</script>
+</body></html>
