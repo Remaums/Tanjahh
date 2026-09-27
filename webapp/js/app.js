@@ -403,6 +403,8 @@ function fermerLeVoile({ rideau = true } = {}) {
   // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la
   // boutique, batterie comprise.
   reglerLeFilm(false);
+  // Et la musique, si le vendeur en a et que le client ne l'a pas refusée.
+  lancerLaMusiqueALArrivee();
 }
 
 /**
@@ -2259,17 +2261,66 @@ function monterLeJuke() {
 
   peindreLeJuke();
 
-  // Qui avait mis la musique la dernière fois retrouve une pastille qui bat
-  // une fois, et rien d'autre. On ne reprend pas la lecture tout seul : le
-  // navigateur l'interdirait de toute façon, et surtout un client qui appuie
-  // sur « Commander » n'a pas à déclencher de la musique par surprise.
+}
+
+/**
+ * La musique démarre en arrivant sur le catalogue — quand le navigateur
+ * l'autorise.
+ *
+ * Il l'autorise s'il a vu un geste du client dans la page : un appui sur la
+ * porte d'âge, sur l'épreuve d'entrée, sur « j'ai répondu ». L'appui qui a
+ * ouvert la Mini App, lui, appartient à Telegram et pas à cette page — il ne
+ * compte pas. Une boutique sans aucune porte peut donc se voir refuser la
+ * lecture, et ce n'est pas rattrapable : c'est la règle des navigateurs, pas
+ * un réglage.
+ *
+ * D'où la seule forme honnête : on essaie, et on retombe debout. Refusé, on
+ * ne laisse pas une pastille allumée sur un silence — elle bat une fois pour
+ * dire qu'il y a quelque chose à écouter, et un appui suffit.
+ *
+ * Un client qui a coupé la musique ne la retrouve pas au prochain passage :
+ * couper, c'est dire non, et le redemander à chaque visite serait le genre
+ * d'insistance qui fait fermer une boutique.
+ */
+function lancerLaMusiqueALArrivee() {
+  if (!juke.liste.length || juke.voulue) return;
+
   let choixPasse = null;
   try { choixPasse = localStorage.getItem(JUKE_CLEF); } catch { /* navigation privée */ }
-  if (choixPasse === 'oui' && !juke.rappelFait && anime()) {
-    juke.rappelFait = true;
-    bouton.classList.add('juke--rappel');
-    setTimeout(() => bouton.classList.remove('juke--rappel'), 2600);
-  }
+  if (choixPasse === 'non') return;
+
+  const son = $('jukeSon');
+  if (!son) return;
+
+  juke.voulue = true;
+  const morceau = juke.liste[juke.index];
+  son.src = morceau.url;
+  son.play().then(
+    () => {
+      montrerLeTitre(morceau.titre);
+      peindreLeJuke();
+    },
+    () => {
+      // Refus : on efface toute trace de la tentative, y compris la source,
+      // sinon le navigateur continue de télécharger un morceau que personne
+      // n'entendra.
+      juke.voulue = false;
+      son.removeAttribute('src');
+      son.load();
+      peindreLeJuke();
+      inviterALaMusique();
+    }
+  );
+  peindreLeJuke();
+}
+
+/** La pastille bat, sans un son : il y a de la musique, elle attend un appui. */
+function inviterALaMusique() {
+  const bouton = $('juke');
+  if (!bouton || juke.rappelFait || !anime()) return;
+  juke.rappelFait = true;
+  bouton.classList.add('juke--rappel');
+  setTimeout(() => bouton.classList.remove('juke--rappel'), 2600);
 }
 
 /**
