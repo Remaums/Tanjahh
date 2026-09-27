@@ -65,17 +65,29 @@ const $ = (id) => document.getElementById(id);
      bas, il valait la fin de l'évaluation du module — donc un instant déjà
      décalé de ce que voit le client. */
 
-/* Le film dure quatre secondes et boucle sans raccord ; sur une bonne
-   connexion, le catalogue arrive en trois cents millisecondes. Sans
-   plancher, l'écran d'ouverture apparaîtrait et disparaîtrait avant qu'on
-   ait vu l'image — autant ne pas mettre de vidéo du tout.
+/* Le film dure trois secondes et boucle ; sur une bonne connexion, le
+   catalogue arrive en trois cents millisecondes. Sans plancher, l'écran
+   d'ouverture apparaîtrait et disparaîtrait avant qu'on ait vu l'image —
+   autant ne pas mettre de vidéo du tout.
 
-   Neuf secondes, c'est un peu plus de deux boucles. C'est long pour
-   quelqu'un qui vient juste acheter, et c'est assumé : l'ouverture fait
-   partie de l'enseigne. En contrepartie la jauge du bas court sur exactement
-   cette durée — sans elle, un client qui attend neuf secondes devant une
-   vidéo croit que la boutique est plantée et ferme. */
-const OUVERTURE_MIN_MS = 9000;
+   Cinq secondes : le film passe une fois en entier, puis reprend le temps
+   qu'on lise la dernière ligne. Les neuf secondes d'avant faisaient plus de
+   deux boucles — long pour quelqu'un qui vient juste acheter, et la seconde
+   visite ne pardonne pas ce que la première trouve joli. La jauge du bas
+   court sur exactement cette durée : sans elle, un client qui attend devant
+   une vidéo croit que la boutique est plantée et ferme. */
+const OUVERTURE_MIN_MS = 5000;
+/* Les trois phrases de l'écran d'ouverture. Elles sont ici et non près de la
+   fonction qui les déroule, pour la raison écrite juste au-dessus : `init()`
+   s'exécute à la lecture du module et appelle `derouler()` dès sa quinzième
+   ligne. Déclarées plus bas, elles étaient dans leur zone morte à cet
+   instant — l'écran d'ouverture restait affiché pour toujours, sur une
+   ReferenceError que personne ne voyait. */
+const OUVERTURE_PHRASES = [
+  'Ouverture de la boutique…',
+  'On branche le courant…',
+  'Prêt.',
+];
 const ouvertureDebut = Date.now();
 let fermetureProgrammee = false;
 
@@ -100,6 +112,8 @@ async function init() {
   // partir maintenant et pas après le catalogue.
   reglerLeFilm(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
   lancerLaJauge();
+  derouler();
+  foudroyer();
 
   bindStaticHandlers();
   gateAge();
@@ -289,6 +303,69 @@ function lancerLaJauge() {
 }
 
 /**
+ * Ce que dit l'écran d'ouverture, en trois temps.
+ *
+ * Une phrase figée pendant cinq secondes ne dit rien de plus qu'une phrase
+ * figée pendant une seconde : c'est le changement qui prouve que quelque
+ * chose avance. Les trois se relaient sur la durée du plancher, la dernière
+ * arrivant juste avant que le rideau se lève.
+ *
+ * Le fondu se fait en retirant la classe puis en la remettant au tour de
+ * boucle suivant : ré-assigner le même texte ne relance aucune animation.
+ */
+function derouler() {
+  const ligne = $('chargeTexte');
+  if (!ligne || !anime()) return;
+
+  const pas = OUVERTURE_MIN_MS / OUVERTURE_PHRASES.length;
+  OUVERTURE_PHRASES.slice(1).forEach((phrase, i) => {
+    const quand = Math.round(pas * (i + 1));
+    setTimeout(() => {
+      // Le rideau peut être parti avant l'heure : on ne réveille pas un écran
+      // qui n'est plus là pour y écrire une phrase que personne ne lira.
+      if ($('charge')?.hidden) return;
+      ligne.classList.remove('charge__texte--entre');
+      ligne.textContent = phrase;
+      requestAnimationFrame(() => ligne.classList.add('charge__texte--entre'));
+    }, quand);
+  });
+}
+
+/**
+ * Deux éclairs sur l'écran d'ouverture.
+ *
+ * La version d'avant avait retiré l'anneau qui tournait et l'éclair qui se
+ * déchargeait, au motif que deux choses en mouvement sur le même écran se
+ * disputent le regard. L'argument tient toujours, et c'est pourquoi ce qu'on
+ * ajoute ici ne se pose pas sur le personnage : un éclair blanchit tout
+ * l'écran pendant un sixième de seconde, comme le ferait celui du film. Ce
+ * n'est pas un deuxième objet à regarder, c'est le même orage.
+ */
+function foudroyer() {
+  const ecran = $('charge');
+  if (!ecran || !anime()) return;
+  // Pas sur la première image : l'écran vient d'apparaître, un éclair au même
+  // instant passe pour un défaut d'affichage plutôt que pour un effet.
+  // La classe part dès que l'éclair est passé. Laissée en place, elle ne
+  // rejoue rien mais elle traîne : le prochain qui lira cet écran dans
+  // l'inspecteur croira qu'un éclair est en cours alors qu'il n'y en a pas.
+  ecran.addEventListener('animationend', (ev) => {
+    if (ev.animationName === 'charge-foudre') ecran.classList.remove('charge--foudre');
+  });
+
+  for (const quand of [Math.round(OUVERTURE_MIN_MS * 0.34), Math.round(OUVERTURE_MIN_MS * 0.74)]) {
+    setTimeout(() => {
+      if (ecran.hidden) return;
+      ecran.classList.remove('charge--foudre');
+      // Le tour de boucle suivant : remettre une classe qu'on vient d'ôter
+      // dans la même image ne relance pas l'animation, le navigateur ne voit
+      // aucun changement.
+      requestAnimationFrame(() => ecran.classList.add('charge--foudre'));
+    }, quand);
+  }
+}
+
+/**
  * La décharge jaune du lever de rideau.
  *
  * Elle part après le voile et non avec lui : l'écran d'ouverture est au
@@ -436,8 +513,19 @@ function appliquerLesAnimations() {
   return !coupe;
 }
 
-/** Vrai si la boutique a le droit de bouger. */
-const anime = () => document.documentElement.dataset.anim !== 'off';
+/**
+ * Vrai si la boutique a le droit de bouger.
+ *
+ * Déclarée en fonction et non en `const` fléchée : `init()` s'exécute à la
+ * lecture du module, bien avant cette ligne, et tout ce qu'il appelle en
+ * chemin — l'écran d'ouverture, en particulier — tombait sur une
+ * ReferenceError en consultant une constante encore dans sa zone morte. Une
+ * déclaration de fonction remonte, elle ; c'est le deuxième piège du même
+ * genre sur ce fichier, et celui-ci ne peut plus se refermer.
+ */
+function anime() {
+  return document.documentElement.dataset.anim !== 'off';
+}
 
 function bindStaticHandlers() {
   $('ageYes').addEventListener('click', () => {

@@ -1779,17 +1779,88 @@ button { font: inherit; color: inherit; cursor: pointer; }
    application bloquée. Les deux horloges sont maintenant la même, et la
    durée n'est plus écrite à deux endroits. */
 .charge__jauge span {
-  display: block; width: 0; height: 100%;
+  display: block; width: 0; height: 100%; position: relative;
   background: var(--neon);
   box-shadow: 0 0 10px rgb(var(--neon-rgb) / .8);
 }
+/* La tête de la barre grésille. Une barre qui avance d'un bloc uni dit la
+   durée ; celle-ci dit en plus que c'est du courant qui la remplit, ce qui
+   est toute la question de cette boutique. L'effet vit au bout du trait et
+   pas sur toute sa longueur : un clignotement sur deux cent vingt pixels
+   attire le regard loin du film. */
+.charge__jauge span::after {
+  content: ''; position: absolute; right: -3px; top: -2px;
+  width: 7px; height: 6px; border-radius: 50%;
+  background: var(--jaune);
+  box-shadow: 0 0 9px 2px rgb(var(--jaune-rgb) / .9);
+  animation: charge-tete .5s steps(3, end) infinite;
+}
 @keyframes charge-jauge { to { width: 100%; } }
+@keyframes charge-tete {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .45; transform: scale(.72); }
+}
+
+/* L'éclair de l'écran d'ouverture.
+
+   L'anneau qui tournait et l'éclair qui se déchargeait avaient été retirés
+   parce que deux choses en mouvement sur le même écran se disputent le
+   regard. L'argument tient, et c'est pourquoi celui-ci ne se pose sur rien :
+   il blanchit tout l'écran pendant un sixième de seconde, exactement comme
+   le fait l'orage du film. Ce n'est pas un deuxième objet à regarder, c'est
+   le même orage — et il passe sous le texte, qui reste lisible pendant.
+
+   `mix-blend-mode: screen` plutôt qu'un voile blanc à faible opacité : sur
+   une ruelle déjà sombre, un voile grisonne l'image au lieu de l'éclairer. */
+.charge::after {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, rgb(215 238 255 / .85), rgb(180 220 255 / .25) 46%, transparent 78%);
+  mix-blend-mode: screen;
+}
+/* Une montée nette, une rechute, un second éclat plus faible, puis
+   l'extinction — c'est la forme d'un vrai éclair. En `steps()`, les mêmes
+   valeurs sautaient d'un palier à l'autre et donnaient un clignotement
+   d'écran cassé plutôt qu'un orage.
+
+   Deux éclats en seize centièmes, et le suivant deux secondes plus tard :
+   dans n'importe quelle fenêtre d'une seconde on reste sous les trois
+   flashs au-delà desquels un écran devient dangereux pour les personnes
+   photosensibles. Ceux qui ont demandé moins de mouvement n'en voient
+   aucun, c'est la règle plus bas. */
+.charge--foudre::after { animation: charge-foudre .16s ease-out 1; }
+@keyframes charge-foudre {
+  0%   { opacity: 0; }
+  14%  { opacity: 1; }
+  38%  { opacity: .12; }
+  58%  { opacity: .5; }
+  100% { opacity: 0; }
+}
+/* Le texte et la jauge passent devant l'éclair : c'est le décor qui
+   s'illumine, pas l'information qui s'efface. */
+.charge__texte-zone { z-index: 2; }
+
+/* Les phrases se relaient. Chacune monte de six pixels en apparaissant :
+   sans ce mouvement, le remplacement passe pour un défaut d'affichage. */
+.charge__texte { transition: opacity .28s ease, transform .28s ease; }
+.charge__texte--entre { animation: charge-phrase .34s ease both; }
+@keyframes charge-phrase {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
 
 /* Sans mouvement, le film ne joue pas et le plancher ne s'applique pas :
    l'écran part aussitôt, la jauge n'aurait rien à annoncer. */
 [data-anim='off'] .charge__jauge { display: none; }
+[data-anim='off'] .charge::after,
+[data-anim='off'] .charge__jauge span::after { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .charge__jauge { display: none; }
+  /* Un écran qui blanchit quatre fois en un sixième de seconde est
+     précisément ce que ce réglage demande d'éviter, et il est souvent posé
+     pour raison médicale. */
+  .charge::after, .charge__jauge span::after { display: none; }
+  .charge__texte, .charge__texte--entre { animation: none; transition: none; }
 }
 .charge[hidden] {
   display: grid !important;   /* on le fait disparaître en fondu, pas d'un coup */
