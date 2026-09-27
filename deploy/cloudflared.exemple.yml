@@ -39,9 +39,9 @@ credentials-file: /home/À-REMPLIR-TON-UTILISATEUR/.cloudflared/À-REMPLIR-IDENT
 ingress:
   # Ton sous-domaine, celui que `cloudflared tunnel route dns` a créé.
   - hostname: À-REMPLIR-boutique.ton-domaine.fr
-    # La boutique écoute en clair sur le port 3000 de cette machine ;
+    # La boutique écoute en clair sur le port 3100 de cette machine ;
     # c'est Cloudflare qui met le HTTPS devant. Rien à chiffrer ici.
-    service: http://localhost:3000
+    service: http://localhost:3100
 
   # Le filet : tout ce qui ne correspond à rien au-dessus reçoit un 404.
   # Sans cette ligne, cloudflared refuse de démarrer.

@@ -816,7 +816,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @media (min-width: 520px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
 /* ── La carte produit ────────────────────────────────────────
-   Napoli empile : vignette carrée en haut, corps de texte en dessous.
+   La boutique dont ce code est issu empilait : vignette carrée en haut,
+   corps de texte en dessous.
    Ici on superpose — la photo prend toute la carte, et le nom avec le
    prix viennent se poser par-dessus, sur un bandeau noir. C'est la
    composition d'un autocollant ou d'un flyer, pas d'une fiche.
@@ -1029,7 +1030,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    au milieu d'une surface sombre. D'où les deux jeux de règles. */
 .pdetail__art {
   display: grid; place-items: center; padding: 26px 0 20px;
-  /* Bord à bord. La fiche de Napoli pose la photo dans une carte arrondie,
+  /* Bord à bord. La fiche d'origine posait la photo dans une carte arrondie,
      au milieu de la gouttière : ici c'est une affiche, elle prend toute la
      largeur de l'écran et se termine sur un rail jaune. */
   margin: 0 calc(var(--gutter, 14px) * -1);
@@ -1898,7 +1899,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .page { padding-bottom: calc(var(--tabbar-h, 78px) + 24px); }
 
 /* ── La barre du bas ─────────────────────────────────────────
-   Napoli la fait flotter, détachée du bord, coins ronds et ombre. Ici
+   La version d'origine la faisait flotter, détachée du bord, coins ronds
+   et ombre. Ici
    elle est plaquée au bord et bordée de jaune en haut : une plinthe
    assumée, comme le bandeau « OPEN 7/7 » d'une devanture.
 

@@ -54,7 +54,7 @@ command -v sudo >/dev/null || stop "sudo est absent. Installe-le en root : apt i
 
 sudo -v >/dev/null 2>&1 || stop "Ton utilisateur n'a pas sudo. En root : usermod -aG sudo $(id -un), puis reconnecte-toi."
 
-[ -f "$RACINE/package.json" ] || stop "Ce script doit être lancé depuis le dépôt : cd ~/Telegram-app && bash deploy/installer.sh"
+[ -f "$RACINE/package.json" ] || stop "Ce script doit être lancé depuis le dépôt : cd ~/Tanjahh && bash deploy/installer.sh"
 
 source /etc/os-release 2>/dev/null || true
 case "${ID:-}${ID_LIKE:-}" in
@@ -143,7 +143,7 @@ else
 fi
 
 # HOST=127.0.0.1 : la boutique n'écoute qu'en local, le proxy ou le tunnel
-# s'occupe de l'extérieur. Sans ça le port 3000 serait exposé en clair.
+# s'occupe de l'extérieur. Sans ça le port 3100 serait exposé en clair.
 grep -q '^HOST=' .env || { printf '\n# La boutique n'\''écoute qu'\''en local : le proxy ou le tunnel fait le reste.\nHOST=127.0.0.1\n' >> .env; fait "HOST=127.0.0.1 ajouté"; }
 
 # ── Service systemd ────────────────────────────────────────
@@ -211,7 +211,7 @@ if command -v ufw >/dev/null; then
   sudo ufw allow OpenSSH >/dev/null 2>&1 || true
   sudo ufw allow 80,443/tcp >/dev/null 2>&1 || true
   sudo ufw --force enable >/dev/null 2>&1 || true
-  fait "SSH, 80 et 443 ouverts ; le port 3000 reste fermé"
+  fait "SSH, 80 et 443 ouverts ; le port 3100 reste fermé"
 else
   note "ufw absent, pare-feu non configuré (sudo apt install ufw pour l'ajouter)."
 fi
@@ -250,8 +250,8 @@ case "${choix:-}" in
     # toujours ouvert — un peu moins rapide, mais il marche partout.
     poser_tunnel() {
       local protocole=${1-}
-      local options='tunnel --url http://localhost:3000'
-      [ -n "$protocole" ] && options="tunnel --protocol $protocole --url http://localhost:3000"
+      local options='tunnel --url http://localhost:3100'
+      [ -n "$protocole" ] && options="tunnel --protocol $protocole --url http://localhost:3100"
       sudo tee /etc/systemd/system/tunnel.service >/dev/null <<TUNNEL
 [Unit]
 Description=Tunnel Cloudflare vers la boutique
@@ -337,7 +337,7 @@ TUNNEL
       note "  · sortie réseau très filtrée — essaie l'option 2 (DuckDNS), qui n'a besoin que du 80 et du 443 ;"
       note "  · Cloudflare refuse les tunnels anonymes depuis cette IP — même remède ;"
       note "  · pas de résolution DNS sur le VPS — vérifie : getent hosts cloudflare.com"
-      note "Le reste de l'installation, lui, est en place : la boutique tourne sur le port 3000."
+      note "Le reste de l'installation, lui, est en place : la boutique tourne sur le port 3100."
     fi
         ;;
   2|3)

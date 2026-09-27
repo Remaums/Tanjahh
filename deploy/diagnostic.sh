@@ -115,7 +115,7 @@ done
 
 titre "La boutique répond-elle ?"
 PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d ' ')
-PORT=${PORT:-3000}
+PORT=${PORT:-3100}
 # La sortie d'erreur reste à part : mêlée à la réponse, un « connection
 # refused » se lirait comme si la boutique avait répondu quelque chose.
 if sante=$(curl -fsS --max-time 8 "http://127.0.0.1:$PORT/api/health" 2>/dev/null); then

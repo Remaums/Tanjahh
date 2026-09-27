@@ -15,9 +15,9 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=shop
-WorkingDirectory=/home/shop/Telegram-app
+WorkingDirectory=/home/shop/Tanjahh
 ExecStart=/usr/bin/node server/index.js
-EnvironmentFile=/home/shop/Telegram-app/.env
+EnvironmentFile=/home/shop/Tanjahh/.env
 
 # Redémarrage automatique : une coupure réseau ne doit pas tuer la boutique.
 Restart=always
@@ -32,7 +32,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
 ProtectHome=read-only
-ReadWritePaths=/home/shop/Telegram-app/server/data
+ReadWritePaths=/home/shop/Tanjahh/server/data
 
 [Install]
 WantedBy=multi-user.target

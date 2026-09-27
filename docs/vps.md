@@ -26,7 +26,7 @@ Les étapes 2 à 8 ci-dessous sont mécaniques. Un script les exécute :
 
 ```bash
 # Une fois le dépôt cloné (étape 3) :
-cd ~/Telegram-app
+cd ~/Tanjahh
 bash deploy/installer.sh
 ```
 
@@ -69,8 +69,8 @@ Dans Telegram, écris à **@BotFather** :
 /newbot
 ```
 
-Il demande un nom affiché (« COFFEE SHOP 68 ») puis un identifiant se terminant
-par `bot` (`coffeeshop68_bot`). Il répond avec un token du type
+Il demande un nom affiché (« TANJA HH 67 ») puis un identifiant se terminant
+par `bot` (`tanja_hh_67_bot`). Il répond avec un token du type
 `8123456789:AAH...`. **Garde-le secret** : quiconque l'a peut piloter ton bot.
 
 Tu reviendras chez BotFather à l'étape 9, une fois le site en ligne.
@@ -127,11 +127,11 @@ y écrire ses commandes. Déplace-le une bonne fois :
 
 ```bash
 # Depuis root
-systemctl stop coffeeshop68 2>/dev/null
-mv /root/Telegram-app /home/shop/
-chown -R shop:shop /home/shop/Telegram-app
+systemctl stop tanja67 2>/dev/null
+mv /root/Tanjahh /home/shop/
+chown -R shop:shop /home/shop/Tanjahh
 su - shop
-cd ~/Telegram-app && bash deploy/installer.sh   # réécrit le service au bon chemin
+cd ~/Tanjahh && bash deploy/installer.sh   # réécrit le service au bon chemin
 ```
 
 Mets à jour et installe Node 20+ et git :
@@ -159,9 +159,8 @@ node -v      # doit afficher v22.x (v20 minimum)
 
 ```bash
 cd ~
-git clone https://github.com/Remaums/Telegram-app.git
-cd Telegram-app
-git checkout claude/webapp-theme-a4nm82
+git clone https://github.com/Remaums/Tanjahh.git
+cd Tanjahh
 npm install --omit=dev
 ```
 
@@ -183,12 +182,12 @@ nano .env
 BOT_TOKEN=8123456789:AAH...        # celui de BotFather
 WEBAPP_URL=https://boutique.mondomaine.fr
 SELLER_USERNAME=tonpseudo          # sans @ : la conversation qui reçoit les commandes
-BOT_USERNAME=coffeeshop68_bot       # sans @ : sert aux liens directs et aux QR codes
+BOT_USERNAME=tanja_hh_67_bot       # sans @ : sert aux liens directs et aux QR codes
 ADMIN_CHAT_ID=123456789            # ton ID Telegram (étape 10)
 ADMIN_IDS=123456789                # qui peut ouvrir l'espace admin
-SHOP_NAME=COFFEE SHOP 68
+SHOP_NAME=TANJA HH 67
 CURRENCY=EUR
-PORT=3000
+PORT=3100
 HOST=127.0.0.1                     # on n'écoute qu'en local, le proxy s'occupe du reste
 ```
 
@@ -210,7 +209,7 @@ Premier essai, en avant-plan :
 npm start
 ```
 
-Tu dois lire `Boutique servie sur http://127.0.0.1:3000`, `Stockage : fichiers
+Tu dois lire `Boutique servie sur http://127.0.0.1:3100`, `Stockage : fichiers
 JSON` et `Bot @tonbot démarré.` Arrête avec `Ctrl+C`.
 
 ---
@@ -220,17 +219,17 @@ JSON` et `Bot @tonbot démarré.` Arrête avec `Ctrl+C`.
 systemd la relance après un plantage et au redémarrage du serveur.
 
 ```bash
-sudo cp deploy/coffeeshop68.service /etc/systemd/system/
-sudo nano /etc/systemd/system/coffeeshop68.service   # vérifie User et les chemins
+sudo cp deploy/tanja67.service /etc/systemd/system/
+sudo nano /etc/systemd/system/tanja67.service   # vérifie User et les chemins
 sudo systemctl daemon-reload
-sudo systemctl enable --now coffeeshop68
-systemctl status coffeeshop68
+sudo systemctl enable --now tanja67
+systemctl status tanja67
 ```
 
 Les journaux en direct :
 
 ```bash
-journalctl -u coffeeshop68 -f
+journalctl -u tanja67 -f
 ```
 
 ---
@@ -248,12 +247,12 @@ Cloudflare ouvre un tunnel sortant depuis ton VPS et te donne une adresse
 HTTPS publique.
 
 ```bash
-# Sur le VPS, la boutique tournant déjà sur le port 3000
+# Sur le VPS, la boutique tournant déjà sur le port 3100
 sudo apt install -y curl
 curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
 sudo dpkg -i cloudflared.deb
 
-cloudflared tunnel --url http://localhost:3000
+cloudflared tunnel --url http://localhost:3100
 ```
 
 Il affiche au bout de quelques secondes une ligne du type :
@@ -275,7 +274,7 @@ beaucoup d'hébergeurs filtrent l'UDP sortant. Le tunnel retente alors sans fin,
 silencieusement. Le remède est de forcer le TCP :
 
 ```bash
-cloudflared tunnel --protocol http2 --url http://localhost:3000
+cloudflared tunnel --protocol http2 --url http://localhost:3100
 ```
 
 `deploy/installer.sh` détecte ce cas dans le journal et bascule tout seul. Si
@@ -291,7 +290,7 @@ Description=Tunnel Cloudflare vers la boutique
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/cloudflared tunnel --url http://localhost:3000
+ExecStart=/usr/bin/cloudflared tunnel --url http://localhost:3100
 Restart=always
 User=shop
 
@@ -365,7 +364,7 @@ sudo ufw enable
 sudo ufw status
 ```
 
-Le port 3000 n'est **pas** ouvert : avec `HOST=127.0.0.1`, la boutique n'est
+Le port 3100 n'est **pas** ouvert : avec `HOST=127.0.0.1`, la boutique n'est
 joignable que par le proxy — ou par le tunnel, qui tourne sur la machine.
 
 ---
@@ -391,7 +390,7 @@ Colle `https://boutique.mondomaine.fr`, puis donne un libellé au bouton
 
 ```bash
 nano .env
-sudo systemctl restart coffeeshop68
+sudo systemctl restart tanja67
 ```
 
 `/admin` t'ouvre alors l'espace de gestion. Pour plusieurs administrateurs :
@@ -418,10 +417,10 @@ test, elle doit arriver dans ta conversation avec les boutons de traitement.
 ## 12. Mettre à jour la boutique
 
 ```bash
-cd ~/Telegram-app
+cd ~/Tanjahh
 git pull
 npm install --omit=dev
-sudo systemctl restart coffeeshop68
+sudo systemctl restart tanja67
 ```
 
 ---
@@ -439,7 +438,7 @@ crontab -e
 Une ligne pour une sauvegarde quotidienne, gardée 30 jours :
 
 ```cron
-0 4 * * * tar czf ~/sauvegardes/boutique-$(date +\%F).tgz -C ~/Telegram-app/server data && find ~/sauvegardes -name 'boutique-*.tgz' -mtime +30 -delete
+0 4 * * * tar czf ~/sauvegardes/boutique-$(date +\%F).tgz -C ~/Tanjahh/server data && find ~/sauvegardes -name 'boutique-*.tgz' -mtime +30 -delete
 ```
 
 ---
@@ -450,20 +449,20 @@ Une ligne pour une sauvegarde quotidienne, gardée 30 jours :
 |---|---|---|
 | Le tunnel ne rend jamais d'adresse | l'hébergeur filtre l'UDP sortant (port 7844), que cloudflared utilise par défaut | `sudo systemctl edit tunnel` et forcer `--protocol http2` (le 443 en TCP), ou `bash deploy/installer.sh` qui bascule tout seul |
 | `failed to request quick Tunnel` | Cloudflare refuse les tunnels anonymes depuis cette IP | passe à l'option 2 du guide (DuckDNS), qui n'a besoin que du 80 et du 443 |
-| Le service redémarre en boucle (`NRestarts` qui grimpe) | une exception au démarrage, que `Restart=always` relance indéfiniment | `sudo journalctl -u coffeeshop68 -n 50` : la trace est en haut de chaque cycle |
-| La boutique s'ouvre mais paraît vide | le catalogue n'a pas pu être chargé — l'écran le dit maintenant en clair (« Boutique momentanément injoignable ») au lieu de ressembler à une boutique sans produits | `curl -s localhost:3000/api/catalog \| head -c 200` sur le VPS ; s'il répond une erreur, `sudo journalctl -u coffeeshop68 -n 30` la nomme |
+| Le service redémarre en boucle (`NRestarts` qui grimpe) | une exception au démarrage, que `Restart=always` relance indéfiniment | `sudo journalctl -u tanja67 -n 50` : la trace est en haut de chaque cycle |
+| La boutique s'ouvre mais paraît vide | le catalogue n'a pas pu être chargé — l'écran le dit maintenant en clair (« Boutique momentanément injoignable ») au lieu de ressembler à une boutique sans produits | `curl -s localhost:3100/api/catalog \| head -c 200` sur le VPS ; s'il répond une erreur, `sudo journalctl -u tanja67 -n 30` la nomme |
 | `/admin` ne répond rien | `WEBAPP_URL` vide ou en HTTP : Telegram refuse le message entier quand un bouton Mini App porte une URL invalide | le bot le dit maintenant explicitement ; renseigne `WEBAPP_URL` en `https://…`, puis redémarre |
-| `/admin` répond « réservé à l'administrateur » | ton identifiant n'est pas déclaré, ou la boutique n'a pas été redémarrée depuis | le refus t'affiche ton identifiant : mets-le dans `ADMIN_IDS`, puis `sudo systemctl restart coffeeshop68`. `ADMIN_CHAT_ID` compte aussi. |
+| `/admin` répond « réservé à l'administrateur » | ton identifiant n'est pas déclaré, ou la boutique n'a pas été redémarrée depuis | le refus t'affiche ton identifiant : mets-le dans `ADMIN_IDS`, puis `sudo systemctl restart tanja67`. `ADMIN_CHAT_ID` compte aussi. |
 | **Le bot ne répond pas à `/start`** | dans l'ordre de probabilité : un webhook resté déclaré (le long polling ne reçoit alors plus rien), un token mal recopié, ou le service arrêté | `bash deploy/diagnostic.sh` tranche les trois en une commande |
 | `409 Conflict` dans les journaux | un webhook est resté déclaré (essai Vercel), il se dispute les mises à jour avec le long polling | `node tools/set-webhook.mjs --delete` |
 | Le bouton du menu ne s'ouvre pas | l'URL n'est pas en HTTPS valide | vérifie le certificat : `curl -I https://ton-domaine` |
-| `502 Bad Gateway` | la boutique ne tourne pas | `systemctl status coffeeshop68`, puis `journalctl -u coffeeshop68 -n 50` |
-| `EADDRINUSE` | le port 3000 est déjà pris | `sudo lsof -i :3000`, ou change `PORT` dans `.env` |
+| `502 Bad Gateway` | la boutique ne tourne pas | `systemctl status tanja67`, puis `journalctl -u tanja67 -n 50` |
+| `EADDRINUSE` | le port 3100 est déjà pris | `sudo lsof -i :3100`, ou change `PORT` dans `.env` |
 | `sudo : commande introuvable` ou `shop n'est pas dans le fichier sudoers` | l'utilisateur a été créé sans les droits | depuis root : `usermod -aG sudo shop`, puis reconnecte-toi |
-| `bash: cd: /home/shop/Telegram-app : Aucun fichier` | le dépôt a été cloné ailleurs, souvent dans `/root` | voir « Si tu as déjà tout cloné en root », étape 2 |
+| `bash: cd: /home/shop/Tanjahh : Aucun fichier` | le dépôt a été cloné ailleurs, souvent dans `/root` | voir « Si tu as déjà tout cloné en root », étape 2 |
 | Le journal parle de `getaddrinfo`, `EAI_AGAIN`, `pg-store.js` | `DATABASE_URL` est renseignée : toute la boutique bascule sur Postgres, et l'adresse n'est pas joignable. Presque toujours la ligne d'exemple laissée dans `.env` | commente la ligne dans `.env` puis redémarre. **Sur un VPS, Postgres ne sert à rien** : les données vivent dans `server/data/` |
-| « Catalogue indisponible » et « Erreur interne » sur tout | le dossier de données n'appartient pas à l'utilisateur du service — typiquement un dépôt cloné en `root` et un service lancé sous `shop` | la boutique nomme maintenant le fichier, l'utilisateur et le remède, à l'écran comme au journal. En résumé : `sudo chown -R shop /home/shop/Telegram-app/server/data` |
-| `EACCES` sur `server/data` | le service n'écrit pas dans son dossier | `sudo chown -R shop:shop ~/Telegram-app` |
+| « Catalogue indisponible » et « Erreur interne » sur tout | le dossier de données n'appartient pas à l'utilisateur du service — typiquement un dépôt cloné en `root` et un service lancé sous `shop` | la boutique nomme maintenant le fichier, l'utilisateur et le remède, à l'écran comme au journal. En résumé : `sudo chown -R shop /home/shop/Tanjahh/server/data` |
+| `EACCES` sur `server/data` | le service n'écrit pas dans son dossier | `sudo chown -R shop:shop ~/Tanjahh` |
 | Commande passée, rien reçu | `ADMIN_CHAT_ID` absent ou faux | corrige `.env` et redémarre |
 | L'espace admin refuse l'accès | ton ID n'est pas dans `ADMIN_IDS` | `/start` pour le relire, corrige, redémarre |
 | Le bot ne démarre pas | token invalide | recopie le token de BotFather, sans espace |

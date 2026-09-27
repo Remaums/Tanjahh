@@ -195,8 +195,8 @@ check('« id » suivi d\'autre chose qu\'un nombre ne route rien', idDuRelais('i
 
 console.log('\n── Ce que reçoit le client ─────────────────────────');
 
-const auClient = messagePourLeClient('  ta commande est prête  ', 'Napoli Coffee');
-check('L\'enseigne nomme l\'expéditeur', auClient.startsWith('💬 Napoli Coffee'), auClient.split('\n')[0]);
+const auClient = messagePourLeClient('  ta commande est prête  ', 'TANJA HH 67');
+check('L\'enseigne nomme l\'expéditeur', auClient.startsWith('💬 TANJA HH 67'), auClient.split('\n')[0]);
 check('Le texte est détouré', auClient.endsWith('ta commande est prête'));
 check(
   'Sans enseigne configurée, il reste un expéditeur',
