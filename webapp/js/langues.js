@@ -34,8 +34,8 @@ export const TEXTES = {
     'accueil.texte':
       'Quatre ans dans le milieu, et la même exigence depuis le premier jour. '
       + 'Plusieurs variétés disponibles.',
-    'accueil.horaires': '7/7 · 13H - 00H',
-    'accueil.service': 'MEET-UP & LIVRAISON',
+    'accueil.horaires': '7/7 · 13H-00H',
+    'accueil.service': 'Meet-up & Livraison',
     'accueil.langue': 'Choisis ta langue',
     'accueil.entrer': 'Entrer dans la boutique',
 
@@ -324,8 +324,8 @@ export const TEXTES = {
     'accueil.texte':
       'Four years in the game, and the same standards since day one. '
       + 'Several varieties in stock.',
-    'accueil.horaires': '7/7 · 1PM - MIDNIGHT',
-    'accueil.service': 'MEET-UP & DELIVERY',
+    'accueil.horaires': '7/7 · 1PM-12AM',
+    'accueil.service': 'Meet-up & Delivery',
     'accueil.langue': 'Choose your language',
     'accueil.entrer': 'Enter the shop',
 
@@ -596,8 +596,8 @@ export const TEXTES = {
     'accueil.texte':
       'Cuatro años en el oficio, y la misma exigencia desde el primer día. '
       + 'Varias variedades disponibles.',
-    'accueil.horaires': '7/7 · 13:00 - 00:00',
-    'accueil.service': 'MEET-UP Y ENTREGA',
+    'accueil.horaires': '7/7 · 13:00-00:00',
+    'accueil.service': 'Meet-up y Entrega',
     'accueil.langue': 'Elige tu idioma',
     'accueil.entrer': 'Entrar en la tienda',
 

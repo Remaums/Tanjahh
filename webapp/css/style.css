@@ -2480,15 +2480,29 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
 /* L'horaire et le service. En capitales et espacés : ce sont deux
    étiquettes, pas des phrases, et on doit pouvoir les lire d'un coup d'œil
    sans lire le paragraphe au-dessus. */
-.bienvenue__horaires {
-  margin: 12px 0 0; font-family: var(--display);
-  font-size: 15px; font-weight: 700; letter-spacing: .04em;
-  color: var(--jaune);
+/* Les horaires et le service, en deux pastilles.
+   Posés en texte libre, ils se lisaient comme la fin du paragraphe ; dans
+   une pastille, on voit d'abord la forme et on lit ensuite. `flex-wrap`
+   parce qu'à 320 px les deux ne tiennent pas côte à côte : mieux vaut deux
+   lignes que deux pastilles écrasées. */
+.bienvenue__infos {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  justify-content: center; margin: 14px 0 0;
 }
-.bienvenue__service {
-  margin: 3px 0 0; font-size: 10.5px; font-weight: 700;
-  letter-spacing: .14em; text-transform: uppercase;
-  color: rgb(var(--cream-rgb) / .62);
+.bienvenue__info {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 9px; border-radius: 999px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .02em;
+  background: rgb(255 255 255 / .06);
+  border: 1px solid rgb(255 255 255 / .1);
+  color: rgb(var(--cream-rgb) / .88);
+}
+.bienvenue__info b {
+  font-family: var(--display); font-weight: 700; color: var(--jaune);
+}
+.bienvenue__info-icone {
+  width: 13px; height: 13px; flex: none;
+  color: rgb(var(--cream-rgb) / .45);
 }
 
 /* Le choix de la langue. Trois boutons côte à côte plutôt qu'une liste

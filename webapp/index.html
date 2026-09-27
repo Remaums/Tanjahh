@@ -94,10 +94,34 @@
     <p class="bienvenue__texte" id="bienvenueTexte"></p>
 
     <!-- Les deux informations qu'on vient chercher : quand, et comment.
-         Sur leur propre ligne plutôt qu'au bout de la phrase, où elles se
-         lisaient comme une incise. -->
-    <p class="bienvenue__horaires" id="bienvenueHoraires"></p>
-    <p class="bienvenue__service" id="bienvenueService"></p>
+         En pastilles plutôt qu'au bout de la phrase, où elles se lisaient
+         comme une incise.
+
+         Les icônes sont dessinées ici, et non posées en émoji : un émoji
+         est rendu par la police du système, et « 🛵 » n'a pas le même
+         dessin — parfois pas la même taille — sur un Android, un iPhone
+         et un bureau. Deux traits en SVG sont les mêmes partout, et
+         prennent la couleur du texte. -->
+    <div class="bienvenue__infos">
+      <span class="bienvenue__info">
+        <svg class="bienvenue__info-icone" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M12 7.2V12l3.2 1.9" fill="none" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <b id="bienvenueHoraires"></b>
+      </span>
+      <span class="bienvenue__info">
+        <svg class="bienvenue__info-icone" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="6" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <circle cx="18.5" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M9 17h6.5M6 17l3-8h3.2l3.4 8M9.6 9H8a1.6 1.6 0 0 1 0-3.2h3.4"
+                fill="none" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="bienvenueService"></span>
+      </span>
+    </div>
 
     <div class="bienvenue__langues" id="bienvenueLangues">
       <p class="bienvenue__legende" id="bienvenueLegende"></p>
