@@ -41,6 +41,7 @@ const state = {
   onglet: 'catalogue',     // l'écran affiché : catalogue, categories, contact, profil, produit
   retour: 'catalogue',     // l'onglet où la flèche de la fiche ramène
   profilVue: 'commandes',  // l'onglet ouvert dans le profil
+  profil: null,       // la dernière réponse de /api/profil, pour repeindre sans la redemander
   avisTousVisibles: false,  // « voir tous les avis » d'une fiche
   blocked: false,     // compte privé de commande par le vendeur
   mode: 'pickup',
@@ -114,11 +115,29 @@ const ouvertureDebut = Date.now();
 const LANGUE_CLEF = 'tanja.langue';
 let langue = LANGUE_PAR_DEFAUT;
 
-/** Le texte d'une clef, dans la langue en cours. */
-function t(clef) {
+/**
+ * Le texte d'une clef, dans la langue en cours.
+ *
+ * Le second argument remplit les trous `{nom}` de la phrase. C'est ce qui
+ * permet de traduire « ferme dans {duree} » d'un bloc : découpé en morceaux
+ * recollés par le script, l'ordre des mots serait celui du français, et
+ * l'espagnol comme l'anglais se retrouveraient à l'envers.
+ */
+function t(clef, valeurs) {
   // Le français sert de repli : une clef oubliée ailleurs s'affiche en
   // français plutôt que de laisser un « undefined » à l'écran.
-  return TEXTES[langue]?.[clef] ?? TEXTES[LANGUE_PAR_DEFAUT][clef] ?? clef;
+  let texte = TEXTES[langue]?.[clef] ?? TEXTES[LANGUE_PAR_DEFAUT][clef] ?? clef;
+  if (valeurs) {
+    for (const [nom, valeur] of Object.entries(valeurs)) {
+      texte = texte.split(`{${nom}}`).join(String(valeur));
+    }
+  }
+  return texte;
+}
+
+/** Le code de date de la langue en cours (« fr-FR », « en-GB »…). */
+function locale() {
+  return LANGUES.find((l) => l.code === langue)?.locale ?? 'fr-FR';
 }
 
 /**
@@ -143,17 +162,53 @@ function appliquerLaLangue(code, { retenir = false } = {}) {
   for (const el of document.querySelectorAll('[data-t]')) {
     el.textContent = t(el.dataset.t);
   }
+  // Les rares textes qui portent du gras passent par innerHTML. Le contenu
+  // vient de notre propre dictionnaire, jamais du client : c'est ce qui rend
+  // l'exception acceptable, et c'est pourquoi elle reste une exception.
+  for (const el of document.querySelectorAll('[data-t-html]')) {
+    el.innerHTML = t(el.dataset.tHtml);
+  }
   for (const el of document.querySelectorAll('[data-t-placeholder]')) {
     el.placeholder = t(el.dataset.tPlaceholder);
   }
   for (const el of document.querySelectorAll('[data-t-aria]')) {
     el.setAttribute('aria-label', t(el.dataset.tAria));
   }
-  // Les drapeaux du profil sont fabriqués par le script : ils ne portent pas
-  // de `data-t` et ne se mettraient jamais à jour. Sans cette ligne, le
-  // client choisissait le français sur l'écran d'accueil et retrouvait
-  // l'espagnol coché dans son profil.
-  renderLangues();
+  repeindreLesTextesFabriques();
+}
+
+/**
+ * Ce que le script écrit lui-même ne porte pas de `data-t` : il faut le
+ * refaire.
+ *
+ * Chaque rendu est isolé. Cette fonction tourne aussi au tout début, avant
+ * que le catalogue soit arrivé : un rendu qui compte sur des données
+ * absentes ne doit pas emporter les autres avec lui, ni laisser la boutique
+ * à moitié traduite.
+ */
+function repeindreLesTextesFabriques() {
+  const refaires = [
+    renderLangues, renderStatut, renderClosedBanner, renderSousTitre,
+    renderTitreDuBandeau, renderChiffres, renderGrid, renderCategories,
+    renderRayons, renderContact, peindreLeJuke, renderSuggestionAvis, renderIdentite,
+  ];
+  for (const refaire of refaires) {
+    try { refaire(); } catch { /* pas encore de données : le prochain rendu s'en chargera */ }
+  }
+
+  // Les trois vues du profil se peignent depuis une réponse du serveur : on
+  // la garde au passage plutôt que de la redemander. Sans ce rappel, changer
+  // de langue depuis le profil — le seul endroit où l'on peut le faire hors
+  // de l'accueil — laissait juste en dessous « Tu n'as pas encore passé de
+  // commande » en français.
+  const profil = state.profil;
+  if (profil) {
+    try {
+      renderCommandes(profil.commandes ?? []);
+      renderFavoris(profil.favoris ?? []);
+      renderAlertes(profil);
+    } catch { /* une vue à moitié peinte valait mieux qu'un écran figé */ }
+  }
 }
 
 /** La langue retenue, ou celle que propose le téléphone. */
@@ -237,14 +292,12 @@ async function init() {
   }
 
   $('shopName').textContent = state.shop.shopName;
-  document.title = `${state.shop.shopName} — Boutique`;
+  document.title = `${state.shop.shopName} — ${t('titre.page')}`;
   // La mention ne vit plus que sur l'écran d'âge. Elle était répétée en pied
   // de catalogue, où elle arrivait après treize produits — donc trop tard
   // pour prévenir qui que ce soit, et juste à temps pour finir la page sur
   // un avertissement.
-  $('legalNotice').textContent =
-    "Produits réservés aux personnes majeures. Vérifie la législation en vigueur " +
-    'chez toi avant toute commande : la disponibilité de ces produits dépend de ta juridiction.';
+  $('legalNotice').textContent = t('legal.mention');
 
   renderClosedBanner();
   renderSousTitre();
@@ -594,12 +647,10 @@ function montrerPanne(err) {
   zone.replaceChildren();
 
   const titre = document.createElement('strong');
-  titre.textContent = 'Boutique momentanément injoignable';
+  titre.textContent = t('msg.injoignable');
 
   const texte = document.createElement('span');
-  texte.textContent =
-    "Le catalogue n'a pas pu être chargé. Ce n'est pas que la boutique est " +
-    'vide : le serveur ne répond pas comme il faut.';
+  texte.textContent = t('msg.injoignableTexte');
 
   const detail = document.createElement('code');
   detail.className = 'empty__detail';
@@ -608,17 +659,17 @@ function montrerPanne(err) {
   const reessayer = document.createElement('button');
   reessayer.type = 'button';
   reessayer.className = 'btn btn--primary';
-  reessayer.textContent = 'Réessayer';
+  reessayer.textContent = t('msg.reessayer');
   reessayer.addEventListener('click', () => {
     reessayer.disabled = true;
-    reessayer.textContent = 'Chargement…';
+    reessayer.textContent = t('msg.chargement');
     // Un rechargement complet : plus sûr qu'un rattrapage partiel, puisqu'on
     // ne sait pas jusqu'où le démarrage était allé.
     location.reload();
   });
 
   zone.append(titre, texte, detail, reessayer);
-  toast("Catalogue indisponible, réessaie dans un instant.");
+  toast(t('msg.catalogueIndispo'));
 }
 
 /**
@@ -744,7 +795,7 @@ function bindStaticHandlers() {
     // Le serveur refuse la commande de toute façon : rien n'oblige à cacher
     // la boutique pendant que la pièce est examinée.
     $('verification').hidden = true;
-    toast('Tu pourras commander une fois ta pièce validée.');
+    toast(t('msg.pieceEnAttente'));
   });
   $('findBtn').addEventListener('click', () => {
     const ouverte = !$('findBar').hidden;
@@ -867,7 +918,7 @@ function renderTitreDuBandeau() {
   if (!titre) return;
 
   if (state.opening?.open !== false) {
-    titre.textContent = 'Dispo maintenant';
+    titre.textContent = t('etat.dispo');
     return;
   }
 
@@ -875,8 +926,8 @@ function renderTitreDuBandeau() {
   // heure, et on n'en invente pas une. Le bandeau d'état, lui, porte déjà le
   // message que le vendeur a écrit.
   titre.textContent = state.opening.retour
-    ? `De retour à ${state.opening.retour}`
-    : 'Fermé pour l\'instant';
+    ? `${t('etat.retourA')} ${state.opening.retour}`
+    : t('etat.fermePourLInstant');
 }
 
 function renderStatut() {
@@ -893,7 +944,7 @@ function renderStatut() {
 
   bandeau.hidden = false;
   bandeau.classList.toggle('statut--ferme', !state.opening.open);
-  $('statutTexte').textContent = state.opening.open ? 'Boutique ouverte' : 'Boutique fermée';
+  $('statutTexte').textContent = t(state.opening.open ? 'etat.ouverte' : 'etat.fermee');
 
   // On retient l'instant du basculement plutôt que le nombre de minutes :
   // une Mini App reste ouverte des heures, et un compteur figé à l'arrivée
@@ -912,7 +963,11 @@ function arreterLeDecompte() {
 
 function rafraichirLeDecompte() {
   const reste = Math.round((state.bascule - Date.now()) / 60000);
-  const verbe = state.opening.open ? 'ferme' : 'ouvre';
+  // Le verbe et sa durée voyagent ensemble : en anglais « closes in 2 h »,
+  // en espagnol « cierra en 2 h » — l'ordre des mots n'est pas le même
+  // partout, et coller un verbe traduit devant une durée traduite finirait
+  // par produire des phrases que personne ne dit.
+  const quand = state.opening.open ? 'etat.fermeDans' : 'etat.ouvreDans';
 
   if (reste <= 0) {
     // L'heure du basculement est passée : c'est au serveur de trancher, pas
@@ -925,9 +980,10 @@ function rafraichirLeDecompte() {
 
   const heures = Math.floor(reste / 60);
   const minutes = reste % 60;
-  $('statutCompte').textContent = heures
-    ? `${verbe} dans ${heures} h${minutes ? ` ${minutes}` : ''}`
-    : `${verbe} dans ${minutes} min`;
+  const duree = heures
+    ? `${heures} h${minutes ? ` ${minutes}` : ''}`
+    : t('etat.minutes').replace('{n}', String(minutes));
+  $('statutCompte').textContent = t(quand).replace('{duree}', duree);
 }
 
 
@@ -938,8 +994,7 @@ function renderClosedBanner() {
   // Un compte bloqué passe devant l'horaire : c'est la vraie raison pour
   // laquelle ce client-là ne pourra pas commander, quelle que soit l'heure.
   if (state.blocked) {
-    banner.textContent =
-      "Ce compte ne peut pas passer commande. Écris-nous dans la conversation si c'est une erreur.";
+    banner.textContent = t('etat.compteBloque');
     banner.hidden = false;
     return;
   }
@@ -947,7 +1002,9 @@ function renderClosedBanner() {
     banner.hidden = true;
     return;
   }
-  banner.textContent = state.opening.message ?? 'La boutique est fermée pour le moment.';
+  // Le message de fermeture appartient au vendeur : il le rend tel qu'il
+  // l'a écrit, et seul le repli passe par le dictionnaire.
+  banner.textContent = state.opening.message ?? t('etat.fermeeMessage');
   banner.hidden = false;
 }
 
@@ -988,14 +1045,14 @@ async function gateVerification() {
   if (status === 'approved') return false;
 
   const texts = {
-    none: "Pour commander ici, une pièce d'identité doit être validée. Envoie-la en photo dans la conversation du bot : le vendeur la regarde et te répond.",
-    pending: 'Ta pièce est en cours de vérification. Tu recevras la réponse dans la conversation du bot.',
-    refused: "La vérification a été refusée. Écris-nous dans la conversation si tu penses que c'est une erreur.",
+    none: t('verif.texteAucune'),
+    pending: t('verif.texteEnCours'),
+    refused: t('verif.texteRefusee'),
   };
   const titles = {
-    none: 'Vérification requise',
-    pending: 'En cours de vérification',
-    refused: 'Vérification refusée',
+    none: t('verif.titre'),
+    pending: t('verif.titreEnCours'),
+    refused: t('verif.titreRefusee'),
   };
 
   $('verifTitle').textContent = titles[status] ?? titles.none;
@@ -1187,7 +1244,9 @@ function renderRayons() {
       nom.textContent = `${cat.emoji ?? ''} ${cat.label}`.trim();
       const compte = document.createElement('span');
       compte.className = 'rayon__compte';
-      compte.textContent = `${produits.length} produit${produits.length > 1 ? 's' : ''}`;
+      compte.textContent = produits.length > 1
+        ? t('rayon.produits', { n: produits.length })
+        : t('rayon.unProduit');
       tete.append(nom, compte);
 
       const grille = document.createElement('div');
@@ -1214,16 +1273,18 @@ function renderContact() {
   const sans = !state.shop.sellerUsername;
   $('contactTelegram').disabled = sans;
   $('contactFine').textContent = sans
-    ? "Le compte vendeur n'est pas encore renseigné : reviens un peu plus tard."
-    : `Tu écris à @${state.shop.sellerUsername}. Réponse dès qu'on est dispo.`;
+    ? t('contact.vendeurAbsent')
+    : t('contact.tuEcrisA', { nom: state.shop.sellerUsername });
 
   const lignes = [];
   const ouvert = state.opening?.open !== false;
-  lignes.push([ouvert ? '🟢' : '🔴', ouvert ? 'Boutique ouverte' : 'Boutique fermée',
-    ouvert ? 'On prend les commandes.' : (state.opening?.message ?? 'On rouvre bientôt.')]);
-  if (state.fulfillment?.pickup) lignes.push(['🤝', 'Retrait sur place', 'Rendez-vous convenu dans la conversation.']);
-  if (state.fulfillment?.delivery) lignes.push(['🛵', 'Livraison', 'Adresse demandée au moment de la commande.']);
-  lignes.push(['💶', 'Paiement en espèces', 'À la remise, rien à avancer.']);
+  lignes.push([ouvert ? '🟢' : '🔴', t(ouvert ? 'etat.ouverte' : 'etat.fermee'),
+    // Le message de fermeture est écrit par le vendeur : on le rend tel quel,
+    // comme les noms de produits. Seul le texte de repli est traduit.
+    ouvert ? t('contact.onPrend') : (state.opening?.message ?? t('contact.onRouvre'))]);
+  if (state.fulfillment?.pickup) lignes.push(['🤝', t('contact.retrait'), t('contact.retraitDetail')]);
+  if (state.fulfillment?.delivery) lignes.push(['🛵', t('contact.livraison'), t('contact.livraisonDetail')]);
+  lignes.push(['💶', t('contact.especes'), t('contact.especesDetail')]);
 
   $('contactInfos').replaceChildren(
     ...lignes.map(([emoji, titre, detail]) => {
@@ -1328,7 +1389,7 @@ function auRetourDeLaConversation() {
 async function reprendreSiLaPorteEstOuverte({ dire = false } = {}) {
   if ($('porte').hidden) return true;
   if (!(await porteOuverte())) {
-    if (dire) toast('Pas encore — réponds au calcul dans la conversation.');
+    if (dire) toast(t('msg.calculEnAttente'));
     return false;
   }
   arreterLaSonde();
@@ -1374,7 +1435,7 @@ async function openCaptcha() {
     renderTiles();
   } catch (err) {
     console.error(err);
-    error.textContent = 'Vérification indisponible. Réessaie dans un instant.';
+    error.textContent = t('msg.verifIndispo');
     error.hidden = false;
   }
 }
@@ -1426,7 +1487,7 @@ async function submitCaptcha() {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      error.textContent = data.error ?? 'Raté. Essaie encore.';
+      error.textContent = data.error ?? t('captcha.rate');
       error.hidden = false;
       haptic('light');
       // Nouvelle grille : sinon on rejoue la même jusqu'à tomber juste.
@@ -1444,7 +1505,7 @@ async function submitCaptcha() {
     await runGates();
   } catch (err) {
     console.error(err);
-    error.textContent = 'Vérification indisponible. Réessaie dans un instant.';
+    error.textContent = t('msg.verifIndispo');
     error.hidden = false;
     button.disabled = false;
   }
@@ -1510,7 +1571,7 @@ function ouvrirProduitDemande() {
 
   const product = state.products.find((p) => p.id === id);
   if (!product) {
-    toast("Cet article n'est plus au catalogue. Voici le reste de la boutique.");
+    toast(t('msg.articleParti'));
     return;
   }
   openProduct(product);
@@ -1570,8 +1631,8 @@ function renderGrid() {
   // Le message d'absence doit dire de quoi il parle : « rien dans cette
   // catégorie » quand on cherche « banane » enverrait chercher au mauvais endroit.
   $('empty').textContent = state.query
-    ? `Rien ne correspond à « ${state.query.trim()} ».`
-    : 'Rien dans cette catégorie pour le moment.';
+    ? t('catalogue.rienNeCorrespond').replace('{mot}', state.query.trim())
+    : t('catalogue.videCategorie');
 
   const cartes = list.map(productCard);
 
@@ -1794,7 +1855,7 @@ function productCard(product) {
   const soldOut = isSoldOut(product);
   if (soldOut) card.classList.add('card--soldout');
 
-  const badge = soldOut ? 'ÉPUISÉ' : product.badge;
+  const badge = soldOut ? t('catalogue.epuise') : product.badge;
   const video = videoDeVitrine(product);
   const note = noteDe(product);
   // Muette et sans contrôles : la carte entière reste un bouton qui ouvre la
@@ -1991,8 +2052,8 @@ function renderSuggestions(produit) {
   const memeRayon = autres.filter((p) => p.category === produit.category).slice(0, SUGGESTIONS_MAX);
   const categorie = state.categories.find((c) => c.id === produit.category);
   $('pMemeCategorieTitre').textContent = categorie
-    ? `Même catégorie · ${categorie.label}`
-    : 'Même catégorie';
+    ? t('produit.memeCategorieAvec', { cat: categorie.label })
+    : t('produit.memeCategorie');
   remplirLaPiste('pMemeCategorie', 'pMemeCategoriePiste', memeRayon);
 
   const etiquettes = new Set((produit.tags ?? []).map((t) => String(t).toLowerCase()));
@@ -2147,7 +2208,7 @@ function renderGalerie(product) {
 
       const pastille = document.createElement('span');
       pastille.className = 'galerie__type';
-      pastille.textContent = '▶ Vidéo';
+      pastille.textContent = t('media.video');
       case_.append(pastille);
 
       case_.append(voileDeChargement(video));
@@ -2290,7 +2351,7 @@ function renderVariants() {
       poids.textContent = v.label;
       const prix = document.createElement('span');
       prix.className = 'variant__prix';
-      prix.textContent = btn.disabled ? 'épuisé' : formatPrice(v.price);
+      prix.textContent = btn.disabled ? t('produit.epuiseMinuscule') : formatPrice(v.price);
       btn.append(poids, prix);
 
       btn.addEventListener('click', () => {
@@ -2440,11 +2501,6 @@ function renderLangues() {
       b.setAttribute('aria-pressed', l.code === langue ? 'true' : 'false');
       b.addEventListener('click', () => {
         appliquerLaLangue(l.code, { retenir: true });
-        // Les listes fabriquées par le script ne portent pas de `data-t` :
-        // elles se refont. Le profil d'abord, puisqu'on y est.
-        renderLangues();
-        renderGrid();
-        renderCategories();
         haptic('light');
       });
       return b;
@@ -2663,14 +2719,14 @@ function peindreLeJuke() {
   const bouton = $('juke');
   if (!bouton) return;
   bouton.classList.toggle('juke--joue', juke.voulue);
-  bouton.setAttribute('aria-label', 'Ouvrir le lecteur de musique');
+  bouton.setAttribute('aria-label', t('juke.ouvrir'));
 
   // Le panneau porte le même état : c'est là qu'on lit ce qui joue et qu'on
   // agit dessus, la pastille ne fait plus que l'ouvrir.
   const lecture = $('jukeLecture');
   if (lecture) {
     lecture.classList.toggle('juke--joue', juke.voulue);
-    lecture.setAttribute('aria-label', juke.voulue ? 'Pause' : 'Lecture');
+    lecture.setAttribute('aria-label', t(juke.voulue ? 'juke.pause' : 'juke.lecture'));
   }
   const morceau = juke.liste[juke.index];
   const titre = $('jukeMenuTitre');
@@ -2770,7 +2826,7 @@ function masquerLeTitre() {
 async function refreshWaitlistButton() {
   const notify = $('notifyMe');
   notify.disabled = false;
-  notify.textContent = '🔔 Préviens-moi du retour';
+  notify.textContent = t('produit.prevenir');
   if (!tg?.initData) return;
 
   try {
@@ -2782,7 +2838,7 @@ async function refreshWaitlistButton() {
     if (!res.ok) return;
     if ((await res.json()).subscribed) {
       notify.disabled = true;
-      notify.textContent = '🔔 Tu seras prévenu';
+      notify.textContent = t('produit.prevenu');
     }
   } catch (err) {
     console.warn(err);
@@ -2810,12 +2866,12 @@ async function joinWaitlist() {
       return;
     }
 
-    notify.textContent = '🔔 Tu seras prévenu';
-    toast('On t\'écrit dès que ça revient.');
+    notify.textContent = t('produit.prevenu');
+    toast(t('alerte.inscrit'));
     haptic('success');
   } catch (err) {
     console.error(err);
-    toast('Inscription impossible pour le moment.');
+    toast(t('alerte.impossible'));
     notify.disabled = false;
   }
 }
@@ -2946,7 +3002,7 @@ function buildOrderMessage(produit, variante) {
   const format = variante ? ` — ${variante.label}` : '';
   const prix = variante?.price ?? produit.price;
   return [
-    `Bonjour ! Je voudrais commander sur ${state.shop.shopName} ⚡`,
+    t('msg.bonjourCommander', { boutique: state.shop.shopName }),
     '',
     `• ${produit.name}${format}${prix ? ` — ${formatPrice(prix)}` : ''}`,
   ].join('\n');
@@ -2969,7 +3025,7 @@ function commanderCeProduit() {
   const produit = state.current;
   if (!produit) return;
   if (!state.shop.sellerUsername) {
-    toast("Le compte vendeur n'est pas encore configuré.");
+    toast(t('msg.vendeurAbsent'));
     return;
   }
   const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
@@ -2994,13 +3050,13 @@ function poserUneQuestion() {
   const produit = state.current;
   if (!produit) return;
   if (!state.shop.sellerUsername) {
-    toast("Le compte vendeur n'est pas encore configuré.");
+    toast(t('msg.vendeurAbsent'));
     return;
   }
   const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
   const format = variante ? ` (${variante.label})` : '';
   openSellerChat([
-    `Bonjour ! Une question sur ${state.shop.shopName} ⚡`,
+    t('msg.bonjourQuestion', { boutique: state.shop.shopName }),
     '',
     `• ${produit.name}${format}`,
     '',
@@ -3020,18 +3076,18 @@ function poserUneQuestion() {
 function commanderDeNouveau(commande) {
   if (!commande?.items?.length) return;
   if (!state.shop.sellerUsername) {
-    toast("Le compte vendeur n'est pas encore configuré.");
+    toast(t('msg.vendeurAbsent'));
     return;
   }
   const lignes = commande.items.map((item) => {
     const produit = state.products.find((p) => p.id === item.id);
-    const nom = produit?.name ?? item.name ?? 'Article';
+    const nom = produit?.name ?? item.name ?? t('msg.article');
     const variante = produit?.variants?.find((v) => v.id === item.variantId);
     const format = variante ? ` — ${variante.label}` : '';
     return `• ${item.quantity} × ${nom}${format}`;
   });
   openSellerChat([
-    `Bonjour ! Je voudrais recommander la même chose sur ${state.shop.shopName} ⚡`,
+    t('msg.bonjourRecommander', { boutique: state.shop.shopName }),
     '',
     ...lignes,
   ].join('\n'));
@@ -3042,7 +3098,7 @@ function commanderDeNouveau(commande) {
 function openSellerChat(message) {
   const username = state.shop.sellerUsername;
   if (!username) {
-    toast("Le compte vendeur n'est pas encore configuré.");
+    toast(t('msg.vendeurAbsent'));
     return;
   }
 
@@ -3066,7 +3122,7 @@ function openSellerChat(message) {
  */
 function orderCard(order) {
   const status = state.statuses[order.status] ?? { label: order.status, emoji: '•' };
-  const date = new Date(order.createdAt).toLocaleDateString('fr-FR', {
+  const date = new Date(order.createdAt).toLocaleDateString(locale(), {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -3099,7 +3155,7 @@ function orderCard(order) {
     const reprise = document.createElement('button');
     reprise.className = 'btn btn--ghost btn--block';
     reprise.type = 'button';
-    reprise.textContent = '🔁 Reprendre cette commande';
+    reprise.textContent = t('commandes.reprendre');
     reprise.addEventListener('click', () => commanderDeNouveau(order));
     card.append(reprise);
   }
@@ -3127,11 +3183,11 @@ function syncBackButton() {
 /** « Retour au catalogue », « Retour aux catégories »… — dire où l'on retombe. */
 function libelleDuRetour() {
   return {
-    catalogue: 'Retour au catalogue',
-    categories: 'Retour aux catégories',
-    contact: 'Retour',
-    profil: 'Retour au profil',
-  }[state.retour] ?? 'Retour';
+    catalogue: t('retour.catalogue'),
+    categories: t('retour.categories'),
+    contact: t('retour.simple'),
+    profil: t('retour.profil'),
+  }[state.retour] ?? t('retour.simple');
 }
 
 /** La flèche de Telegram, et celle de la fiche, font la même chose. */
@@ -3310,17 +3366,18 @@ function renderSuggestionAvis() {
   if (!commande) return void (banniere.hidden = true);
 
   const noms = commande.produits.map((p) => p.nom);
+  const reste = noms.length - 2;
   const detail = noms.length > 2
-    ? `${noms.slice(0, 2).join(', ')} et ${noms.length - 2} autre${noms.length > 3 ? 's' : ''}`
+    ? t(reste > 1 ? 'liste.etAutres' : 'liste.etAutre',
+      { liste: noms.slice(0, 2).join(', '), n: reste })
     : noms.join(', ');
 
   // Noter et ajouter un mot ne sont pas le même geste : demander « ton avis »
   // à quelqu'un qui vient de mettre cinq étoiles donne l'impression de n'avoir
   // rien vu.
-  banniere.querySelector('b').textContent = commande.deja ? 'Ajoute un mot' : "Comment c'était ?";
-  $('suggestionAvisDetail').textContent = commande.deja
-    ? `Tu as noté ${detail}`
-    : `Ton avis sur ${detail}`;
+  banniere.querySelector('b').textContent = t(commande.deja ? 'avis.ajouteUnMot' : 'avis.commentCetait');
+  $('suggestionAvisDetail').textContent =
+    t(commande.deja ? 'avis.tuAsNote' : 'avis.tonAvisSur', { quoi: detail });
   banniere.hidden = false;
 }
 
@@ -3346,19 +3403,21 @@ function ouvrirLAvis(commande) {
 
   const noms = commande.produits.map((p) => p.nom).join(', ');
   $('avisIntro').textContent = deja
-    ? `Tu as déjà noté ${noms}. Ajoute un mot, si tu veux.`
-    : `Commande ${commande.reference} — ${noms}`;
+    ? t('avis.dejaNote', { quoi: noms })
+    : t('avis.commandeRef', { ref: commande.reference, quoi: noms });
   $('avisTexte').value = '';
 
   $('avisProduits').replaceChildren(
     ...commande.produits.map((produit) => ligneDeNotation(produit, state.avisEnCours.notes[produit.id] ?? 0))
   );
 
-  $('avisSigneNom').textContent = state.prenom ? `Avec « ${state.prenom} »` : 'Avec mon prénom';
+  $('avisSigneNom').textContent = state.prenom
+    ? t('avis.avecPrenom', { prenom: state.prenom })
+    : t('avis.signe');
   renderSignature();
 
   $('avisEnvoyer').disabled = false;
-  $('avisEnvoyer').textContent = 'Envoyer';
+  $('avisEnvoyer').textContent = t('avis.envoyer');
   openSheet('avisSheet');
   haptic('light');
 }
@@ -3400,7 +3459,7 @@ function ligneDeNotation(produit, depart = 0) {
     bouton.type = 'button';
     bouton.className = 'notation__etoile';
     bouton.textContent = '★';
-    bouton.setAttribute('aria-label', `${note} étoile${note > 1 ? 's' : ''}`);
+    bouton.setAttribute('aria-label', t(note > 1 ? 'avis.desEtoiles' : 'avis.uneEtoile', { n: note }));
     bouton.addEventListener('click', () => {
       state.avisEnCours.notes[produit.id] = note;
       peindre(note);
@@ -3420,13 +3479,13 @@ async function envoyerLAvis() {
 
   const notes = encours.notes;
   if (!Object.keys(notes).length) {
-    toast('Touche au moins une étoile.');
+    toast(t('avis.toucheUneEtoile'));
     haptic('warning');
     return;
   }
 
   bouton.disabled = true;
-  bouton.textContent = 'Envoi…';
+  bouton.textContent = t('avis.envoi');
   try {
     const res = await fetch('/api/avis', {
       method: 'POST',
@@ -3441,10 +3500,10 @@ async function envoyerLAvis() {
         anonyme: encours.anonyme,
       }),
     });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Avis refusé.');
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? t('avis.refuse'));
 
     closeSheets();
-    toast('Merci pour ton avis !');
+    toast(t('avis.merci'));
     haptic('success');
     // La commande notée sort de la file : la bannière propose la suivante, ou
     // disparaît. Et le catalogue reprend les moyennes, que cet avis vient de
@@ -3458,7 +3517,7 @@ async function envoyerLAvis() {
     haptic('error');
   }
   bouton.disabled = false;
-  bouton.textContent = 'Envoyer';
+  bouton.textContent = t('avis.envoyer');
 }
 
 /**
@@ -3504,7 +3563,7 @@ function renderAvis({ avis, resume }) {
   const section = $('pAvis');
   if (!avis?.length) return void (section.hidden = true);
 
-  $('pAvisTitre').textContent = `Avis (${resume?.nombre ?? avis.length})`;
+  $('pAvisTitre').textContent = t('avis.compte', { n: resume?.nombre ?? avis.length });
   $('pAvisBarres').replaceChildren(resume ? barresDeNotes(resume) : document.createComment(''));
 
   // Trois avis visibles, le reste sur demande : une fiche produit n'est pas un
@@ -3514,7 +3573,7 @@ function renderAvis({ avis, resume }) {
 
   const plus = $('pAvisPlus');
   plus.hidden = state.avisTousVisibles || avis.length <= 3;
-  plus.textContent = `Voir les ${avis.length} avis`;
+  plus.textContent = t('avis.voirLesN', { n: avis.length });
   plus.onclick = () => {
     state.avisTousVisibles = true;
     renderAvis({ avis, resume });
@@ -3562,7 +3621,7 @@ function carteDAvis(avis) {
     (avis.texte ? `<p class="avis__texte">${escapeHtml(avis.texte)}</p>` : '') +
     (avis.reponse
       ? '<div class="avis__reponse">' +
-        `<b>Réponse de la boutique</b><p>${escapeHtml(avis.reponse.texte)}</p></div>`
+        `<b>${escapeHtml(t('avis.reponseBoutique'))}</b><p>${escapeHtml(avis.reponse.texte)}</p></div>`
       : '');
   return li;
 }
@@ -3570,7 +3629,7 @@ function carteDAvis(avis) {
 function dateCourte(iso) {
   const quand = new Date(iso);
   if (!Number.isFinite(quand.getTime())) return '';
-  return quand.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+  return quand.toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /* ── Profil ──────────────────────────────────────────────── */
@@ -3589,15 +3648,13 @@ async function ouvrirProfil() {
   if (state.onglet !== 'profil') return montrerLOnglet('profil');
   montrerLaVue(state.profilVue);
 
-  $('profilNom').textContent = state.prenom ? state.prenom : 'Mon profil';
-  $('profilVignette').textContent = (state.prenom || '?').trim().charAt(0).toUpperCase();
-  $('profilQui').textContent = state.prenom ? 'Client TANJA HH 67' : '';
+  renderIdentite();
   renderChiffres();
   $('ordersEmpty').hidden = false;
-  $('ordersEmpty').textContent = 'Chargement…';
+  $('ordersEmpty').textContent = t('msg.chargement');
 
   if (!tg?.initData) {
-    $('ordersEmpty').textContent = 'Ouvre la boutique depuis Telegram pour retrouver tes commandes.';
+    $('ordersEmpty').textContent = t('commandes.depuisTelegram');
     return;
   }
 
@@ -3608,6 +3665,9 @@ async function ouvrirProfil() {
 
     state.favoris = new Set(profil.favoris.map((p) => p.id));
     state.preferences = profil.preferences;
+    // Gardée pour un changement de langue : repeindre ne doit pas coûter un
+    // aller-retour réseau, ni risquer d'arriver après le prochain rendu.
+    state.profil = profil;
 
     renderCommandes(profil.commandes);
     renderFavoris(profil.favoris);
@@ -3619,7 +3679,7 @@ async function ouvrirProfil() {
     renderGrid();
   } catch (err) {
     console.error(err);
-    $('ordersEmpty').textContent = 'Profil indisponible pour le moment.';
+    $('ordersEmpty').textContent = t('commandes.profilIndispo');
   }
 }
 
@@ -3641,12 +3701,12 @@ function renderCommandes(commandes) {
 
   if (state.features.orderHistory === false) {
     vide.hidden = false;
-    vide.textContent = "L'historique des commandes n'est pas activé sur cette boutique.";
+    vide.textContent = t('commandes.desactivees');
     return;
   }
   if (!commandes.length) {
     vide.hidden = false;
-    vide.textContent = "Tu n'as pas encore passé de commande.";
+    vide.textContent = t('commandes.vide');
     return;
   }
   vide.hidden = true;
@@ -3671,13 +3731,13 @@ function renderFavoris(favoris) {
   if (state.features.favoris === false) {
     liste.replaceChildren();
     vide.hidden = false;
-    vide.textContent = "Les favoris ne sont pas activés sur cette boutique.";
+    vide.textContent = t('favoris.desactives');
     return;
   }
   if (!favoris.length) {
     liste.replaceChildren();
     vide.hidden = false;
-    vide.textContent = 'Touche le ♥ sur un produit pour le garder ici.';
+    vide.textContent = t('favoris.vide');
     return;
   }
 
@@ -3696,9 +3756,9 @@ function renderFavoris(favoris) {
         // prix d'entrée sorti de son format ne veut rien dire, et le laisser
         // ici seul aurait rendu le seul écran où il subsiste le seul auquel
         // on ne peut pas se fier.
-        (epuise ? '<span class="favori__etat">Épuisé — active l\'alerte de retour</span>' : '') +
+        (epuise ? `<span class="favori__etat">${escapeHtml(t('favori.epuiseAlerte'))}</span>` : '') +
         '</div>' +
-        '<button class="favori__coeur" type="button" aria-label="Retirer des favoris">♥</button>';
+        `<button class="favori__coeur" type="button" aria-label="${escapeHtml(t('favori.retirer'))}">♥</button>`;
 
       carte.querySelector('.favori__image').addEventListener('click', () => openProduct(produit));
       carte.querySelector('.favori__corps').addEventListener('click', () => openProduct(produit));
@@ -3730,10 +3790,15 @@ function renderAlertes({ canaux, preferences, desabonne }) {
       ligne.className = 'alerte';
       ligne.setAttribute('role', 'switch');
       ligne.setAttribute('aria-checked', String(preferences[canal.clef] !== false));
+      // Le serveur dit quels canaux existent, le dictionnaire comment ils se
+      // lisent. Son libellé reste le repli : un canal ajouté demain
+      // s'affichera en français plutôt que de sortir vide.
+      const libelle = TEXTES[langue]?.[`alertes.${canal.clef}`] ?? canal.label;
+      const aide = TEXTES[langue]?.[`alertes.${canal.clef}Aide`] ?? canal.hint;
       ligne.innerHTML =
         '<span class="alerte__texte">' +
-        `<b>${escapeHtml(canal.label)}</b>` +
-        `<small>${escapeHtml(canal.hint)}</small>` +
+        `<b>${escapeHtml(libelle)}</b>` +
+        `<small>${escapeHtml(aide)}</small>` +
         '</span>' +
         '<span class="alerte__bouton" aria-hidden="true"></span>';
 
@@ -3763,7 +3828,7 @@ async function basculerAlerte(clef, ligne) {
     // Le serveur n'a pas suivi : on remet l'interrupteur où il était, sinon
     // l'écran promet un réglage qui n'existe pas.
     ligne.setAttribute('aria-checked', String(avant));
-    toast('Réglage non enregistré, réessaie.');
+    toast(t('msg.reglageRefuse'));
     haptic('error');
   }
 }
@@ -3841,9 +3906,9 @@ function renderChiffres(commandes) {
   if (Number.isFinite(commandes)) commandesConnues = commandes;
 
   const lignes = [
-    ['commandes', commandesConnues ?? '—', 'Commandes'],
-    ['favoris', state.favoris?.size ?? 0, 'Favoris'],
-    ['produits', state.products.length, 'Produits'],
+    ['commandes', commandesConnues ?? '—', t('profil.commandes')],
+    ['favoris', state.favoris?.size ?? 0, t('profil.favoris')],
+    ['produits', state.products.length, t('profil.produits')],
   ];
 
   $('profilChiffres').replaceChildren(
@@ -3879,13 +3944,33 @@ function renderSousTitre() {
   if (!ligne) return;
   const ouvert = state.opening?.open !== false;
   const etat = document.createElement('b');
-  etat.textContent = ouvert ? 'Ouvert' : 'Fermé';
+  etat.textContent = t(ouvert ? 'etat.ouvertCourt' : 'etat.fermeCourt');
   etat.classList.toggle('est-ferme', !ouvert);
   const combien = state.products.length;
   ligne.replaceChildren(
     etat,
-    document.createTextNode(combien ? ` · ${combien} produit${combien > 1 ? 's' : ''}` : '')
+    document.createTextNode(combien
+      ? ` · ${combien > 1 ? t('rayon.produits', { n: combien }) : t('rayon.unProduit')}`
+      : '')
   );
+}
+
+/**
+ * Le nom, l'initiale et la ligne « client de … » en tête du profil.
+ *
+ * À part, et non dans `ouvrirProfil`, parce que le sélecteur de langue est
+ * juste en dessous : changer de langue ne recharge pas le profil, et cette
+ * ligne restait dans la langue d'avant, à trois centimètres du drapeau qu'on
+ * venait de toucher.
+ */
+function renderIdentite() {
+  const nom = $('profilNom');
+  if (!nom) return;
+  nom.textContent = state.prenom ? state.prenom : t('profil.titre');
+  $('profilVignette').textContent = (state.prenom || '?').trim().charAt(0).toUpperCase();
+  $('profilQui').textContent = state.prenom
+    ? t('profil.client', { boutique: state.shop?.shopName ?? '' }).trim()
+    : '';
 }
 
 /** Le compteur sur l'icône du profil : il dit qu'il y a quelque chose à y voir. */
@@ -3901,7 +3986,7 @@ function peindreLeCoeur(bouton, id) {
   const actif = estFavori(id);
   bouton.classList.toggle('est-favori', actif);
   bouton.setAttribute('aria-pressed', String(actif));
-  bouton.setAttribute('aria-label', actif ? 'Retirer des favoris' : 'Mettre en favori');
+  bouton.setAttribute('aria-label', t(actif ? 'favori.retirer' : 'favori.mettre'));
 }
 
 /* ── Présence ────────────────────────────────────────────── */

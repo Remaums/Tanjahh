@@ -104,18 +104,18 @@
 <!-- ══ La porte du bot : le calcul se fait dans la conversation ══ -->
 <div class="gate" id="porte" hidden>
   <div class="gate__card">
-    <p class="gate__eyebrow">Entrée</p>
-    <h2 class="gate__title goldtext">Un calcul, et c'est ouvert</h2>
-    <p class="gate__text">
+    <p class="gate__eyebrow" data-t="porte.entree">Entrée</p>
+    <h2 class="gate__title goldtext" data-t="porte.titre">Un calcul, et c'est ouvert</h2>
+    <p class="gate__text" data-t="porte.texte">
       Retourne dans la conversation du bot : il t'y pose une petite addition.
       Réponds-y, puis reviens — la boutique s'ouvre toute seule.
     </p>
-    <p class="gate__fine">
+    <p class="gate__fine" data-t="porte.fine">
       C'est demandé une seule fois, pour éviter les faux comptes. Aucune
       information supplémentaire ne t'est demandée.
     </p>
-    <button class="btn btn--primary btn--grow" id="porteAction" type="button">Ouvrir la conversation</button>
-    <button class="gate__link" id="porteRetry" type="button">J'ai répondu — réessayer</button>
+    <button class="btn btn--primary btn--grow" id="porteAction" type="button" data-t="porte.ouvrir">Ouvrir la conversation</button>
+    <button class="gate__link" id="porteRetry" type="button" data-t="porte.reessayer">J'ai répondu — réessayer</button>
   </div>
 </div>
 
@@ -123,14 +123,14 @@
 <div class="agegate" id="agegate" hidden>
   <div class="agegate__card">
     <span class="agegate__seal" aria-hidden="true">18+</span>
-    <h1 class="agegate__title goldtext">Stop !</h1>
-    <p class="agegate__text">
+    <h1 class="agegate__title goldtext" data-t="age.titre">Stop !</h1>
+    <p class="agegate__text" data-t-html="age.texte">
       Cette boutique est réservée aux personnes majeures.
       Tu confirmes avoir <strong>18&nbsp;ans ou plus</strong>&nbsp;?
     </p>
     <div class="agegate__actions">
-      <button class="btn btn--primary" id="ageYes" type="button">Oui, j'ai 18 ans</button>
-      <button class="btn btn--ghost" id="ageNo" type="button">Non</button>
+      <button class="btn btn--primary" id="ageYes" type="button" data-t="age.oui">Oui, j'ai 18 ans</button>
+      <button class="btn btn--ghost" id="ageNo" type="button" data-t="age.non">Non</button>
     </div>
     <p class="agegate__legal" id="legalNotice"></p>
   </div>
@@ -139,27 +139,27 @@
 <!-- ══ Épreuve d'entrée ══ -->
 <div class="gate" id="captcha" hidden>
   <div class="gate__card">
-    <p class="gate__eyebrow">Vérification</p>
-    <h2 class="gate__title goldtext" id="captchaPrompt">Touche les 3 feuilles</h2>
-    <p class="gate__text">Une seconde, le temps de vérifier que tu n'es pas un robot.</p>
+    <p class="gate__eyebrow" data-t="tuiles.entete">Vérification</p>
+    <h2 class="gate__title goldtext" id="captchaPrompt" data-t="tuiles.consigne">Touche les 3 feuilles</h2>
+    <p class="gate__text" data-t="tuiles.texte">Une seconde, le temps de vérifier que tu n'es pas un robot.</p>
     <div class="grid-tiles" id="captchaGrid" role="group" aria-labelledby="captchaPrompt"></div>
     <p class="gate__error" id="captchaError" hidden></p>
-    <button class="btn btn--primary btn--grow" id="captchaSubmit" type="button" disabled>Valider</button>
+    <button class="btn btn--primary btn--grow" id="captchaSubmit" type="button" disabled data-t="tuiles.valider">Valider</button>
   </div>
 </div>
 
 <!-- ══ Vérification d'identité ══ -->
 <div class="gate" id="verification" hidden>
   <div class="gate__card">
-    <p class="gate__eyebrow">Accès contrôlé</p>
-    <h2 class="gate__title goldtext" id="verifTitle">Vérification requise</h2>
+    <p class="gate__eyebrow" data-t="verif.entete">Accès contrôlé</p>
+    <h2 class="gate__title goldtext" id="verifTitle" data-t="verif.titre">Vérification requise</h2>
     <p class="gate__text" id="verifText"></p>
-    <p class="gate__fine">
+    <p class="gate__fine" data-t="verif.fine">
       La boutique n'enregistre pas ton document : il reste dans la conversation
       Telegram, et tu peux le supprimer une fois la vérification faite.
     </p>
-    <button class="btn btn--primary btn--grow" id="verifAction" type="button">Ouvrir la conversation</button>
-    <button class="gate__link" id="verifBrowse" type="button">Regarder la boutique en attendant</button>
+    <button class="btn btn--primary btn--grow" id="verifAction" type="button" data-t="verif.ouvrir">Ouvrir la conversation</button>
+    <button class="gate__link" id="verifBrowse" type="button" data-t="verif.attendre">Regarder la boutique en attendant</button>
   </div>
 </div>
 
@@ -187,7 +187,7 @@
        « recherche » de la boutique masque ce bouton comme il masquait la
        rangée : la fonction n'a pas changé de statut, seulement de place. -->
   <button class="findbtn" id="findBtn" type="button" hidden
-          aria-label="Chercher un produit" aria-expanded="false" aria-controls="findBar">
+          aria-label="Chercher un produit" data-t-aria="catalogue.rechercher" aria-expanded="false" aria-controls="findBar">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.8 15.8 21 21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
   </button>
   </div>
@@ -205,7 +205,7 @@
 <main class="page">
 
 <!-- ══ Vue « Filtres » : la recherche et la grille ══ -->
-<section class="vue" id="vueCatalogue" role="tabpanel" aria-label="Catalogue">
+<section class="vue" id="vueCatalogue" role="tabpanel" aria-label="Catalogue" data-t-aria="onglet.catalogue">
 
   <!-- ══ Bannière ══ -->
   <!-- Le bandeau. Il remplace la pancarte en tôle, qui faisait 218 px et
@@ -228,8 +228,8 @@
            pendant les heures où l'on consulte une boutique. Fermée, le script
            y met l'heure de retour — voir renderTitreDuBandeau. -->
       <h1 class="hero__title goldtext" id="heroTitre">Dispo maintenant</h1>
-      <p class="hero__eyebrow">Ouvert 7/7 · 13h – 00h</p>
-      <p class="hero__sub">Meetup &amp; Livraison</p>
+      <p class="hero__eyebrow" data-t="hero.horaires">Ouvert 7/7 · 13h – 00h</p>
+      <p class="hero__sub" data-t="hero.service">Meetup &amp; Livraison</p>
     </div>
   </section>
 
@@ -239,7 +239,7 @@
   <button class="reprise" id="reprise" type="button" hidden>
     <span class="reprise__icone" aria-hidden="true">🔁</span>
     <span class="reprise__texte">
-      <b>La même chose</b>
+      <b data-t="reprise.titre">La même chose</b>
       <span id="repriseDetail"></span>
     </span>
     <span class="reprise__fleche" aria-hidden="true">›</span>
@@ -252,7 +252,7 @@
   <button class="reprise reprise--avis" id="suggestionAvis" type="button" hidden>
     <span class="reprise__icone" aria-hidden="true">⭐</span>
     <span class="reprise__texte">
-      <b>Comment c'était ?</b>
+      <b data-t="avis.commentCetait">Comment c'était ?</b>
       <span id="suggestionAvisDetail"></span>
     </span>
     <span class="reprise__fleche" aria-hidden="true">›</span>
@@ -263,20 +263,20 @@
     <div class="find__box">
       <span class="find__icon" aria-hidden="true">🔎</span>
       <input id="findInput" type="search" autocomplete="off" placeholder="Chercher un produit…"
-             aria-label="Chercher un produit">
-      <button class="find__clear" id="findClear" type="button" aria-label="Effacer la recherche" hidden>✕</button>
+             aria-label="Chercher un produit" data-t-aria="catalogue.rechercher">
+      <button class="find__clear" id="findClear" type="button" aria-label="Effacer la recherche" data-t-aria="aria.effacer" hidden>✕</button>
     </div>
-    <select id="findSort" aria-label="Trier les produits">
-      <option value="default">Tri : par défaut</option>
-      <option value="new">Nouveautés d'abord</option>
-      <option value="price-asc">Prix croissant</option>
-      <option value="price-desc">Prix décroissant</option>
-      <option value="name">Ordre alphabétique</option>
+    <select id="findSort" aria-label="Trier les produits" data-t-aria="aria.trier">
+      <option value="default" data-t="tri.defaut">Tri : par défaut</option>
+      <option value="new" data-t="tri.nouveautes">Nouveautés d'abord</option>
+      <option value="price-asc" data-t="tri.prixCroissant">Prix croissant</option>
+      <option value="price-desc" data-t="tri.prixDecroissant">Prix décroissant</option>
+      <option value="name" data-t="tri.alphabetique">Ordre alphabétique</option>
     </select>
   </div>
 
   <!-- ══ Catégories ══ -->
-  <nav class="cats" id="cats" aria-label="Catégories"></nav>
+  <nav class="cats" id="cats" aria-label="Catégories" data-t-aria="onglet.categories"></nav>
 
   <!-- ══ Grille produits ══ -->
   <section class="grid" id="grid" aria-live="polite"></section>
@@ -299,10 +299,10 @@
      lisait à travers un hublot. Elle prend l'écran, et on en revient par
      la flèche — ou par le bouton retour de Telegram, qui fait la même
      chose sans qu'on ait à viser. -->
-<section class="vue vue--produit" id="vueProduit" role="tabpanel" aria-label="Fiche produit" hidden>
+<section class="vue vue--produit" id="vueProduit" role="tabpanel" aria-label="Fiche produit" data-t-aria="aria.fiche" hidden>
   <button class="pretour" id="pRetour" type="button">
     <span class="pretour__fleche" aria-hidden="true">‹</span>
-    <span id="pRetourTexte">Retour</span>
+    <span id="pRetourTexte" data-t="catalogue.retour">Retour</span>
   </button>
 
   <div class="pdetail__art">
@@ -311,10 +311,10 @@
     <div class="galerie" id="pGallery" hidden>
       <div class="galerie__piste" id="pGalleryTrack"></div>
       <button class="galerie__fleche galerie__fleche--gauche" id="pGalleryPrev"
-              type="button" aria-label="Média précédent" hidden>‹</button>
+              type="button" aria-label="Média précédent" data-t-aria="aria.mediaPrec" hidden>‹</button>
       <button class="galerie__fleche galerie__fleche--droite" id="pGalleryNext"
-              type="button" aria-label="Média suivant" hidden>›</button>
-      <div class="galerie__points" id="pGalleryDots" role="tablist" aria-label="Médias"></div>
+              type="button" aria-label="Média suivant" data-t-aria="aria.mediaSuiv" hidden>›</button>
+      <div class="galerie__points" id="pGalleryDots" role="tablist" aria-label="Médias" data-t-aria="aria.medias"></div>
     </div>
   </div>
 
@@ -327,16 +327,16 @@
     <!-- Les caractéristiques : ce qu'on lit en diagonale avant la description. -->
     <ul class="points" id="pPoints" hidden></ul>
     <p class="pdetail__desc" id="pDesc"></p>
-    <p class="variants__titre" id="pVariantsTitre" hidden>Choisis ton format</p>
+    <p class="variants__titre" id="pVariantsTitre" hidden data-t="produit.format">Choisis ton format</p>
     <div class="variants" id="pVariants"></div>
 
     <!-- Ce que les autres en ont dit. -->
     <section class="avis" id="pAvis" hidden>
-      <h3 class="avis__titre" id="pAvisTitre">Avis</h3>
+      <h3 class="avis__titre" id="pAvisTitre" data-t="avis.titre">Avis</h3>
       <div class="avis__barres" id="pAvisBarres"></div>
       <ul class="avis__liste" id="pAvisListe"></ul>
       <button class="btn btn--ghost btn--block" id="pAvisPlus" type="button" hidden>
-        Voir tous les avis
+        <span data-t="avis.voirTous">Voir tous les avis</span>
       </button>
     </section>
 
@@ -344,12 +344,12 @@
          qui aiment celui-ci. Chargés depuis le catalogue déjà en mémoire —
          une suggestion ne vaut pas un aller-retour de plus. -->
     <section class="suite" id="pMemeCategorie" hidden>
-      <h3 class="suite__titre" id="pMemeCategorieTitre">Même catégorie</h3>
+      <h3 class="suite__titre" id="pMemeCategorieTitre" data-t="produit.memeCategorie">Même catégorie</h3>
       <div class="suite__piste" id="pMemeCategoriePiste"></div>
     </section>
 
     <section class="suite" id="pAimerAussi" hidden>
-      <h3 class="suite__titre">Tu vas aimer aussi</h3>
+      <h3 class="suite__titre" data-t="produit.aimerAussi">Tu vas aimer aussi</h3>
       <div class="suite__piste" id="pAimerAussiPiste"></div>
     </section>
   </div>
@@ -360,27 +360,27 @@
      La grille de l'autre onglet répond à « je cherche ça » ; celle-ci
      répond à « montre-moi ce que tu as ». Deux questions différentes,
      deux écrans — les mêmes produits. -->
-<section class="vue" id="vueCategories" role="tabpanel" aria-label="Catégories" hidden>
+<section class="vue" id="vueCategories" role="tabpanel" aria-label="Catégories" data-t-aria="onglet.categories" hidden>
   <div class="rayons" id="rayons"></div>
-  <p class="empty" id="rayonsVide" hidden>Le catalogue est vide pour le moment.</p>
+  <p class="empty" id="rayonsVide" hidden data-t="catalogue.videTotal">Le catalogue est vide pour le moment.</p>
 </section>
 
 <!-- ══ Vue « Contact » ══ -->
-<section class="vue" id="vueContact" role="tabpanel" aria-label="Contact" hidden>
+<section class="vue" id="vueContact" role="tabpanel" aria-label="Contact" data-t-aria="onglet.contact" hidden>
   <div class="contact">
     <div class="contact__icone" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.6-.4L4 21l1.5-4.3A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12.3 3 8.4 8.4 0 0 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
     </div>
-    <h2 class="contact__titre">Une question ?</h2>
-    <p class="contact__texte">
+    <h2 class="contact__titre" data-t="contact.titre">Une question ?</h2>
+    <p class="contact__texte" data-t="contact.texte">
       Un doute sur un produit, une commande qui traîne, une demande
       particulière : écris-nous, on répond dans la conversation.
     </p>
 
-    <p class="contact__legende"><span>Nous écrire</span></p>
+    <p class="contact__legende"><span data-t="contact.nousEcrire">Nous écrire</span></p>
     <button class="btn btn--tg btn--block" id="contactTelegram" type="button">
       <svg viewBox="0 0 24 24" class="btn__icone" aria-hidden="true"><path d="M21.8 4.3 18.9 19c-.2 1-.8 1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.6L18.4 6c.4-.3-.1-.5-.6-.2L7.4 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4l17.5-6.7c.8-.3 1.5.2 1.2 1.4Z" fill="currentColor"/></svg>
-      Ouvrir la conversation
+      <span data-t="contact.ouvrir">Ouvrir la conversation</span>
     </button>
     <p class="contact__fine" id="contactFine"></p>
 
@@ -389,12 +389,12 @@
 </section>
 
 <!-- ══ Vue « Profil » ══ -->
-<section class="vue" id="vueProfil" role="tabpanel" aria-label="Mon profil" hidden>
+<section class="vue" id="vueProfil" role="tabpanel" aria-label="Mon profil" data-t-aria="profil.titre" hidden>
   <div class="profil">
     <div class="profil__tete">
       <div class="profil__vignette" id="profilVignette" aria-hidden="true"></div>
       <div class="profil__identite">
-        <p class="profil__nom" id="profilNom">Mon profil</p>
+        <p class="profil__nom" id="profilNom" data-t="profil.titre">Mon profil</p>
         <p class="profil__qui" id="profilQui"></p>
       </div>
     </div>
@@ -434,12 +434,12 @@
     </section>
 
     <section class="profil__vue" data-vue="alertes" hidden>
-      <p class="profil__intro">
+      <p class="profil__intro" data-t="profil.alertesIntro">
         Ce que la boutique peut t'envoyer dans cette conversation.
         Tu coupes et rallumes quand tu veux.
       </p>
       <div class="alertes" id="alertesList"></div>
-      <p class="profil__stop" id="profilStop" hidden>
+      <p class="profil__stop" id="profilStop" data-t-html="profil.stop" hidden>
         ⚠️ Tu as envoyé <b>/stop</b> au bot : rien ne t'arrivera tant que tu
         n'auras pas écrit <b>/annonces</b> pour rouvrir la porte.
       </p>
@@ -473,14 +473,14 @@
          flexible : un texte nu posé à côté d'une icône y devient un élément
          anonyme, qui se replie tout seul dès qu'il manque de place. On a vu
          « Commander », puis un point tout seul sur sa ligne, puis le prix. -->
-    <span class="btn__libelle">Commander · <span id="pPrice"></span></span>
+    <span class="btn__libelle"><span data-t="produit.commander">Commander</span> · <span id="pPrice"></span></span>
   </button>
   <!-- Demander n'est pas commander. Sans ce bouton, tout arrivait dans la
        conversation avec le même message pré-rempli : impossible de
        distinguer celui qui achète de celui qui hésite. Il reste visible sur
        un article épuisé — c'est même là qu'on a le plus de questions. -->
   <button class="btn btn--ghost pbar__question" id="question" type="button"
-          aria-label="Poser une question sur ce produit">
+          aria-label="Poser une question sur ce produit" data-t-aria="aria.question">
     <svg class="btn__icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.6-.4L4 21l1.5-4.3A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12.3 3 8.4 8.4 0 0 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
     <!-- Deux libellés, un seul visible : sous 392 px — la largeur d'un
          Android courant — « Une question » et « Commander · 130 € » ne
@@ -507,7 +507,7 @@
      `preload="none"` : tant que personne n'appuie, pas un octet d'audio
      ne part. Un client venu acheter ne paie pas l'ambiance. -->
 <button class="juke" id="juke" type="button" hidden
-        aria-label="Ouvrir le lecteur de musique" aria-expanded="false" aria-controls="jukeMenu">
+        aria-label="Ouvrir le lecteur de musique" data-t-aria="juke.ouvrir" aria-expanded="false" aria-controls="jukeMenu">
   <svg class="juke__icone juke__icone--play" viewBox="0 0 24 24" aria-hidden="true">
     <path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
   </svg>
@@ -527,17 +527,17 @@
      curiosité n'a pas à se faire surprendre par du son — et c'est aussi ce
      que le navigateur exige : le geste qui autorise la lecture, c'est
      l'appui sur « lecture », pas l'appui sur la pastille. -->
-<div class="juke__menu" id="jukeMenu" hidden role="group" aria-label="Lecteur de musique">
+<div class="juke__menu" id="jukeMenu" hidden role="group" aria-label="Lecteur de musique" data-t-aria="juke.menu">
   <p class="juke__menu-titre" id="jukeMenuTitre" aria-live="polite">—</p>
   <p class="juke__menu-rang" id="jukeMenuRang"></p>
   <div class="juke__menu-gestes">
-    <button class="juke__geste" id="jukePrec" type="button" aria-label="Morceau précédent">
+    <button class="juke__geste" id="jukePrec" type="button" aria-label="Morceau précédent" data-t-aria="juke.precedent">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M18 5.5v13L8.5 12z" fill="currentColor"/>
         <rect x="5" y="5.5" width="2.6" height="13" rx="1" fill="currentColor"/>
       </svg>
     </button>
-    <button class="juke__geste juke__geste--grand" id="jukeLecture" type="button" aria-label="Lecture">
+    <button class="juke__geste juke__geste--grand" id="jukeLecture" type="button" aria-label="Lecture" data-t-aria="juke.lecture">
       <svg class="juke__icone juke__icone--play" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
       </svg>
@@ -546,7 +546,7 @@
         <rect x="13.6" y="5.5" width="3.4" height="13" rx="1" fill="currentColor"/>
       </svg>
     </button>
-    <button class="juke__geste" id="jukeSuiv" type="button" aria-label="Morceau suivant">
+    <button class="juke__geste" id="jukeSuiv" type="button" aria-label="Morceau suivant" data-t-aria="juke.suivant">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M6 5.5v13L15.5 12z" fill="currentColor"/>
         <rect x="16.4" y="5.5" width="2.6" height="13" rx="1" fill="currentColor"/>
@@ -561,7 +561,7 @@
 <p class="juke__titre" id="jukeTitre" hidden aria-live="polite"></p>
 <audio id="jukeSon" preload="none"></audio>
 
-<nav class="tabbar" id="tabbar" role="tablist" aria-label="Navigation">
+<nav class="tabbar" id="tabbar" role="tablist" aria-label="Navigation" data-t-aria="aria.navigation">
   <span class="tabbar__curseur tabbar__curseur--pose" id="tabbarCurseur" aria-hidden="true"></span>
   <button class="tabbar__item" type="button" role="tab" data-onglet="catalogue" aria-selected="true">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -586,34 +586,34 @@
 <div class="sheet" id="avisSheet" hidden>
   <div class="sheet__backdrop" data-close></div>
   <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="avisTitre">
-    <button class="sheet__close" type="button" data-close aria-label="Fermer">✕</button>
+    <button class="sheet__close" type="button" data-close aria-label="Fermer" data-t-aria="aria.fermer">✕</button>
     <div class="sheet__scroll">
-      <h2 class="feuille__titre goldtext" id="avisTitre">Ton avis</h2>
+      <h2 class="feuille__titre goldtext" id="avisTitre" data-t="avis.tonAvis">Ton avis</h2>
       <p class="avis__intro" id="avisIntro"></p>
       <div id="avisProduits"></div>
       <label class="field">
-        <span class="field__label">Un mot, si tu veux <span class="avis__facultatif">facultatif</span></span>
+        <span class="field__label"><span data-t="avis.unMot">Un mot, si tu veux</span> <span class="avis__facultatif" data-t="avis.facultatif">facultatif</span></span>
         <textarea id="avisTexte" rows="3" maxlength="600"
                   placeholder="Ce qui t'a plu, ce qui peut être mieux…"></textarea>
       </label>
-      <div class="signature" id="avisSignature" role="radiogroup" aria-label="Signer ton avis">
+      <div class="signature" id="avisSignature" role="radiogroup" aria-label="Signer ton avis" data-t-aria="aria.signer">
         <button class="signature__choix" type="button" data-anonyme="non" aria-pressed="true">
-          <b id="avisSigneNom">Avec mon prénom</b>
-          <small>Un avis signé inspire plus confiance.</small>
+          <b id="avisSigneNom" data-t="avis.signe">Avec mon prénom</b>
+          <small data-t="avis.signeAide">Un avis signé inspire plus confiance.</small>
         </button>
         <button class="signature__choix" type="button" data-anonyme="oui" aria-pressed="false">
-          <b>Anonyme</b>
-          <small>Ton avis s'affiche sans nom.</small>
+          <b data-t="avis.anonyme">Anonyme</b>
+          <small data-t="avis.anonymeAide">Ton avis s'affiche sans nom.</small>
         </button>
       </div>
-      <p class="avis__note-vie" id="avisRappel">
+      <p class="avis__note-vie" id="avisRappel" data-t="avis.noteVie">
         Dans les deux cas, ni ton pseudo Telegram, ni ton numéro, ni ton adresse
         ne sont publiés. Le vendeur, lui, voit toujours quelle commande a été notée.
       </p>
     </div>
     <div class="sheet__bar">
-      <button class="btn btn--ghost" type="button" data-close>Plus tard</button>
-      <button class="btn btn--primary btn--grow" id="avisEnvoyer" type="button">Envoyer</button>
+      <button class="btn btn--ghost" type="button" data-close data-t="avis.plusTard">Plus tard</button>
+      <button class="btn btn--primary btn--grow" id="avisEnvoyer" type="button" data-t="avis.envoyer">Envoyer</button>
     </div>
   </div>
 </div>
