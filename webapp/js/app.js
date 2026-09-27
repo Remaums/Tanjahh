@@ -65,18 +65,17 @@ const $ = (id) => document.getElementById(id);
      bas, il valait la fin de l'évaluation du module — donc un instant déjà
      décalé de ce que voit le client. */
 
-/* Le film dure trois secondes et boucle ; sur une bonne connexion, le
-   catalogue arrive en trois cents millisecondes. Sans plancher, l'écran
-   d'ouverture apparaîtrait et disparaîtrait avant qu'on ait vu l'image —
-   autant ne pas mettre de vidéo du tout.
+/* Sur une bonne connexion, le catalogue arrive en trois cents millisecondes.
+   Sans plancher, l'écran d'ouverture apparaîtrait et disparaîtrait avant
+   qu'on ait vu l'image — autant ne pas mettre de vidéo du tout.
 
-   Cinq secondes : le film passe une fois en entier, puis reprend le temps
-   qu'on lise la dernière ligne. Les neuf secondes d'avant faisaient plus de
-   deux boucles — long pour quelqu'un qui vient juste acheter, et la seconde
-   visite ne pardonne pas ce que la première trouve joli. La jauge du bas
-   court sur exactement cette durée : sans elle, un client qui attend devant
-   une vidéo croit que la boutique est plantée et ferme. */
-const OUVERTURE_MIN_MS = 5000;
+   Quinze secondes, à la demande du vendeur : l'ouverture est son enseigne,
+   et il veut qu'on la voie en entier. C'est long pour qui vient acheter, et
+   c'est un choix assumé. Deux contreparties, qui ne sont pas facultatives à
+   cette durée-là : la jauge du bas court sur exactement ce temps, et la
+   ligne au-dessus change cinq fois. Quinze secondes sans aucun signe de
+   progression, ce n'est plus une attente, c'est une application gelée. */
+const OUVERTURE_MIN_MS = 15000;
 /* Les trois phrases de l'écran d'ouverture. Elles sont ici et non près de la
    fonction qui les déroule, pour la raison écrite juste au-dessus : `init()`
    s'exécute à la lecture du module et appelle `derouler()` dès sa quinzième
@@ -86,6 +85,8 @@ const OUVERTURE_MIN_MS = 5000;
 const OUVERTURE_PHRASES = [
   'Ouverture de la boutique…',
   'On branche le courant…',
+  'On allume les néons…',
+  'On sort la marchandise…',
   'Prêt.',
 ];
 const ouvertureDebut = Date.now();
@@ -170,12 +171,6 @@ async function init() {
   renderSousTitre();
   renderTitreDuBandeau();
   monterLeJuke();
-  // La musique part ici, et non au lever du voile : le catalogue arrive en
-  // quelques centaines de millisecondes quand le plancher de l'ouverture en
-  // dure cinq mille. La playlist est donc connue bien avant la fin de
-  // l'écran de chargement, et c'est là que la boutique doit s'allumer —
-  // pendant le film, pas après.
-  lancerLaMusiqueALArrivee();
   renderStatut();
   renderCategories();
   renderGrid();
@@ -361,7 +356,15 @@ function foudroyer() {
     if (ev.animationName === 'charge-foudre') ecran.classList.remove('charge--foudre');
   });
 
-  for (const quand of [Math.round(OUVERTURE_MIN_MS * 0.34), Math.round(OUVERTURE_MIN_MS * 0.74)]) {
+  // Trois éclairs plutôt que deux : les fractions suivent la durée, et à
+  // quinze secondes deux éclats laissaient sept secondes de calme plat entre
+  // eux. Ils restent à plus de trois secondes d'écart — loin des trois flashs
+  // par seconde au-delà desquels un écran devient dangereux.
+  for (const quand of [
+    Math.round(OUVERTURE_MIN_MS * 0.26),
+    Math.round(OUVERTURE_MIN_MS * 0.55),
+    Math.round(OUVERTURE_MIN_MS * 0.82),
+  ]) {
     setTimeout(() => {
       if (ecran.hidden) return;
       ecran.classList.remove('charge--foudre');
@@ -409,10 +412,10 @@ function fermerLeVoile({ rideau = true } = {}) {
   // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la
   // boutique, batterie comprise.
   reglerLeFilm(false);
-  // Si la lecture a été refusée pendant le chargement, c'est maintenant que
-  // la pastille peut se faire voir : sous le voile, son battement ne
-  // s'adressait à personne.
-  if (juke.refusee) inviterALaMusique();
+  // La musique attend le catalogue. Elle a démarré un temps sur l'écran de
+  // chargement ; le film y porte déjà tout, et deux choses qui s'annoncent
+  // en même temps s'annulent. Elle commence donc quand la boutique apparaît.
+  lancerLaMusiqueALArrivee();
 }
 
 /**
@@ -2323,10 +2326,7 @@ function lancerLaMusiqueALArrivee() {
       son.removeAttribute('src');
       son.load();
       peindreLeJuke();
-      // L'invitation attend le lever du voile : la pastille est dessous, et
-      // un battement que personne ne voit n'invite personne.
-      juke.refusee = true;
-      if ($('charge')?.hidden) inviterALaMusique();
+      inviterALaMusique();
     }
   );
   peindreLeJuke();
