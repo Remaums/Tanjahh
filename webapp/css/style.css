@@ -768,8 +768,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   transform: translateY(-50%); z-index: 1; max-width: 62%;
 }
 .hero__title {
+  /* Le 400 était le dernier reste de Bebas Neue, qui n'existait qu'en cette
+     graisse : sur Chakra Petch il donnait un titre plus maigre que le nom de
+     la boutique juste au-dessus, dans la barre. Un bandeau qui pèse moins
+     que l'en-tête qu'il suit n'est pas un titre. */
   font-size: clamp(26px, 8vw, 32px); line-height: .96;
-  text-transform: uppercase; font-weight: 400; margin: 0;
+  text-transform: uppercase; font-weight: 700; margin: 0;
   text-shadow: 0 2px 14px rgb(var(--void-rgb) / .9);
 }
 /* Les horaires en jaune d'enseigne : c'est la deuxième chose qu'on vient
