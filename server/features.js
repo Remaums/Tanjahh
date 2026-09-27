@@ -10,6 +10,14 @@
  * bouton dans la Mini App ne ferme rien, l'appel reste possible. Chaque clé
  * ci-dessous est donc vérifiée dans une route ou un envoi, jamais seulement
  * dans l'affichage.
+ *
+ * `obsolete: true` marque ce qui ne pilote plus rien depuis que la boutique
+ * a perdu son panier et commande par la conversation. Ces clés ne sont pas
+ * supprimées : le serveur les valide encore, les codes promo déjà créés
+ * dorment intacts, et retirer le mot suffirait à tout rallumer si le panier
+ * revenait. Elles sont seulement retirées du panneau — un interrupteur qui
+ * ne commande rien est pire qu'un interrupteur absent, parce qu'on croit
+ * l'avoir actionné.
  */
 
 export const FEATURES = [
@@ -46,19 +54,24 @@ export const FEATURES = [
     key: 'hours',
     label: 'Horaires automatiques',
     hint: 'La boutique se ferme et se rouvre toute seule selon la grille de la semaine.',
-    default: false,
+    // Allumés par défaut : le bandeau de la boutique annonce des horaires, et
+    // sans cet interrupteur rien ne les fait respecter — on peut commander à
+    // quatre heures du matin devant un « OUVERT 13H – 00H ».
+    default: true,
   },
   {
     key: 'zones',
     label: 'Zones de livraison',
     hint: 'Seuls les codes postaux déclarés sont desservis, avec leurs propres tarifs.',
     default: true,
+    obsolete: true,
   },
   {
     key: 'slots',
     label: 'Créneaux',
     hint: 'Le client réserve une plage horaire, avec une capacité par créneau.',
     default: false,
+    obsolete: true,
   },
   {
     key: 'animations',
@@ -80,12 +93,14 @@ export const FEATURES = [
     label: 'Remises par palier',
     hint: 'Une remise automatique au-delà d\'un montant de panier.',
     default: true,
+    obsolete: true,
   },
   {
     key: 'promos',
     label: 'Codes promo',
     hint: 'Le champ « code promo » du panier. Les codes déjà créés sont conservés.',
     default: true,
+    obsolete: true,
   },
   {
     key: 'announcements',
@@ -110,6 +125,7 @@ export const FEATURES = [
     label: 'Garde-fous anti-abus',
     hint: 'Plafond de commandes par heure et d\'articles par commande.',
     default: true,
+    obsolete: true,
   },
   {
     key: 'photos',

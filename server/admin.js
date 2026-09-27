@@ -109,7 +109,10 @@ adminRouter.get(
       user: req.telegramUser,
       statuses: STATUSES,
       currency: config.currency,
-      features: FEATURES,
+      // Sans ce qui ne pilote plus rien. Le serveur continue de valider ces
+      // clés et les données qu'elles gouvernaient dorment intactes ; seul le
+      // panneau cesse de proposer des interrupteurs sans effet.
+      features: FEATURES.filter((f) => !f.obsolete),
       mediaMax: MEDIA_MAX,
     });
   })

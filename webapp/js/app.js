@@ -124,9 +124,6 @@ async function init() {
     state.notes = data.notes ?? {};
     state.opening = data.opening ?? { open: true };
     state.fulfillment = data.fulfillment ?? state.fulfillment;
-    state.tiers = data.discounts?.tiers ?? [];
-    state.zones = data.zones ?? [];
-    state.slotsEnabled = Boolean(data.slots?.enabled);
     appliquerLesAnimations();
     applyFeatures();
     state.mode = state.fulfillment.pickup ? 'pickup' : 'delivery';
@@ -184,7 +181,6 @@ let signeCharge = false;
 function chargerLaBoutiqueSignee() {
   if (signeCharge) return;
   signeCharge = true;
-  loadSlots();
   chargerLaDerniereCommande();
   chargerLesAvisADonner();
   chargerLesFavoris();
@@ -345,11 +341,6 @@ function reglerLeFilm(jouer) {
   else film.pause?.();
 }
 
-/** Change le mot sous l'anneau, quand l'attente a une raison qu'on sait dire. */
-function direPendantLeChargement(texte) {
-  const ligne = document.getElementById('chargeTexte');
-  if (ligne) ligne.textContent = texte;
-}
 
 /**
  * Dit que la boutique est injoignable, plutôt que de la montrer vide.
@@ -571,79 +562,14 @@ function applyFeatures() {
 
 /* ── Zones et créneaux ───────────────────────────────────── */
 
-/** La zone qui couvre ce code postal, ou null si personne ne le dessert. */
-function findZone(postalCode) {
-  const code = String(postalCode ?? '').trim();
-  if (!/^\d{2,6}$/.test(code)) return null;
-  return state.zones.find((zone) => zone.postalCodes.includes(code)) ?? null;
-}
-
-/** Les zones remplacent les conditions générales là où elles en ont. */
-function conditions(subtotal) {
-  const { deliveryFee, freeDeliveryFrom, minimumOrder } = state.fulfillment;
-  const zone = state.zone;
-  return {
-    fee: zone ? zone.fee : deliveryFee,
-    franco: zone ? zone.freeFrom ?? freeDeliveryFrom : freeDeliveryFrom,
-    minimum: zone ? zone.minimumOrder ?? minimumOrder : minimumOrder,
-  };
-}
-
-/**
- * Ce que coûterait la livraison de ce panier, mode courant mis à part.
- *
- * Sert au bouton « Livraison » : il annonçait le tarif brut, si bien qu'il
- * réclamait 5 € pendant que le total, franco atteint, n'en facturait aucun.
- */
-function deliveryFeeIfDelivering(subtotal) {
-  if (!state.fulfillment.delivery) return 0;
-  const { fee, franco } = conditions(subtotal);
-  return franco !== null && subtotal >= franco ? 0 : fee;
-}
-
-/** Frais réellement dus : le mode retrait les annule aussi. */
-function deliveryFeeFor(subtotal) {
-  return state.mode === 'delivery' ? deliveryFeeIfDelivering(subtotal) : 0;
-}
 
 
-/** Charge les créneaux encore réservables. Silencieux en cas d'échec : le
- *  serveur revalide de toute façon, et une commande sans créneau vaut mieux
- *  qu'un panier bloqué. */
-async function loadSlots() {
-  if (!state.slotsEnabled) return;
-  try {
-    const res = await fetch('/api/slots');
-    if (!res.ok) return;
-    const data = await res.json();
-    state.slots = data.slots ?? [];
-    // Le créneau choisi a pu se remplir pendant que le panier était ouvert.
-    if (!state.slots.some((s) => s.id === state.slotId && !s.full)) state.slotId = '';
-  } catch {
-    /* réseau capricieux : on garde ce qu'on a */
-  }
-}
+
+
+
 
 /* ── Remises ─────────────────────────────────────────────── */
 
-/**
- * Remise automatique du panier, calculée ici pour l'affichage.
- *
- * Les paliers sont publics : les recopier côté client évite un aller-retour
- * réseau à chaque « + ». Le serveur refait le calcul au moment de la commande,
- * c'est lui qui fait foi.
- */
-function tierDiscountFor(subtotal) {
-  const palier = state.tiers
-    .filter((t) => subtotal >= t.from)
-    .sort((a, b) => b.from - a.from)[0];
-
-  if (!palier) return { discount: 0, label: null };
-  return {
-    discount: Math.round((subtotal * palier.percent) / 100),
-    label: `−${palier.percent} % dès ${formatPrice(palier.from)}`,
-  };
-}
 
 
 /**
@@ -654,29 +580,7 @@ function tierDiscountFor(subtotal) {
  * savoir pourquoi.
  */
 
-/** Encourage sans mentir : le prochain palier et ce qu'il manque pour l'avoir. */
-function nextTierHint(subtotal) {
-  const next = state.tiers.filter((t) => subtotal < t.from).sort((a, b) => a.from - b.from)[0];
-  if (!next) return '';
-  return `−${next.percent} % dès ${formatPrice(next.from)} : il manque ${formatPrice(next.from - subtotal)}.`;
-}
 
-async function previewPromo(code, lines) {
-  const res = await fetch('/api/promo', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Telegram-Init-Data': tg?.initData ?? '',
-    },
-    body: JSON.stringify({
-      code,
-      items: lines.map((l) => ({ id: l.id, variantId: l.variantId, quantity: l.quantity })),
-    }),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error ?? 'Code refusé.');
-  return data;
-}
 
 /**
  * Le panier a bougé alors qu'un code était posé : son montant a changé, et il
@@ -746,35 +650,6 @@ function rafraichirLeDecompte() {
 }
 
 
-/**
- * Le prochain avantage à atteindre, ou celui qu'on vient d'obtenir.
- *
- * La livraison offerte passe devant les paliers de remise quand elle est plus
- * proche : c'est celle qui parle le plus, et deux jauges à la fois ne diraient
- * plus rien du tout.
- */
-function prochainObjectif(subtotal) {
-  const candidats = [];
-
-  const franco = state.fulfillment.freeDeliveryFrom;
-  if (state.mode === 'delivery' && franco) {
-    candidats.push({ seuil: franco, texte: 'Livraison offerte', atteint: subtotal >= franco });
-  }
-  for (const palier of state.tiers) {
-    candidats.push({
-      seuil: palier.from,
-      texte: `−${palier.percent} % sur la commande`,
-      atteint: subtotal >= palier.from,
-    });
-  }
-  if (!candidats.length) return null;
-
-  // Celui qu'on n'a pas encore atteint et qui est le plus proche ; à défaut,
-  // le dernier obtenu, pour que la barre pleine reste une bonne nouvelle.
-  const devant = candidats.filter((c) => !c.atteint).sort((a, b) => a.seuil - b.seuil)[0];
-  if (devant) return devant;
-  return candidats.sort((a, b) => b.seuil - a.seuil)[0];
-}
 
 /** Boutique fermée : on le dit, et on empêche la commande. */
 function renderClosedBanner() {

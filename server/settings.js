@@ -9,11 +9,13 @@ import { defaultFeatures, normalizeFeatures } from './features.js';
  * Réglages de la boutique : ce qui se change en exploitation, sans toucher au
  * code ni redéployer. Le fichier est créé au premier accès avec ces valeurs.
  */
+const DEFAUTS_FONCTIONNALITES = defaultFeatures();
+
 const DEFAULTS = {
   // Ce qui est allumé ou éteint. Source de vérité unique : les anciens
   // `captcha.enabled`, `verification.enabled`, `slots.enabled` et
   // `opening.hours.enabled` en sont désormais le reflet, pas l'inverse.
-  features: defaultFeatures(),
+  features: DEFAUTS_FONCTIONNALITES,
   // Retrait, livraison, frais et minimum de commande. Les montants sont en
   // centimes, comme partout ailleurs dans le projet.
   fulfillment: {
@@ -66,7 +68,16 @@ const DEFAULTS = {
   opening: {
     open: true,
     message: 'La boutique est fermée pour le moment. Reviens un peu plus tard !',
-    hours: { enabled: false, timezone: 'Europe/Paris', days: defaultHours() },
+    // `enabled` se lit dans les fonctionnalités et ne se réécrit pas ici.
+    // Écrit en dur, il valait `false` pendant que l'interrupteur valait
+    // `true` : le fichier créé au premier démarrage sortait donc avec des
+    // horaires éteints et une case cochée, ce qui est exactement la
+    // contradiction que ce bloc prétend avoir supprimée.
+    hours: {
+      enabled: DEFAUTS_FONCTIONNALITES.hours,
+      timezone: 'Europe/Paris',
+      days: defaultHours(),
+    },
   },
   // Identifiants Telegram privés de commande, sous forme de chaînes.
   blocked: [],
