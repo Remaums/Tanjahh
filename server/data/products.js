@@ -24,7 +24,6 @@ export const products = [
     category: 'resines',
     price: 2000,
     image: '/assets/products/jar.svg',
-    badge: '2K26',
     tags: ['Premium', 'Banana Kush'],
     short: 'Premium 2K26, nez banane mûre.',
     description:
@@ -43,7 +42,6 @@ export const products = [
     category: 'resines',
     price: 2000,
     image: '/assets/products/bud.svg',
-    badge: '2K26',
     tags: ['Premium', 'Bubble Gum'],
     short: 'Premium 2K26, nez bonbon rose.',
     description:
@@ -119,7 +117,6 @@ export const products = [
     category: 'resines',
     price: 1800,
     image: '/assets/products/hash.svg',
-    badge: 'ARTISANAL',
     tags: ['Résine', 'Pressée'],
     short: 'Résine pressée à la main, souple et parfumée.',
     description:
@@ -164,7 +161,6 @@ export const products = [
     category: 'comestibles',
     price: 1200,
     image: '/assets/products/cookie.svg',
-    badge: 'FUN',
     tags: ['Comestible', 'Doux'],
     short: 'Bonbons fruités, dosage doux et régulier.',
     description:
@@ -219,7 +215,6 @@ export const products = [
     category: 'packs',
     price: 8900,
     image: '/assets/products/box.svg',
-    badge: 'LIMITÉ',
     tags: ['Pack', 'Édition limitée'],
     short: 'La grosse boîte, stickers et grinder inclus.',
     description:
