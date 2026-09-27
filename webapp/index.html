@@ -453,6 +453,35 @@
   </button>
 </div>
 
+<!-- ══ La pastille de musique ══ ═════════════════════════════
+     Posée au-dessus des onglets, à droite, là où le pouce arrive sans
+     couvrir le catalogue. Elle reste cachée tant que le vendeur n'a pas
+     de playlist, ou qu'il a éteint l'interrupteur.
+
+     Le client doit appuyer, et ce n'est pas un choix de design : aucun
+     navigateur ni WebView ne démarre un son sans geste. C'est d'ailleurs
+     ce qui rend la chose honnête — personne ne se fait surprendre par de
+     la musique en ouvrant une boutique.
+
+     `preload="none"` : tant que personne n'appuie, pas un octet d'audio
+     ne part. Un client venu acheter ne paie pas l'ambiance. -->
+<button class="juke" id="juke" type="button" hidden
+        aria-label="Écouter la musique de la boutique" aria-pressed="false">
+  <svg class="juke__icone juke__icone--play" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
+  </svg>
+  <svg class="juke__icone juke__icone--pause" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="7" y="5.5" width="3.4" height="13" rx="1" fill="currentColor"/>
+    <rect x="13.6" y="5.5" width="3.4" height="13" rx="1" fill="currentColor"/>
+  </svg>
+  <span class="juke__onde" aria-hidden="true"><i></i><i></i><i></i></span>
+</button>
+<!-- Le titre en cours, qui se montre quelques secondes à chaque morceau
+     puis s'efface : savoir ce qu'on écoute est utile, le lire en
+     permanence par-dessus le catalogue ne l'est pas. -->
+<p class="juke__titre" id="jukeTitre" hidden aria-live="polite"></p>
+<audio id="jukeSon" preload="none"></audio>
+
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Navigation">
   <span class="tabbar__curseur tabbar__curseur--pose" id="tabbarCurseur" aria-hidden="true"></span>
   <button class="tabbar__item" type="button" role="tab" data-onglet="catalogue" aria-selected="true">

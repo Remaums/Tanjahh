@@ -26,6 +26,7 @@ import { ficheClients, chercherClients } from './clients.js';
 import { listUsers, countUsers, chercherUtilisateurs } from './users.js';
 import { servirMedia } from './media-cache.js';
 import { getSettings, saveSettings, blockClient, unblockClient } from './settings.js';
+import { MUSIQUE_MAX, titreDepuisLeNom, nouvelIdentifiant } from './musique.js';
 import { listVerifications, decideVerification, resetVerification } from './verification.js';
 import {
   notifyCustomer, notifyBackInStock, sendFileToAdmin, diffuser, botUsername,
@@ -114,6 +115,7 @@ adminRouter.get(
       // panneau cesse de proposer des interrupteurs sans effet.
       features: FEATURES.filter((f) => !f.obsolete),
       mediaMax: MEDIA_MAX,
+      musiqueMax: MUSIQUE_MAX,
     });
   })
 );
@@ -512,6 +514,71 @@ function prixMini(produit) {
   return variantes.length ? Math.min(...variantes.map((v) => v.price)) : produit.price ?? 0;
 }
 
+/* ── La playlist d'ambiance ──────────────────────────────────
+   Trois portes : en ajouter un, le renommer, le retirer. L'ordre, lui, passe
+   par l'enregistrement des réglages — réordonner est une opération sur la
+   liste entière, pas sur un morceau. */
+
+adminRouter.post(
+  '/musique/upload',
+  route(async (req, res) => {
+    const octets = recevoirFichier(req, 'audio');
+    const { musique } = await getSettings();
+
+    // On refuse avant de déranger Telegram : inutile de faire voyager trois
+    // mégaoctets pour les jeter à l'arrivée.
+    if (musique.titres.length >= MUSIQUE_MAX) {
+      throw new HttpError(400, `La playlist est pleine (${MUSIQUE_MAX} morceaux au maximum).`);
+    }
+
+    const nom = nomDeFichier(req.query.nom, 'audio');
+    const depot = await remettreATelegram(
+      req.telegramUser.id,
+      'audio',
+      octets,
+      nom,
+      '🎵 Ajouté à la playlist de la boutique depuis l\'espace admin.'
+    );
+
+    // Le titre vient des étiquettes du fichier quand il y en a, du nom du
+    // fichier sinon, et de ce que le vendeur a tapé s'il a pris la peine.
+    const titre =
+      String(req.query.titre ?? '').trim() || depot.titre || titreDepuisLeNom(nom);
+
+    const titres = [...musique.titres, { id: nouvelIdentifiant(), titre, fileId: depot.fileId }];
+    const enregistre = await saveSettings({ musique: { titres } });
+    res.status(201).json(enregistre.musique);
+  })
+);
+
+adminRouter.patch(
+  '/musique/:id',
+  route(async (req, res) => {
+    const { musique } = await getSettings();
+    const morceau = musique.titres.find((m) => m.id === req.params.id);
+    if (!morceau) throw new HttpError(404, 'Morceau introuvable.');
+
+    const titre = String(req.body?.titre ?? '').trim();
+    if (!titre) throw new HttpError(400, 'Un morceau sans titre ne se reconnaît pas dans la liste.');
+
+    const titres = musique.titres.map((m) => (m.id === morceau.id ? { ...m, titre } : m));
+    res.json((await saveSettings({ musique: { titres } })).musique);
+  })
+);
+
+adminRouter.delete(
+  '/musique/:id',
+  route(async (req, res) => {
+    const { musique } = await getSettings();
+    const titres = musique.titres.filter((m) => m.id !== req.params.id);
+    if (titres.length === musique.titres.length) throw new HttpError(404, 'Morceau introuvable.');
+
+    // Le fichier reste chez Telegram, dans la conversation du vendeur : on
+    // retire une entrée d'une liste, on ne détruit pas ce qu'il a envoyé.
+    res.json((await saveSettings({ musique: { titres } })).musique);
+  })
+);
+
 adminRouter.patch(
   '/products/:id',
   route(async (req, res) => res.json(await updateProduct(req.params.id, req.body ?? {})))
@@ -625,10 +692,18 @@ function recevoirFichier(req, attendu) {
       ? 'video'
       : type.startsWith('image/')
         ? 'photo'
-        : null;
+        : type.startsWith('audio/')
+          ? 'audio'
+          : null;
 
   if (!kind) {
-    throw new HttpError(400, `Ce fichier n'est ni une image ni une vidéo (${type || 'type inconnu'}).`);
+    throw new HttpError(
+      400,
+      `Ce fichier n'est ni une image, ni une vidéo, ni un morceau (${type || 'type inconnu'}).`
+    );
+  }
+  if (attendu === 'audio' && kind !== 'audio') {
+    throw new HttpError(400, 'La playlist attend un fichier audio : MP3, M4A, OGG ou FLAC.');
   }
   if (attendu === 'photo' && kind !== 'photo') {
     throw new HttpError(
@@ -662,7 +737,7 @@ function recevoirFichier(req, attendu) {
 function nomDeFichier(brut, kind) {
   return (
     String(brut ?? '').replace(/[^\w.\- ]/g, '').slice(0, 80) ||
-    `media.${kind === 'video' ? 'mp4' : 'jpg'}`
+    `media.${kind === 'video' ? 'mp4' : kind === 'audio' ? 'mp3' : 'jpg'}`
   );
 }
 

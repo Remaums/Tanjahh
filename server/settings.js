@@ -4,6 +4,7 @@ import { defaultHours, normalizeHours } from './opening.js';
 import { normalizeTiers } from './promos.js';
 import { normalizeZones, normalizeSlots, defaultSlots } from './delivery.js';
 import { defaultFeatures, normalizeFeatures } from './features.js';
+import { normalizeMusique } from './musique.js';
 
 /**
  * Réglages de la boutique : ce qui se change en exploitation, sans toucher au
@@ -79,6 +80,14 @@ const DEFAULTS = {
       days: defaultHours(),
     },
   },
+  // La playlist d'ambiance. Chaque morceau est `{ id, titre, fileId }` :
+  // comme les photos et les vidéos, le fichier vit chez Telegram et la
+  // boutique n'en garde que la référence. Rien sur le disque, donc rien à
+  // sauvegarder et rien à perdre en changeant d'hébergeur.
+  //
+  // L'ordre de la liste est l'ordre de lecture. Vide par défaut : la pastille
+  // ne s'affiche pas tant que le vendeur n'a pas envoyé son premier morceau.
+  musique: { titres: [] },
   // Identifiants Telegram privés de commande, sous forme de chaînes.
   blocked: [],
 };
@@ -117,6 +126,7 @@ export async function getSettings() {
         days: normalizeHours(data.opening?.hours?.days),
       },
     },
+    musique: normalizeMusique(data.musique),
     blocked: Array.isArray(data.blocked) ? data.blocked : [],
   };
 }
@@ -169,6 +179,13 @@ export async function saveSettings(patch) {
     }
     if (patch.discounts) {
       data.discounts = { tiers: normalizeTiers(patch.discounts.tiers) };
+    }
+    // La playlist s'enregistre en entier, jamais par morceau : l'écran de
+    // réglages sert surtout à réordonner, et un réordonnancement n'a de sens
+    // que comme une liste complète. Ce qui ajoute ou retire un fichier passe
+    // par les routes dédiées, qui écrivent ensuite par ici.
+    if (patch.musique) {
+      data.musique = normalizeMusique(patch.musique);
     }
     if (patch.alerts) {
       data.alerts = {

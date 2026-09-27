@@ -19,6 +19,7 @@ import { buildChallenge, solveChallenge, passIsValid } from './captcha.js';
 import { getVerification, isApproved } from './verification.js';
 import { isOpenNow, nextChange, nextOpeningLabel } from './opening.js';
 import { servirMedia, etatDuCache } from './media-cache.js';
+import { playlistPublique, morceauParId } from './musique.js';
 import { waitlistKey, subscribe, isSubscribed } from './waitlist.js';
 import { bestDiscount, releasePromo } from './promos.js';
 import {
@@ -197,6 +198,10 @@ app.get('/api/catalog', async (req, res, next) => {
         // peut pas la déduire du décompte, qui ne porte pas de fuseau.
         retour: nextOpeningLabel(settings.opening),
       },
+      // La playlist : les titres et leur ordre, jamais les `file_id`. Un
+      // `file_id` est une adresse utilisable par quiconque a le token du bot,
+      // et cette réponse-ci se lit sans la moindre signature.
+      musique: playlistPublique(settings.musique, settings.features.musique),
       fulfillment: settings.fulfillment,
       // Les paliers sont publics : c'est une promesse d'affichage (« −10 %
       // dès 100 € »), pas un secret. Les codes, eux, ne sortent jamais d'ici.
@@ -929,6 +934,37 @@ app.get('/api/waitlist', authenticate, async (req, res, next) => {
  * à chaque nouvelle photo, ce qui permet un cache long sans jamais servir
  * l'ancienne image.
  */
+/**
+ * Un morceau de la playlist, relayé depuis Telegram.
+ *
+ * Même chemin que les photos et les vidéos : `servirMedia` transmet les
+ * requêtes par plage et les réponses 206, garde une copie locale et laisse le
+ * navigateur la garder à son tour. Les plages comptent plus ici qu'ailleurs —
+ * un lecteur audio en réclame pour démarrer avant la fin du téléchargement et
+ * pour se déplacer dans le morceau.
+ *
+ * L'interrupteur est vérifié ici et pas seulement dans l'affichage : masquer
+ * une pastille ne ferme aucune porte, l'URL resterait appelable.
+ */
+app.get('/api/musique/:id', async (req, res, next) => {
+  try {
+    const settings = await getSettings();
+    if (!settings.features.musique) return res.status(404).json({ error: 'Musique désactivée.' });
+
+    const morceau = morceauParId(settings.musique, req.params.id);
+    if (!morceau) return res.status(404).json({ error: 'Morceau introuvable.' });
+
+    await servirMedia(req, res, { fileId: morceau.fileId, kind: 'audio' });
+  } catch (err) {
+    // Un lecteur audio ferme la connexion dès qu'il a de quoi jouer, et
+    // chaque changement de morceau en abandonne une : ce n'est pas une panne.
+    if (err?.code === 'ERR_STREAM_PREMATURE_CLOSE' || res.writableEnded) return;
+    console.error('Morceau indisponible :', err.message);
+    if (!res.headersSent) res.status(502).json({ error: 'Morceau indisponible.' });
+    else next(err);
+  }
+});
+
 app.get('/api/photo/:id', async (req, res, next) => {
   try {
     const settings = await getSettings();

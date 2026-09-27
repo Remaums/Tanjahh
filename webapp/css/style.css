@@ -1906,6 +1906,105 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
    L'onglet actif est un bloc jaune plein, texte en encre. Pas de
    dégradé, pas de transparence : un bloc, comme sur une enseigne. */
+/* ── La pastille de musique ──────────────────────────────────
+   Au-dessus des onglets, à droite : la zone que le pouce atteint sans
+   couvrir le catalogue, et le seul coin que rien d'autre n'occupe. Elle
+   est volontairement petite — c'est une ambiance qu'on propose, pas une
+   fonction de la boutique. */
+.juke {
+  position: fixed; right: 14px; z-index: 34;
+  bottom: calc(var(--tabbar-h, 78px) + 14px);
+  width: 44px; height: 44px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  color: rgb(var(--cream-rgb) / .72);
+  background: rgb(var(--night2-rgb) / .92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / .12);
+  box-shadow: 0 6px 18px rgb(0 0 0 / .45);
+  transition: bottom .22s ease, color .18s ease, border-color .18s ease,
+              box-shadow .18s ease, transform .12s ease;
+}
+/* Sur la fiche produit, la barre de commande prend le bas de l'écran : la
+   pastille monte au-dessus plutôt que de se cacher dessous. La hauteur de
+   la barre est mesurée à l'affichage, donc ce calcul suit un article
+   épuisé comme un texte grossi par le téléphone. */
+.juke--haut { bottom: calc(var(--tabbar-h, 78px) + var(--pbar-h, 68px) + 12px); }
+.juke:active { transform: scale(.9); }
+.juke__icone { width: 19px; height: 19px; }
+/* Les deux icônes occupent la même case : on en montre une à la fois, sans
+   que le bouton change de taille au passage. */
+.juke__icone--pause { display: none; }
+.juke--joue .juke__icone--play { display: none; }
+.juke--joue .juke__icone--pause { display: block; }
+.juke--joue {
+  color: var(--jaune);
+  border-color: rgb(var(--jaune-rgb) / .5);
+  box-shadow: 0 6px 18px rgb(0 0 0 / .45), 0 0 16px rgb(var(--jaune-rgb) / .28);
+}
+
+/* Trois barres qui montent et descendent pendant la lecture. Elles vivent
+   derrière l'icône, en anneau autour d'elle : c'est le seul endroit où un
+   mouvement supplémentaire ne dispute rien au catalogue. */
+/* Les barres se rangent sous l'icône, pas par-dessus. Au centre toutes les
+   deux, elles se confondaient avec le symbole pause : on croyait voir un
+   glyphe bizarre, et surtout on ne voyait plus ce que l'appui allait faire.
+   L'icône monte de trois pixels pour leur laisser la place. */
+.juke--joue .juke__icone { transform: translateY(-4px); }
+.juke__onde {
+  position: absolute; left: 0; right: 0; bottom: 8px;
+  display: none; align-items: flex-end; justify-content: center; gap: 2.5px;
+  height: 8px; pointer-events: none; opacity: .75;
+}
+.juke--joue .juke__onde { display: flex; }
+.juke__onde i {
+  width: 2px; height: 4px; border-radius: 1px; background: var(--jaune);
+  animation: juke-onde .9s ease-in-out infinite;
+}
+.juke__onde i:nth-child(2) { animation-delay: .18s; }
+.juke__onde i:nth-child(3) { animation-delay: .36s; }
+@keyframes juke-onde {
+  0%, 100% { height: 3px; opacity: .5; }
+  50%      { height: 8px; opacity: 1; }
+}
+
+/* Le battement d'accueil : qui écoutait la dernière fois le retrouve, sans
+   qu'un son parte tout seul. Deux battements suffisent — au-delà, ce n'est
+   plus un rappel, c'est une réclame. */
+.juke--rappel { animation: juke-rappel 1.3s ease-in-out 2; }
+@keyframes juke-rappel {
+  0%, 100% { box-shadow: 0 6px 18px rgb(0 0 0 / .45), 0 0 0 0 rgb(var(--jaune-rgb) / .5); }
+  50%      { box-shadow: 0 6px 18px rgb(0 0 0 / .45), 0 0 0 7px rgb(var(--jaune-rgb) / 0); }
+}
+
+/* Le titre en cours. Il s'aligne sur la pastille et s'efface tout seul :
+   savoir ce qu'on écoute est utile, le lire en permanence par-dessus les
+   produits ne l'est pas. */
+.juke__titre {
+  position: fixed; right: 66px; z-index: 34;
+  bottom: calc(var(--tabbar-h, 78px) + 25px);
+  margin: 0; max-width: calc(100vw - 96px);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 6px 11px; border-radius: 999px;
+  font-size: 12px; font-weight: 700;
+  color: rgb(var(--cream-rgb) / .9);
+  background: rgb(var(--night2-rgb) / .94);
+  border: 1px solid rgb(255 255 255 / .1);
+  backdrop-filter: blur(12px);
+  opacity: 0; transform: translateX(6px);
+  transition: opacity .24s ease, transform .24s ease;
+  pointer-events: none;
+}
+.juke__titre--vu { opacity: 1; transform: none; }
+
+/* Sans mouvement, les barres s'arrêtent et le rappel ne bat pas : la
+   pastille reste, elle cesse seulement de s'agiter. */
+[data-anim='off'] .juke__onde i,
+[data-anim='off'] .juke--rappel { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .juke__onde i, .juke--rappel { animation: none; }
+  .juke, .juke__titre { transition: none; }
+}
+
 .tabbar {
   position: fixed; z-index: 40;
   left: 0; right: 0; bottom: 0;
