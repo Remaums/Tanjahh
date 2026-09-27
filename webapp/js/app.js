@@ -170,6 +170,12 @@ async function init() {
   renderSousTitre();
   renderTitreDuBandeau();
   monterLeJuke();
+  // La musique part ici, et non au lever du voile : le catalogue arrive en
+  // quelques centaines de millisecondes quand le plancher de l'ouverture en
+  // dure cinq mille. La playlist est donc connue bien avant la fin de
+  // l'écran de chargement, et c'est là que la boutique doit s'allumer —
+  // pendant le film, pas après.
+  lancerLaMusiqueALArrivee();
   renderStatut();
   renderCategories();
   renderGrid();
@@ -403,8 +409,10 @@ function fermerLeVoile({ rideau = true } = {}) {
   // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la
   // boutique, batterie comprise.
   reglerLeFilm(false);
-  // Et la musique, si le vendeur en a et que le client ne l'a pas refusée.
-  lancerLaMusiqueALArrivee();
+  // Si la lecture a été refusée pendant le chargement, c'est maintenant que
+  // la pastille peut se faire voir : sous le voile, son battement ne
+  // s'adressait à personne.
+  if (juke.refusee) inviterALaMusique();
 }
 
 /**
@@ -2283,7 +2291,14 @@ function monterLeJuke() {
  * d'insistance qui fait fermer une boutique.
  */
 function lancerLaMusiqueALArrivee() {
-  if (!juke.liste.length || juke.voulue) return;
+  if (!juke.liste.length || juke.voulue || juke.demarrageTente) return;
+  // Le catalogue se recharge à chaque changement d'état de la boutique : sans
+  // ce garde-fou, chaque rechargement relancerait la playlist au premier
+  // morceau, par-dessus celui qui joue.
+  juke.demarrageTente = true;
+  // « La première du registre » : on repart du haut de la liste, quel que
+  // soit l'endroit où le client en était avant un rechargement.
+  juke.index = 0;
 
   let choixPasse = null;
   try { choixPasse = localStorage.getItem(JUKE_CLEF); } catch { /* navigation privée */ }
@@ -2308,7 +2323,10 @@ function lancerLaMusiqueALArrivee() {
       son.removeAttribute('src');
       son.load();
       peindreLeJuke();
-      inviterALaMusique();
+      // L'invitation attend le lever du voile : la pastille est dessous, et
+      // un battement que personne ne voit n'invite personne.
+      juke.refusee = true;
+      if ($('charge')?.hidden) inviterALaMusique();
     }
   );
   peindreLeJuke();
