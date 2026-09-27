@@ -525,6 +525,7 @@ function bindStaticHandlers() {
   $('pGalleryNext').addEventListener('click', () => glisserGalerie(1));
 
   $('commander').addEventListener('click', commanderCeProduit);
+  $('question').addEventListener('click', poserUneQuestion);
   // « La même chose » : le raccourci de l'habitué. Il remplissait le panier,
   // il rouvre maintenant la conversation avec les mêmes articles écrits.
   $('reprise').addEventListener('click', () => commanderDeNouveau(state.derniere));
@@ -2008,6 +2009,11 @@ function majBarreDeCommande() {
   const available = product ? remainingFor(product, state.currentVariant) : 0;
   state.currentQty = 1;
 
+  // Le bouton de question ne dépend ni du stock ni du format : on pose une
+  // question sur un article épuisé aussi, et c'est même là qu'il y en a le
+  // plus. Il ne disparaît que sans compte vendeur, où il n'ouvrirait rien.
+  $('question').hidden = !state.shop.sellerUsername;
+
   const bouton = $('commander');
   const notify = $('notifyMe');
 
@@ -2238,6 +2244,36 @@ function commanderCeProduit() {
   openSellerChat(buildOrderMessage(produit, variante));
   haptic('success');
   montrerLOnglet(state.retour);
+}
+
+/**
+ * Ouvre la conversation pour une question, pas pour une commande.
+ *
+ * Le message nomme le produit et le format, comme celui de la commande,
+ * mais dit « une question » — et c'est tout l'intérêt : le vendeur lit la
+ * première ligne et sait à qui il a affaire. Avec un seul bouton, les deux
+ * arrivaient sous la même formule et il fallait répondre pour comprendre.
+ *
+ * Il ne finit pas par une phrase toute faite : Telegram dépose ce texte
+ * dans le champ de saisie, curseur à la fin, et le client écrit à la
+ * suite. Une question déjà rédigée à sa place serait rarement la sienne.
+ */
+function poserUneQuestion() {
+  const produit = state.current;
+  if (!produit) return;
+  if (!state.shop.sellerUsername) {
+    toast("Le compte vendeur n'est pas encore configuré.");
+    return;
+  }
+  const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
+  const format = variante ? ` (${variante.label})` : '';
+  openSellerChat([
+    `Bonjour ! Une question sur ${state.shop.shopName} ⚡`,
+    '',
+    `• ${produit.name}${format}`,
+    '',
+  ].join('\n'));
+  haptic('light');
 }
 
 /**

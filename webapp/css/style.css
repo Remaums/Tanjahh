@@ -449,6 +449,31 @@ button { font: inherit; color: inherit; cursor: pointer; }
   box-shadow: 0 4px 14px rgb(var(--tg-rgb) / .22);
 }
 .btn--grow { flex: 1; }
+
+/* Le bouton « Une question », dans la barre de la fiche.
+
+   Compact et sans `grow` : il partage la barre avec « Commander », qui doit
+   rester le geste évident. À largeur égale, les deux se seraient disputé
+   l'attention et la boutique aurait eu l'air d'hésiter entre vendre et
+   renseigner.
+
+   Il reste assez large pour porter son mot : une icône seule se lit « chat »,
+   pas « une question sur ce produit », et on n'ose pas appuyer sur ce qu'on
+   ne comprend pas. */
+.pbar__question {
+  flex: none; display: flex; align-items: center; gap: 7px;
+  padding: 13px 14px; font-size: 13.5px;
+  color: rgb(var(--cream-rgb) / .82);
+}
+.pbar__question .btn__icone { width: 17px; height: 17px; }
+.pbar__question:active { background: rgba(255, 255, 255, .12); }
+
+/* Sur un écran étroit, les deux ne tiennent pas côte à côte sans que le prix
+   du bouton principal ne passe à la ligne. La question descend alors sous
+   « Commander », pleine largeur — deux lignes valent mieux qu'un prix coupé. */
+@media (max-width: 360px) {
+  .pbar__question { flex: 1 0 100%; justify-content: center; }
+}
 .btn[disabled] { opacity: .45; pointer-events: none; box-shadow: none; }
 
 /* ── Contrôle d'âge ──────────────────────────────────────── */
