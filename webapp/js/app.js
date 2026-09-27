@@ -69,13 +69,31 @@ const $ = (id) => document.getElementById(id);
    Sans plancher, l'écran d'ouverture apparaîtrait et disparaîtrait avant
    qu'on ait vu l'image — autant ne pas mettre de vidéo du tout.
 
-   Quinze secondes, à la demande du vendeur : l'ouverture est son enseigne,
-   et il veut qu'on la voie en entier. C'est long pour qui vient acheter, et
-   c'est un choix assumé. Deux contreparties, qui ne sont pas facultatives à
-   cette durée-là : la jauge du bas court sur exactement ce temps, et la
-   ligne au-dessus change cinq fois. Quinze secondes sans aucun signe de
-   progression, ce n'est plus une attente, c'est une application gelée. */
-const OUVERTURE_MIN_MS = 15000;
+   Le plancher est la durée du film, lue dans le fichier lui-même.
+   Auparavant c'était un nombre écrit ici, qu'il fallait réécrire à chaque
+   changement de vidéo — et qui se trompait entre deux : un film de quatorze
+   secondes sous un plancher de quinze rebouclait une seconde sur la fin,
+   ce qu'on venait justement de supprimer. Le film décide maintenant, et
+   l'écran s'en va exactement quand il se termine.
+
+   La valeur ci-dessous n'est qu'un secours, pour le cas où la durée reste
+   inconnue : fichier absent, format refusé, réseau coupé. Elle est courte
+   à dessein — si le film ne se charge pas, il n'y a rien à regarder, et
+   retenir le client devant une image fixe n'est plus une ouverture. */
+const OUVERTURE_SECOURS_MS = 6000;
+/* Bornes de bon sens : un fichier abîmé qui annoncerait trois heures
+   fermerait la boutique sans rien dire. */
+const OUVERTURE_MIN = 2000;
+const OUVERTURE_MAX = 40000;
+let ouvertureMs = OUVERTURE_SECOURS_MS;
+/* La durée est-elle arrêtée ? Tant qu'elle ne l'est pas, on ne programme pas
+   la fermeture du voile : le catalogue arrive souvent avant les métadonnées
+   du film — trois cents millisecondes contre quatre cents mesurées — et la
+   fermeture se calait alors sur la durée de secours. Elle était programmée,
+   donc plus rien ne la rattrapait, et l'écran partait à six secondes sur un
+   film qui en dure quatorze. */
+let ouvertureCalee = false;
+const enAttenteDeCalage = [];
 /* Les trois phrases de l'écran d'ouverture. Elles sont ici et non près de la
    fonction qui les déroule, pour la raison écrite juste au-dessus : `init()`
    s'exécute à la lecture du module et appelle `derouler()` dès sa quinzième
@@ -112,9 +130,9 @@ async function init() {
   // Avant tout le reste : l'écran d'ouverture est déjà affiché, son film doit
   // partir maintenant et pas après le catalogue.
   reglerLeFilm(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-  lancerLaJauge();
-  derouler();
-  foudroyer();
+  // Le plancher vaut la durée du film : on l'apprend du fichier, et c'est
+  // seulement là que la jauge, les phrases et les éclairs se répartissent.
+  calerLOuverture();
 
   bindStaticHandlers();
   gateAge();
@@ -227,10 +245,19 @@ function retirerLeVoile({ aussitot = false, rideau = true } = {}) {
   const voile = document.getElementById('charge');
   if (!voile || voile.hidden || fermetureProgrammee) return;
 
+  // On ne programme rien avant de savoir combien de temps dure le film :
+  // programmée sur la durée de secours, la fermeture ne se rattrape plus.
+  // « Aussitôt » passe outre — c'est une demande de partir maintenant, pas
+  // une ouverture à jouer.
+  if (!aussitot && !ouvertureCalee) {
+    enAttenteDeCalage.push(() => retirerLeVoile({ aussitot, rideau }));
+    return;
+  }
+
   // Le plancher ne s'applique que s'il y a quelque chose à regarder. Sous
   // « moins de mouvement » le film ne joue pas : retenir trois secondes
   // devant une image fixe, ce n'est plus une ouverture, c'est une attente.
-  const reste = OUVERTURE_MIN_MS - (Date.now() - ouvertureDebut);
+  const reste = ouvertureMs - (Date.now() - ouvertureDebut);
   if (!aussitot && reste > 0 && anime()) {
     fermetureProgrammee = true;
     setTimeout(() => fermerLeVoile({ rideau }), reste);
@@ -299,10 +326,68 @@ function replierLaRecherche() {
   }
 }
 
+/**
+ * Ce qu'il reste à tenir avant que le voile se lève.
+ *
+ * La jauge, les phrases et les éclairs se répartissent là-dessus et non sur
+ * la durée totale : ils ne partent qu'une fois la durée du film connue, soit
+ * quelques centaines de millisecondes après l'affichage de l'écran. Calés
+ * sur le total, ils finiraient tous d'autant après le départ du voile — une
+ * barre encore en train de se remplir sous un écran déjà parti.
+ */
+function resteDeLOuverture() {
+  return Math.max(400, ouvertureMs - (Date.now() - ouvertureDebut));
+}
+
+/**
+ * Cale l'ouverture sur la durée du film, puis la lance.
+ *
+ * La durée n'est connue qu'une fois les métadonnées arrivées. On l'attend,
+ * mais pas indéfiniment : un fichier absent ou un format refusé ne doit pas
+ * laisser l'écran d'ouverture sans jauge ni fin. Passé le délai, on part sur
+ * la durée de secours.
+ *
+ * Le démarrage ne se fait qu'une fois : les métadonnées peuvent arriver
+ * après le délai, et relancer alors une seconde jauge par-dessus la première
+ * donnerait une barre qui recule.
+ */
+function calerLOuverture() {
+  const film = document.getElementById('chargeFilm');
+  let parti = false;
+
+  const partir = (duree) => {
+    if (parti) return;
+    parti = true;
+    if (Number.isFinite(duree) && duree >= OUVERTURE_MIN && duree <= OUVERTURE_MAX) {
+      ouvertureMs = Math.round(duree);
+    }
+    ouvertureCalee = true;
+    lancerLaJauge();
+    derouler();
+    foudroyer();
+    // Ce qui attendait la durée peut repartir — la demande de fermeture du
+    // voile, en premier lieu.
+    while (enAttenteDeCalage.length) enAttenteDeCalage.shift()();
+  };
+
+  // Métadonnées déjà là : rien à attendre.
+  if (film && film.readyState >= 1 && Number.isFinite(film.duration)) {
+    return partir(film.duration * 1000);
+  }
+  if (film) {
+    film.addEventListener('loadedmetadata', () => partir(film.duration * 1000), { once: true });
+    // Un fichier introuvable ne déclenche pas `loadedmetadata` : sans ce
+    // filet, l'écran resterait sans jauge et sans phrases jusqu'à ce que le
+    // catalogue arrive.
+    film.addEventListener('error', () => partir(NaN), { once: true });
+  }
+  setTimeout(() => partir(NaN), 2000);
+}
+
 function lancerLaJauge() {
   const barre = document.querySelector('.charge__jauge span');
   if (!barre) return;
-  barre.style.animation = `charge-jauge ${OUVERTURE_MIN_MS}ms linear forwards`;
+  barre.style.animation = `charge-jauge ${resteDeLOuverture()}ms linear forwards`;
 }
 
 /**
@@ -320,7 +405,7 @@ function derouler() {
   const ligne = $('chargeTexte');
   if (!ligne || !anime()) return;
 
-  const pas = OUVERTURE_MIN_MS / OUVERTURE_PHRASES.length;
+  const pas = resteDeLOuverture() / OUVERTURE_PHRASES.length;
   OUVERTURE_PHRASES.slice(1).forEach((phrase, i) => {
     const quand = Math.round(pas * (i + 1));
     setTimeout(() => {
@@ -361,9 +446,9 @@ function foudroyer() {
   // eux. Ils restent à plus de trois secondes d'écart — loin des trois flashs
   // par seconde au-delà desquels un écran devient dangereux.
   for (const quand of [
-    Math.round(OUVERTURE_MIN_MS * 0.26),
-    Math.round(OUVERTURE_MIN_MS * 0.55),
-    Math.round(OUVERTURE_MIN_MS * 0.82),
+    Math.round(resteDeLOuverture() * 0.26),
+    Math.round(resteDeLOuverture() * 0.55),
+    Math.round(resteDeLOuverture() * 0.82),
   ]) {
     setTimeout(() => {
       if (ecran.hidden) return;
