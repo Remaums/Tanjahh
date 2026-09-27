@@ -1474,12 +1474,14 @@ function productCard(product) {
   const card = document.createElement('button');
   card.type = 'button';
   card.className = 'card';
-  card.setAttribute('aria-label', `${product.name}, ${formatPrice(product.price)}`);
+  // Le prix a quitté la carte : l'annoncer ici le rendrait audible à qui ne
+  // le voit pas, et lui seul. Pire, sur un produit à formats c'est le prix
+  // d'entrée — sans le « dès » qui le disait, l'étiquette mentirait.
+  card.setAttribute('aria-label', product.name);
 
   const soldOut = isSoldOut(product);
   if (soldOut) card.classList.add('card--soldout');
 
-  const fromLabel = product.variants ? '<small>dès</small> ' : '';
   const badge = soldOut ? 'ÉPUISÉ' : product.badge;
   const video = videoDeVitrine(product);
   const note = noteDe(product);
@@ -1501,13 +1503,12 @@ function productCard(product) {
       ${visuel}
     </div>
     <div class="card__body">
-      <span class="card__name">${escapeHtml(product.name)}</span>
-      <span class="card__short">${escapeHtml(product.short)}</span>
-      ${note ? `<span class="card__note">${etoiles(note.moyenne)} <small>${note.nombre}</small></span>` : ''}
       <span class="card__foot">
-        <span class="card__price goldtext">${fromLabel}${formatPrice(product.price)}</span>
+        <span class="card__name">${escapeHtml(product.name)}</span>
         <span class="card__fleche" aria-hidden="true">›</span>
       </span>
+      <span class="card__short">${escapeHtml(product.short)}</span>
+      ${note ? `<span class="card__note">${etoiles(note.moyenne)} <small>${note.nombre}</small></span>` : ''}
     </div>`;
 
   // Le cœur est posé sur l'illustration, pas dans le corps : il doit rester

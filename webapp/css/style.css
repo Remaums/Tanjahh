@@ -366,7 +366,7 @@ body {
 
 /* ── Typographie d'affiche ───────────────────────────────── */
 h1, h2, h3, .display,
-.topbar__name, .card__name, .card__price {
+.topbar__name, .card__name {
   font-family: var(--display);
   /* Bebas Neue n'existe qu'en 400 : on demande 700 pour que la police de
      secours reste grasse, et on coupe la fausse graisse pour ne pas
@@ -859,12 +859,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
   border-bottom-right-radius: 9px;
   box-shadow: inset 3px 0 0 var(--jaune);
 }
-/* L'éclair est dessiné en découpe plutôt qu'écrit : l'emoji ⚡ change de
-   forme et de couleur d'un téléphone à l'autre, et sur plusieurs il
-   arrive en bleu. */
+/* Une étoile, et non plus un éclair : l'éclair disait la boutique, l'étoile
+   dit l'article. C'est le rang qu'on met en avant sur une carte, pas la
+   marque — elle est déjà partout ailleurs.
+
+   Dessinée en découpe plutôt qu'écrite : ★ et ⚡ sont rendus par la police
+   d'emoji sur la plupart des téléphones, qui leur impose sa forme et
+   parfois sa couleur — on ne peut ni les mettre au jaune de l'enseigne ni
+   savoir de quoi ils auront l'air. */
 .card__badge::before {
-  content: ''; width: 7px; height: 11px; flex: none; background: var(--jaune);
-  clip-path: polygon(58% 0, 0 58%, 42% 58%, 34% 100%, 100% 40%, 52% 40%);
+  content: ''; width: 10px; height: 10px; flex: none; background: var(--jaune);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
+                     50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
 
 /* Le bandeau du bas. Un dégradé sous lui, pour que le texte tienne même
@@ -885,20 +891,24 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* L'accroche ne tient pas sur une carte superposée : elle vit dans la
    fiche, où il y a la place de la lire. */
 .card__short { display: none; }
-.card__foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 5px; }
-/* Le prix est la seule chose en jaune d'enseigne de tout l'écran, avec le
-   logo. C'est ce qu'on vient chercher, et le jaune ne sert plus qu'à ça —
-   là où la version d'avant en mettait sur les onglets, les boutons, les
-   étiquettes et les bordures, si bien qu'il ne désignait plus rien. */
-.card__price {
-  font-family: var(--display); font-size: 22px; letter-spacing: .02em;
-  color: var(--jaune);
+/* Le prix a quitté la carte : il ne se lit plus que sur la fiche, où il est
+   entier. Sur un produit à formats, la grille n'affichait que le prix
+   d'entrée précédé d'un « dès » de dix pixels — le client retenait 20 €,
+   ouvrait, trouvait 130 €, et c'est le genre de petit écart qui use la
+   confiance avant même la première commande.
+
+   Le pied ne porte donc plus qu'un nom et un chevron, sur la même ligne :
+   le chevron seul sur sa rangée aurait laissé une bande vide sous le nom.
+   Alignés par le bas, pour que le chevron suive la dernière ligne d'un nom
+   qui en prend deux plutôt que de flotter au milieu. */
+.card__foot {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 6px; margin-top: 0;
 }
-.card__price small {
-  font-family: var(--sans); font-size: 10px; font-weight: 600;
-  letter-spacing: .06em; text-transform: uppercase;
-  text-shadow: none; color: rgb(var(--cream-rgb) / .55);
-}
+/* Sans cette ligne, un nom long refuse de se couper : un élément de flex
+   ne descend pas sous la largeur de son contenu, et le nom pousserait le
+   chevron hors de la carte. */
+.card__foot .card__name { min-width: 0; }
 /* Le rond « + » ajoutait au panier. Il n'y a plus de panier : une carte
    mène à sa fiche, et c'est là qu'on commande. Un chevron le dit sans
    promettre une action qui n'existe pas — un « + » sur une carte annonce
@@ -1224,10 +1234,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* ── Ruptures de stock ───────────────────────────────────── */
 .card--soldout .card__art { background: linear-gradient(180deg, rgb(var(--ink-rgb) / .5), rgb(var(--ink-rgb) / .8)); }
 .card--soldout .card__art img { filter: grayscale(1); opacity: .38; }
-.card--soldout .card__price { -webkit-text-fill-color: rgb(var(--cream-rgb) / .4); color: rgb(var(--cream-rgb) / .4); background: none; text-shadow: none; }
-/* La famille d'affiche s'applique au prix, mais pas son remplissage : sans
-   cette ligne, le dégradé de .goldtext repeindrait le prix en blanc. */
-.card__price { -webkit-text-fill-color: var(--jaune); }
 .card--soldout .card__fleche { color: rgb(var(--cream-rgb) / .2); }
 /* Épuisé : l'onglet s'éteint. Il garde sa forme — c'est la même mention,
    au même endroit — mais l'arête et l'éclair passent au gris, parce

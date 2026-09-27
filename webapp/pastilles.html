@@ -98,9 +98,12 @@ body { padding: 0; margin: 0; }
   font-size: 9.5px; letter-spacing: .13em;
   display: flex; align-items: center; gap: 5px;
 }
+/* La piste E montre ce qui est en ligne, et ce qui est en ligne porte une
+   étoile depuis : l'éclair disait la boutique, l'étoile dit l'article. */
 .e .card__badge::before {
-  content: ''; width: 7px; height: 11px; flex: none; background: var(--jaune);
-  clip-path: polygon(58% 0, 0 58%, 42% 58%, 34% 100%, 100% 40%, 52% 40%);
+  content: ''; width: 10px; height: 10px; flex: none; background: var(--jaune);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
+                     50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
 .e .card__badge--out { box-shadow: inset 3px 0 0 rgb(var(--cream-rgb) / .35); color: var(--muted); }
 .e .card__badge--out::before { background: rgb(var(--cream-rgb) / .35); }
@@ -114,15 +117,13 @@ body { padding: 0; margin: 0; }
    ne prouve rien sur la longueur des libellés. */
 const cat = await (await fetch('/api/catalog')).json();
 const produits = (cat.products ?? cat).slice(0, 6);
-const euro = (c) => (c / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
-  .replace(/ /g, ' ').replace(',00', '');
 
 const pistes = [
   ['a', 'A · Le filet', "Le cadre disparaît. Reste le mot, souligné d'un trait jaune. C'est la plus sobre des quatre : elle ne dispute jamais la vedette à la photo, mais sur un visuel clair elle tient moins bien."],
   ['b', "B · L'onglet", "Encastrée dans l'angle, arête jaune à gauche. Elle fait partie de la carte au lieu d'être posée dessus — c'est celle qui vieillit le mieux quand les vraies photos arriveront."],
   ['c', 'C · Le cran', "Un coin coupé en biais : la forme d'une étiquette cartonnée. Lisible de loin, avec un caractère de marché plutôt que d'application."],
   ['d', "D · L'éclair", "Plus de pastille du tout : un éclair et un mot, en jaune, directement sur l'image. La plus dans le ton de la boutique, la plus fragile sur une photo chargée."],
-  ['e', "E · L'onglet à éclair", "La forme de B, le signe de D. Le fond plein garantit la lisibilité que D perdra sur une vraie photo, et l'éclair rend à la pastille ce qui manque à l'onglet seul : la boutique."],
+  ['e', "E · L'onglet à éclair", "La forme de B, le signe de D — passé depuis de l'éclair à l'étoile. Le fond plein garantit la lisibilité que D perdra sur une vraie photo, et l'éclair rend à la pastille ce qui manque à l'onglet seul : la boutique."],
 ];
 
 document.getElementById('planche').innerHTML = pistes.map(([cls, titre, texte]) => `
@@ -136,9 +137,8 @@ document.getElementById('planche').innerHTML = pistes.map(([cls, titre, texte]) 
           <img src="${p.image}" alt="" loading="lazy">
         </div>
         <div class="card__body">
-          <span class="card__name">${p.name}</span>
           <span class="card__foot">
-            <span class="card__price goldtext">${p.variants ? '<small>dès</small> ' : ''}${euro(p.price)}</span>
+            <span class="card__name">${p.name}</span>
             <span class="card__fleche" aria-hidden="true">›</span>
           </span>
         </div>
