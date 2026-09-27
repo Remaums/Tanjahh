@@ -75,15 +75,16 @@
      Le premier écran après le film. Il dit qui on est, à qui on parle, et
      il demande la seule chose qu'on ne peut pas deviner : la langue.
 
-     Il ne paraît qu'une fois. Le client qui revient a déjà choisi, et
-     relui poser la question à chaque visite ferait de son choix une
-     formalité plutôt qu'un réglage — il le retrouvera dans son profil.
+     Il paraît à chaque visite : c'est l'enseigne de la boutique. La
+     question de la langue, elle, ne se pose qu'une fois — reposée
+     chaque fois, elle deviendrait un péage. Qui a déjà répondu ne voit
+     que le message, et retrouve le réglage dans son profil.
 
      Son vrai rôle est ailleurs, et il est technique : l'appui sur une
-     langue est un geste du client DANS la page, et c'est exactement ce
-     que le navigateur exige pour autoriser un son. La musique démarre
-     donc là, et elle démarre pour de bon — pas « si le navigateur veut
-     bien ». -->
+     langue — ou sur « Entrer » — est un geste du client DANS la page,
+     et c'est exactement ce que le navigateur exige pour autoriser un
+     son. La musique démarre donc là, et elle démarre pour de bon — pas
+     « si le navigateur veut bien ». -->
 <div class="bienvenue" id="bienvenue" hidden role="dialog" aria-modal="true"
      aria-labelledby="bienvenueEnseigne">
   <div class="bienvenue__carte">
@@ -92,7 +93,13 @@
     <p class="bienvenue__salut" id="bienvenueSalut"></p>
     <p class="bienvenue__texte" id="bienvenueTexte"></p>
 
-    <div class="bienvenue__langues">
+    <!-- Les deux informations qu'on vient chercher : quand, et comment.
+         Sur leur propre ligne plutôt qu'au bout de la phrase, où elles se
+         lisaient comme une incise. -->
+    <p class="bienvenue__horaires" id="bienvenueHoraires"></p>
+    <p class="bienvenue__service" id="bienvenueService"></p>
+
+    <div class="bienvenue__langues" id="bienvenueLangues">
       <p class="bienvenue__legende" id="bienvenueLegende"></p>
       <div class="bienvenue__choix" id="bienvenueChoix" role="group"></div>
     </div>

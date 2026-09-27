@@ -2477,10 +2477,24 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
   color: rgb(var(--cream-rgb) / .78);
 }
 
+/* L'horaire et le service. En capitales et espacés : ce sont deux
+   étiquettes, pas des phrases, et on doit pouvoir les lire d'un coup d'œil
+   sans lire le paragraphe au-dessus. */
+.bienvenue__horaires {
+  margin: 12px 0 0; font-family: var(--display);
+  font-size: 15px; font-weight: 700; letter-spacing: .04em;
+  color: var(--jaune);
+}
+.bienvenue__service {
+  margin: 3px 0 0; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: rgb(var(--cream-rgb) / .62);
+}
+
 /* Le choix de la langue. Trois boutons côte à côte plutôt qu'une liste
    déroulante : à trois entrées, une liste demande deux gestes là où des
    boutons en demandent un, et cache les options jusqu'au premier. */
-.bienvenue__langues { margin: 16px 0 14px; }
+.bienvenue__langues { margin: 16px 0 0; }
 .bienvenue__legende {
   margin: 0 0 8px; font-size: 10.5px; font-weight: 700;
   letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
@@ -2501,7 +2515,10 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
   border-color: var(--jaune);
 }
 
-.bienvenue__entrer { margin-top: 2px; }
+/* Le bouton porte lui-même son espace. Il était porté par la marge basse
+   du bloc des langues, qui disparaît avec lui pour un client qui revient :
+   le bouton venait alors toucher la ligne « MEET-UP & LIVRAISON ». */
+.bienvenue__entrer { margin-top: 16px; }
 
 @media (prefers-reduced-motion: reduce) {
   .bienvenue, .bienvenue__carte { animation: none; }

@@ -612,8 +612,8 @@ function fermerLeVoile({ rideau = true } = {}) {
   // boutique, batterie comprise.
   reglerLeFilm(false);
   // L'accueil prend le relais du film. C'est lui qui lance la musique, parce
-  // que c'est lui qui obtient le geste du client — un appui sur une langue.
-  // Pour un habitué, il ne s'affiche pas et la musique tente sa chance seule.
+  // que c'est lui qui obtient le geste du client — un appui sur une langue,
+  // ou sur « Entrer » pour qui a déjà choisi la sienne.
   montrerLAccueil();
 }
 
@@ -2511,16 +2511,20 @@ function renderLangues() {
 /* ── L'accueil ───────────────────────────────────────────── */
 
 /**
- * Le cadre qui suit le film : qui on est, à qui on parle, et la langue.
+ * Le cadre qui suit le film : qui on est, à qui on parle, les horaires.
  *
- * Il ne paraît qu'une fois. Le client qui revient a déjà choisi, et lui
- * reposer la question à chaque visite ferait de son choix une formalité
- * plutôt qu'un réglage — il le retrouve dans son profil.
+ * Il paraît à chaque visite — c'est l'enseigne de la boutique, et une
+ * enseigne qu'on ne voit qu'une fois ne sert à rien. La question de la
+ * langue, elle, ne se pose qu'une fois : reposée à chaque visite, elle
+ * deviendrait un péage. Qui a déjà répondu ne voit que le message, et
+ * retrouve le réglage dans son profil.
  *
  * Son rôle technique compte autant que son rôle d'accueil : l'appui sur une
- * langue est un geste du client DANS la page, et c'est exactement ce que le
- * navigateur réclame pour autoriser un son. La musique démarre là, et elle
- * démarre pour de bon.
+ * langue — ou, pour un habitué, sur « Entrer » — est un geste du client DANS
+ * la page, et c'est exactement ce que le navigateur réclame pour autoriser
+ * un son. La musique démarre là, et elle démarre pour de bon : avant, le
+ * client qui revenait n'avait droit qu'à une musique « si le navigateur
+ * voulait bien ».
  */
 function montrerLAccueil() {
   const cadre = $('bienvenue');
@@ -2528,22 +2532,35 @@ function montrerLAccueil() {
 
   const { code, dejaChoisie } = langueDeDepart();
   appliquerLaLangue(code);
-  if (dejaChoisie) {
-    // Déjà venu : on ne lui montre rien, et la musique tente sa chance comme
-    // avant — sans geste, le navigateur décidera.
-    lancerLaMusiqueALArrivee();
-    return false;
-  }
+
+  // Le cadre s'affiche à chaque visite : c'est l'enseigne de la boutique, et
+  // une enseigne qu'on ne voit qu'une fois ne sert à rien. Mais la question
+  // de la langue, elle, ne se pose qu'une fois — reposée à chaque fois, elle
+  // deviendrait un péage. Déjà répondu : on cache les drapeaux et le client
+  // n'a plus qu'à entrer.
+  //
+  // L'effet de bord est heureux : le bouton « Entrer » est un geste fait
+  // DANS la page, ce qui est exactement ce que le navigateur exige pour
+  // laisser partir un son. Le client qui revient avait droit, avant, à une
+  // musique qui démarrait « si le navigateur voulait bien ».
+  $('bienvenueLangues').hidden = dejaChoisie;
 
   const prenom = tg?.initDataUnsafe?.user?.first_name;
   const pseudo = tg?.initDataUnsafe?.user?.username;
   // « @pseudo » quand il existe, le prénom sinon : c'est ainsi que Telegram
   // le nomme, et c'est ce que le client reconnaît de lui-même.
   const nom = pseudo ? `@${pseudo}` : (prenom ?? '');
-  $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
-  $('bienvenueTexte').textContent = t('accueil.texte');
-  $('bienvenueLegende').textContent = t('accueil.langue');
-  $('bienvenueEntrer').textContent = t('accueil.entrer');
+  // Un seul endroit qui écrit le cadre : il est réécrit à chaque drapeau
+  // touché, et deux listes à tenir à jour en deviendraient une qui oublie.
+  const ecrireLeCadre = () => {
+    $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
+    $('bienvenueTexte').textContent = t('accueil.texte');
+    $('bienvenueHoraires').textContent = t('accueil.horaires');
+    $('bienvenueService').textContent = t('accueil.service');
+    $('bienvenueLegende').textContent = t('accueil.langue');
+    $('bienvenueEntrer').textContent = t('accueil.entrer');
+  };
+  ecrireLeCadre();
 
   let choisie = code;
   const choix = $('bienvenueChoix');
@@ -2560,10 +2577,7 @@ function montrerLAccueil() {
         // On réécrit le cadre lui-même : il est le premier à devoir parler
         // la langue qu'on vient de choisir, sinon le client change de langue
         // et voit la précédente lui répondre.
-        $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
-        $('bienvenueTexte').textContent = t('accueil.texte');
-        $('bienvenueLegende').textContent = t('accueil.langue');
-        $('bienvenueEntrer').textContent = t('accueil.entrer');
+        ecrireLeCadre();
         for (const autre of choix.children) {
           const sien = autre === b;
           autre.classList.toggle('bienvenue__langue--choisie', sien);

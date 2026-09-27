@@ -32,9 +32,10 @@ export const TEXTES = {
     /* ── L'accueil ── */
     'accueil.bienvenue': 'Bienvenue',
     'accueil.texte':
-      "Quatre ans dans le milieu, et la même exigence depuis le premier jour. " +
-      'Plusieurs variétés disponibles, 7 jours sur 7 de 13 h à minuit. ' +
-      'Meetup ou livraison.',
+      'Quatre ans dans le milieu, et la même exigence depuis le premier jour. '
+      + 'Plusieurs variétés disponibles.',
+    'accueil.horaires': '7/7 · 13H - 00H',
+    'accueil.service': 'MEET-UP & LIVRAISON',
     'accueil.langue': 'Choisis ta langue',
     'accueil.entrer': 'Entrer dans la boutique',
 
@@ -321,9 +322,10 @@ export const TEXTES = {
   en: {
     'accueil.bienvenue': 'Welcome',
     'accueil.texte':
-      'Four years in the game, and the same standards since day one. ' +
-      'Several varieties in stock, seven days a week from 1pm to midnight. ' +
-      'Meetup or delivery.',
+      'Four years in the game, and the same standards since day one. '
+      + 'Several varieties in stock.',
+    'accueil.horaires': '7/7 · 1PM - MIDNIGHT',
+    'accueil.service': 'MEET-UP & DELIVERY',
     'accueil.langue': 'Choose your language',
     'accueil.entrer': 'Enter the shop',
 
@@ -592,9 +594,10 @@ export const TEXTES = {
   es: {
     'accueil.bienvenue': 'Bienvenido',
     'accueil.texte':
-      'Cuatro años en el oficio, y la misma exigencia desde el primer día. ' +
-      'Varias variedades disponibles, los siete días de 13:00 a medianoche. ' +
-      'Encuentro o entrega.',
+      'Cuatro años en el oficio, y la misma exigencia desde el primer día. '
+      + 'Varias variedades disponibles.',
+    'accueil.horaires': '7/7 · 13:00 - 00:00',
+    'accueil.service': 'MEET-UP Y ENTREGA',
     'accueil.langue': 'Elige tu idioma',
     'accueil.entrer': 'Entrar en la tienda',
 
