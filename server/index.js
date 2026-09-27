@@ -17,7 +17,7 @@ import { createOrder, listOrders, getOrder, slotCounts, STATUSES } from './order
 import { getSettings, isBlocked } from './settings.js';
 import { buildChallenge, solveChallenge, passIsValid } from './captcha.js';
 import { getVerification, isApproved } from './verification.js';
-import { isOpenNow, nextChange } from './opening.js';
+import { isOpenNow, nextChange, nextOpeningLabel } from './opening.js';
 import { servirMedia, etatDuCache } from './media-cache.js';
 import { waitlistKey, subscribe, isSubscribed } from './waitlist.js';
 import { bestDiscount, releasePromo } from './promos.js';
@@ -192,6 +192,10 @@ app.get('/api/catalog', async (req, res, next) => {
         ...isOpenNow(settings.opening),
         message: settings.opening.message,
         prochain: nextChange(settings.opening),
+        // L'heure de retour, dans le fuseau de la boutique. Le bandeau
+        // d'accueil l'annonce quand la boutique est fermée ; le client ne
+        // peut pas la déduire du décompte, qui ne porte pas de fuseau.
+        retour: nextOpeningLabel(settings.opening),
       },
       fulfillment: settings.fulfillment,
       // Les paliers sont publics : c'est une promesse d'affichage (« −10 %

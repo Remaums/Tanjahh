@@ -190,7 +190,11 @@
            muted loop playsinline preload="none"></video>
     <div class="hero__voile" aria-hidden="true"></div>
     <div class="hero__body">
-      <h1 class="hero__title goldtext">Dispo maintenant</h1>
+      <!-- Le titre par défaut est celui de la boutique ouverte : il s'affiche
+           avant que le catalogue arrive, et c'est l'état le plus probable
+           pendant les heures où l'on consulte une boutique. Fermée, le script
+           y met l'heure de retour — voir renderTitreDuBandeau. -->
+      <h1 class="hero__title goldtext" id="heroTitre">Dispo maintenant</h1>
       <p class="hero__eyebrow">Ouvert 7/7 · 13h – 00h</p>
       <p class="hero__sub">Meetup &amp; Livraison</p>
     </div>

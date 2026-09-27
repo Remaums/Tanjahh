@@ -153,6 +153,7 @@ async function init() {
 
   renderClosedBanner();
   renderSousTitre();
+  renderTitreDuBandeau();
   renderStatut();
   renderCategories();
   renderGrid();
@@ -599,6 +600,36 @@ let promoTimer;
  * l'heure d'un autre fuseau, et qu'un « ferme dans 20 min » reste juste
  * partout.
  */
+/**
+ * Le titre du bandeau dit-il encore la vérité ?
+ *
+ * « Dispo maintenant » est une affirmation vérifiable, donc fausse dès que la
+ * boutique ferme — treize heures par jour sur des horaires 13h–00h. Et elle
+ * l'était juste au-dessus du bandeau d'état qui affichait « Boutique fermée » :
+ * deux messages contraires sur le même écran, et c'est le plus gros qui
+ * mentait.
+ *
+ * L'heure de retour vient du serveur, pas d'ici : le décompte qu'on reçoit est
+ * en minutes et ne porte pas de fuseau, et l'ajouter à l'horloge du téléphone
+ * donnerait l'heure de retour chez le client plutôt que chez le vendeur.
+ */
+function renderTitreDuBandeau() {
+  const titre = $('heroTitre');
+  if (!titre) return;
+
+  if (state.opening?.open !== false) {
+    titre.textContent = 'Dispo maintenant';
+    return;
+  }
+
+  // Fermeture à la main, ou horaires coupés : le serveur ne promet aucune
+  // heure, et on n'en invente pas une. Le bandeau d'état, lui, porte déjà le
+  // message que le vendeur a écrit.
+  titre.textContent = state.opening.retour
+    ? `De retour à ${state.opening.retour}`
+    : 'Fermé pour l\'instant';
+}
+
 function renderStatut() {
   const bandeau = $('statutBar');
 

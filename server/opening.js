@@ -87,6 +87,41 @@ export function nextChange(opening, now = new Date()) {
   return null; // ouverte en continu
 }
 
+/**
+ * À quelle heure la boutique rouvre-t-elle ? « 13h », « 13h30 », ou rien.
+ *
+ * Le bandeau d'accueil annonce « Dispo maintenant ». Fermée, cette phrase
+ * ment — et elle le fait treize heures par jour sur des horaires 13h–00h,
+ * juste au-dessus du bandeau d'état qui, lui, dit la vérité. Elle est donc
+ * remplacée par l'heure de retour, et cette heure se calcule ici.
+ *
+ * Elle ne peut pas se calculer chez le client : il reçoit un décompte en
+ * minutes, pas un fuseau. Ajouter ces minutes à sa propre horloge lui
+ * donnerait l'heure de retour dans SON fuseau — juste pour un voisin, faux
+ * pour quiconque consulte depuis l'étranger, et c'est un rendez-vous qu'on
+ * annonce. Le fuseau de la boutique ne sort jamais d'ici : l'heure non plus.
+ *
+ * Rend `null` quand la boutique est ouverte, et quand l'heure de retour est
+ * inconnue — fermeture à la main, horaires coupés : il n'y a alors rien à
+ * promettre, et c'est au client d'écrire autre chose.
+ *
+ * @returns {string|null}
+ */
+export function nextOpeningLabel(opening, now = new Date()) {
+  const prochain = nextChange(opening, now);
+  if (!prochain || prochain.open) return null;
+
+  // On repart de la minute du jour dans le fuseau de la boutique et on y
+  // ajoute le décompte, plutôt que de refaire une Date : c'est exactement la
+  // grandeur sur laquelle `nextChange` a compté, donc les deux ne peuvent pas
+  // diverger d'une minute à la frontière d'un créneau.
+  const { minutes } = localTime(now, opening.hours?.timezone);
+  const total = (minutes + prochain.minutes) % (24 * 60);
+  const heures = Math.floor(total / 60);
+  const restantes = total % 60;
+  return restantes ? `${heures}h${String(restantes).padStart(2, '0')}` : `${heures}h`;
+}
+
 /** Le créneau couvre-t-il cette minute ? (les minutes peuvent dépasser 24 h) */
 function covers(slot, minutes) {
   if (!slot || slot.closed) return false;

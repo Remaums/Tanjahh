@@ -9,7 +9,7 @@
  */
 import 'dotenv/config';
 import { signInitData, getShopPass, resetShop, franchirLaPorte } from './helpers.mjs';
-import { isOpenNow, defaultHours } from '../server/opening.js';
+import { isOpenNow, defaultHours, nextOpeningLabel, DAYS } from '../server/opening.js';
 
 const TOKEN = process.env.BOT_TOKEN;
 const BASE = process.env.TEST_BASE_URL ?? `http://localhost:${process.env.PORT ?? 3000}`;
@@ -99,6 +99,61 @@ check('Fuseau invalide remplacé par le précédent', saved.opening.hours.timezo
   saved.opening.hours.timezone);
 
 await call('/api/admin/settings', { method: 'PUT', body: { opening: { open: true, hours: { enabled: false, timezone: 'Europe/Paris', days: jours } } } });
+
+
+/* ── L'heure de retour annoncée par le bandeau ───────────── */
+
+// Fonctions pures : on choisit l'instant plutôt que d'attendre 8 h du matin.
+// Le fuseau des cas est UTC, pour que l'heure locale de la boutique soit
+// lisible dans la date elle-même ; un cas en heure de Paris vient ensuite,
+// posé sur une date d'hiver pour qu'aucun changement d'heure ne s'en mêle.
+const jourDe = (date, tz) =>
+  new Intl.DateTimeFormat('fr-FR', { timeZone: tz, weekday: 'short' })
+    .format(date).replace('.', '').toLowerCase().slice(0, 3);
+
+const horaires = (from, to) =>
+  Object.fromEntries(DAYS.map((d) => [d, { closed: false, from, to }]));
+
+const boutique = (days, tz = 'UTC') => ({ open: true, hours: { enabled: true, timezone: tz, days } });
+
+const matin = new Date('2026-03-10T08:00:00Z');
+const apresMidi = new Date('2026-03-10T15:00:00Z');
+
+check("Fermée le matin, le retour est l'heure d'ouverture",
+  nextOpeningLabel(boutique(horaires('13:00', '00:00')), matin) === '13h',
+  String(nextOpeningLabel(boutique(horaires('13:00', '00:00')), matin)));
+
+check('Une demie se dit en toutes lettres',
+  nextOpeningLabel(boutique(horaires('13:30', '00:00')), matin) === '13h30',
+  String(nextOpeningLabel(boutique(horaires('13:30', '00:00')), matin)));
+
+check('Ouverte, il n\'y a pas de retour à annoncer',
+  nextOpeningLabel(boutique(horaires('13:00', '00:00')), apresMidi) === null);
+
+check('Fermée à la main, le retour est inconnu',
+  nextOpeningLabel({ ...boutique(horaires('13:00', '00:00')), open: false }, matin) === null);
+
+check('Sans horaires, rien à annoncer non plus',
+  nextOpeningLabel({ open: true, hours: { enabled: false, timezone: 'UTC', days: horaires('13:00', '00:00') } }, matin) === null);
+
+// Le retour peut tomber un autre jour : seul le lendemain est ouvert, et
+// seulement de 10 h à 12 h. C'est le chemin qui traverse la boucle des sept
+// jours, celui qu'un calcul fait sur la seule journée en cours raterait.
+const demain = DAYS[(DAYS.indexOf(jourDe(matin, 'UTC')) + 1) % 7];
+const seulDemain = Object.fromEntries(
+  DAYS.map((d) => [d, d === demain ? { closed: false, from: '10:00', to: '12:00' } : { closed: true, from: '10:00', to: '12:00' }])
+);
+check('Le retour peut tomber le lendemain',
+  nextOpeningLabel(boutique(seulDemain), matin) === '10h',
+  String(nextOpeningLabel(boutique(seulDemain), matin)));
+
+// Et l'heure est celle de la boutique, pas celle du serveur : à 8 h UTC un
+// 10 janvier, Paris est à 9 h. Une boutique parisienne qui ouvre à 13 h
+// annonce 13 h — si le fuseau était ignoré, elle annoncerait 12 h.
+const janvier = new Date('2026-01-10T08:00:00Z');
+check("L'heure annoncée est celle du fuseau de la boutique",
+  nextOpeningLabel(boutique(horaires('13:00', '00:00'), 'Europe/Paris'), janvier) === '13h',
+  String(nextOpeningLabel(boutique(horaires('13:00', '00:00'), 'Europe/Paris'), janvier)));
 
 console.log(`\n${failures ? `${failures} test(s) en échec` : 'Ouverture : OK'}`);
 process.exit(failures ? 1 : 0);
