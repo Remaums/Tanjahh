@@ -2430,3 +2430,96 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card__gif { width: 100%; height: 100%; object-fit: cover; display: block; }
 img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
 .card--soldout .card__gif { filter: grayscale(1); opacity: .38; }
+
+/* ── L'accueil ───────────────────────────────────────────────
+   Un cadre posé sur la boutique, pas un écran de plus : on voit le
+   catalogue derrière, floutée juste ce qu'il faut pour qu'on sache où
+   l'on vient d'arriver. Un voile opaque aurait fait une seconde attente
+   après celle du film. */
+.bienvenue {
+  position: fixed; inset: 0; z-index: 110;
+  display: grid; place-items: center; padding: 22px;
+  background: rgb(var(--void-rgb) / .72);
+  backdrop-filter: blur(9px);
+  animation: bienvenue-fond .3s ease both;
+}
+.bienvenue[hidden] { display: none; }
+@keyframes bienvenue-fond { from { opacity: 0; } to { opacity: 1; } }
+
+.bienvenue__carte {
+  width: 100%; max-width: 330px;
+  padding: 22px 20px 18px; border-radius: 20px; text-align: center;
+  background: rgb(var(--night2-rgb) / .98);
+  border: 1px solid rgb(255 255 255 / .12);
+  box-shadow: 0 22px 54px rgb(0 0 0 / .6);
+  animation: bienvenue-carte .34s cubic-bezier(.2, .9, .3, 1) both;
+}
+@keyframes bienvenue-carte {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+.bienvenue__logo {
+  width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px;
+  display: block; object-fit: cover;
+  border: 1px solid rgb(var(--jaune-rgb) / .4);
+}
+.bienvenue__enseigne {
+  margin: 0; font-size: 23px; letter-spacing: .03em;
+  text-transform: uppercase; color: var(--cream);
+}
+.bienvenue__salut {
+  margin: 3px 0 0; font-size: 13.5px; font-weight: 700;
+  color: var(--jaune);
+}
+.bienvenue__texte {
+  margin: 10px 0 0; font-size: 13px; line-height: 1.55;
+  color: rgb(var(--cream-rgb) / .78);
+}
+
+/* Le choix de la langue. Trois boutons côte à côte plutôt qu'une liste
+   déroulante : à trois entrées, une liste demande deux gestes là où des
+   boutons en demandent un, et cache les options jusqu'au premier. */
+.bienvenue__langues { margin: 16px 0 14px; }
+.bienvenue__legende {
+  margin: 0 0 8px; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.bienvenue__choix { display: flex; gap: 8px; justify-content: center; }
+.bienvenue__langue {
+  flex: 1; padding: 9px 4px 8px; border-radius: 12px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 11.5px; font-weight: 700; color: rgb(var(--cream-rgb) / .8);
+  background: rgb(255 255 255 / .05);
+  border: 1px solid var(--line-soft);
+  transition: transform .12s ease, background .16s ease, border-color .16s ease, color .16s ease;
+}
+.bienvenue__langue span { font-size: 19px; line-height: 1; }
+.bienvenue__langue:active { transform: scale(.95); }
+.bienvenue__langue--choisie {
+  color: var(--ink); background: var(--jaune);
+  border-color: var(--jaune);
+}
+
+.bienvenue__entrer { margin-top: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bienvenue, .bienvenue__carte { animation: none; }
+  .bienvenue__langue { transition: none; }
+}
+
+/* Le réglage de langue, en tête du profil. Il réutilise les boutons de
+   l'écran d'accueil : deux jeux de drapeaux dessinés séparément finiraient
+   par ne plus se ressembler. */
+.profil__langue {
+  margin: 0 0 16px; padding: 12px 13px 11px; border-radius: 14px;
+  background: rgb(var(--panel-rgb) / .45);
+  border: 1px solid var(--line-soft);
+}
+.profil__langue-titre {
+  margin: 0 0 8px; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.profil__langue-aide {
+  margin: 8px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--muted);
+}

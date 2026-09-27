@@ -71,6 +71,36 @@
   </div>
 </div>
 
+<!-- ══ L'accueil ══ ═════════════════════════════════════════════
+     Le premier écran après le film. Il dit qui on est, à qui on parle, et
+     il demande la seule chose qu'on ne peut pas deviner : la langue.
+
+     Il ne paraît qu'une fois. Le client qui revient a déjà choisi, et
+     relui poser la question à chaque visite ferait de son choix une
+     formalité plutôt qu'un réglage — il le retrouvera dans son profil.
+
+     Son vrai rôle est ailleurs, et il est technique : l'appui sur une
+     langue est un geste du client DANS la page, et c'est exactement ce
+     que le navigateur exige pour autoriser un son. La musique démarre
+     donc là, et elle démarre pour de bon — pas « si le navigateur veut
+     bien ». -->
+<div class="bienvenue" id="bienvenue" hidden role="dialog" aria-modal="true"
+     aria-labelledby="bienvenueEnseigne">
+  <div class="bienvenue__carte">
+    <img class="bienvenue__logo" src="/assets/ui/logo.png" alt="" width="64" height="64">
+    <h2 class="bienvenue__enseigne" id="bienvenueEnseigne">TANJA HH 67</h2>
+    <p class="bienvenue__salut" id="bienvenueSalut"></p>
+    <p class="bienvenue__texte" id="bienvenueTexte"></p>
+
+    <div class="bienvenue__langues">
+      <p class="bienvenue__legende" id="bienvenueLegende"></p>
+      <div class="bienvenue__choix" id="bienvenueChoix" role="group"></div>
+    </div>
+
+    <button class="btn btn--primary btn--block bienvenue__entrer" id="bienvenueEntrer" type="button"></button>
+  </div>
+</div>
+
 <!-- ══ La porte du bot : le calcul se fait dans la conversation ══ -->
 <div class="gate" id="porte" hidden>
   <div class="gate__card">
@@ -371,15 +401,25 @@
 
     <div class="chiffres" id="profilChiffres"></div>
 
+    <!-- La langue, en tête du profil : c'est le seul réglage de la boutique
+         qui appartienne au client, et le cadre d'accueil ne la demande
+         qu'une fois. Sans cet endroit, changer d'avis voudrait dire vider
+         la mémoire de son navigateur. -->
+    <div class="profil__langue">
+      <p class="profil__langue-titre" data-t="profil.langue">Langue</p>
+      <div class="bienvenue__choix" id="profilLangues" role="group"></div>
+      <p class="profil__langue-aide" data-t="profil.langueAide"></p>
+    </div>
+
     <div class="profil__onglets" id="profilOnglets" role="tablist">
       <button class="profil__onglet" type="button" role="tab" data-vue="commandes" aria-selected="true">
-        Commandes
+        <span data-t="profil.commandes">Commandes</span>
       </button>
       <button class="profil__onglet" type="button" role="tab" data-vue="favoris" aria-selected="false">
-        Favoris<span class="profil__compte" id="favorisCompte" hidden></span>
+        <span data-t="profil.favoris">Favoris</span><span class="profil__compte" id="favorisCompte" hidden></span>
       </button>
       <button class="profil__onglet" type="button" role="tab" data-vue="alertes" aria-selected="false">
-        Alertes
+        <span data-t="profil.alertes">Alertes</span>
       </button>
     </div>
 
@@ -446,8 +486,8 @@
          Android courant — « Une question » et « Commander · 130 € » ne
          tiennent pas côte à côte, et la barre se repliait sur deux rangées
          hautes de 123 px. Le mot seul suffit là où la place manque. -->
-    <span class="pbar__long">Une question</span>
-    <span class="pbar__court">Question</span>
+    <span class="pbar__long" data-t="produit.question">Une question</span>
+    <span class="pbar__court" data-t="produit.questionCourt">Question</span>
   </button>
   <button class="btn btn--ghost btn--grow" id="notifyMe" type="button" hidden>
     🔔 Préviens-moi du retour
@@ -525,19 +565,19 @@
   <span class="tabbar__curseur tabbar__curseur--pose" id="tabbarCurseur" aria-hidden="true"></span>
   <button class="tabbar__item" type="button" role="tab" data-onglet="catalogue" aria-selected="true">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    <span>Catalogue</span>
+    <span data-t="onglet.catalogue">Catalogue</span>
   </button>
   <button class="tabbar__item" type="button" role="tab" data-onglet="categories" aria-selected="false">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-    <span>Catégories</span>
+    <span data-t="onglet.categories">Catégories</span>
   </button>
   <button class="tabbar__item" type="button" role="tab" data-onglet="contact" aria-selected="false">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.6-.4L4 21l1.5-4.3A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12.3 3 8.4 8.4 0 0 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-    <span>Contact</span>
+    <span data-t="onglet.contact">Contact</span>
   </button>
   <button class="tabbar__item" type="button" role="tab" data-onglet="profil" aria-selected="false">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    <span>Profil</span>
+    <span data-t="onglet.profil">Profil</span>
     <span class="tabbar__pastille" id="profilPastille" hidden></span>
   </button>
 </nav>

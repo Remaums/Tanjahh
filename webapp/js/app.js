@@ -1,3 +1,5 @@
+import { LANGUES, TEXTES, LANGUE_PAR_DEFAUT, langueProposee } from './langues.js';
+
 /* ══════════════════════════════════════════════════════════════
    TANJA HH 67 — logique de la Mini App
    ══════════════════════════════════════════════════════════════ */
@@ -100,14 +102,68 @@ const enAttenteDeCalage = [];
    ligne. Déclarées plus bas, elles étaient dans leur zone morte à cet
    instant — l'écran d'ouverture restait affiché pour toujours, sur une
    ReferenceError que personne ne voyait. */
-const OUVERTURE_PHRASES = [
-  'Ouverture de la boutique…',
-  'On branche le courant…',
-  'On allume les néons…',
-  'On sort la marchandise…',
-  'Prêt.',
-];
+const OUVERTURE_PHRASES = ['ouverture.1', 'ouverture.2', 'ouverture.3', 'ouverture.4', 'ouverture.5'];
 const ouvertureDebut = Date.now();
+
+/* ── La langue ───────────────────────────────────────────────
+   Retenue chez le client et non sur le serveur : c'est un réglage
+   d'affichage, il n'a pas besoin d'un aller-retour pour s'appliquer, et
+   la boutique doit pouvoir s'afficher avant que quoi que ce soit ait
+   répondu. Le revers est réel et assumé : changer de téléphone fait
+   reposer la question. */
+const LANGUE_CLEF = 'tanja.langue';
+let langue = LANGUE_PAR_DEFAUT;
+
+/** Le texte d'une clef, dans la langue en cours. */
+function t(clef) {
+  // Le français sert de repli : une clef oubliée ailleurs s'affiche en
+  // français plutôt que de laisser un « undefined » à l'écran.
+  return TEXTES[langue]?.[clef] ?? TEXTES[LANGUE_PAR_DEFAUT][clef] ?? clef;
+}
+
+/**
+ * Applique la langue à toute la page.
+ *
+ * Les textes du HTML portent `data-t` ; ceux que le script fabrique passent
+ * par `t()` et sont refaits par les fonctions de rendu, qu'on rappelle ici.
+ * L'attribut `lang` de la page suit aussi : il décide de la coupure des mots
+ * et de ce que lit une synthèse vocale.
+ */
+function appliquerLaLangue(code, { retenir = false } = {}) {
+  if (TEXTES[code]) langue = code;
+  document.documentElement.lang = langue;
+  // On n'enregistre que sur un choix. Écrire à chaque application faisait
+  // croire, dès la première ligne de l'écran d'ouverture, que le client avait
+  // déjà choisi : le cadre d'accueil ne s'affichait plus jamais, et la
+  // musique partait sans le geste qu'il devait justement recueillir.
+  if (retenir) {
+    try { localStorage.setItem(LANGUE_CLEF, langue); } catch { /* navigation privée */ }
+  }
+
+  for (const el of document.querySelectorAll('[data-t]')) {
+    el.textContent = t(el.dataset.t);
+  }
+  for (const el of document.querySelectorAll('[data-t-placeholder]')) {
+    el.placeholder = t(el.dataset.tPlaceholder);
+  }
+  for (const el of document.querySelectorAll('[data-t-aria]')) {
+    el.setAttribute('aria-label', t(el.dataset.tAria));
+  }
+  // Les drapeaux du profil sont fabriqués par le script : ils ne portent pas
+  // de `data-t` et ne se mettraient jamais à jour. Sans cette ligne, le
+  // client choisissait le français sur l'écran d'accueil et retrouvait
+  // l'espagnol coché dans son profil.
+  renderLangues();
+}
+
+/** La langue retenue, ou celle que propose le téléphone. */
+function langueDeDepart() {
+  let gardee = null;
+  try { gardee = localStorage.getItem(LANGUE_CLEF); } catch { /* navigation privée */ }
+  if (gardee && TEXTES[gardee]) return { code: gardee, dejaChoisie: true };
+  return { code: langueProposee(tg?.initDataUnsafe?.user?.language_code), dejaChoisie: false };
+}
+
 let fermetureProgrammee = false;
 
 /* ── Démarrage ───────────────────────────────────────────── */
@@ -124,6 +180,11 @@ async function init() {
     tg.enableClosingConfirmation?.();
     tg.BackButton?.onClick(revenirEnArriere);
   }
+
+  // La langue d'abord : l'écran d'ouverture parle, et il doit parler celle
+  // du client dès sa première phrase. Appliquée plus tard, elle arrivait
+  // après que la première ligne s'était affichée en français.
+  appliquerLaLangue(langueDeDepart().code);
 
   state.startProduct = produitDemande();
 
@@ -406,14 +467,14 @@ function derouler() {
   if (!ligne || !anime()) return;
 
   const pas = resteDeLOuverture() / OUVERTURE_PHRASES.length;
-  OUVERTURE_PHRASES.slice(1).forEach((phrase, i) => {
+  OUVERTURE_PHRASES.slice(1).forEach((clef, i) => {
     const quand = Math.round(pas * (i + 1));
     setTimeout(() => {
       // Le rideau peut être parti avant l'heure : on ne réveille pas un écran
       // qui n'est plus là pour y écrire une phrase que personne ne lira.
       if ($('charge')?.hidden) return;
       ligne.classList.remove('charge__texte--entre');
-      ligne.textContent = phrase;
+      ligne.textContent = t(clef);
       requestAnimationFrame(() => ligne.classList.add('charge__texte--entre'));
     }, quand);
   });
@@ -497,10 +558,10 @@ function fermerLeVoile({ rideau = true } = {}) {
   // l'arrête, sinon elle tourne pour rien jusqu'à la fermeture de la
   // boutique, batterie comprise.
   reglerLeFilm(false);
-  // La musique attend le catalogue. Elle a démarré un temps sur l'écran de
-  // chargement ; le film y porte déjà tout, et deux choses qui s'annoncent
-  // en même temps s'annulent. Elle commence donc quand la boutique apparaît.
-  lancerLaMusiqueALArrivee();
+  // L'accueil prend le relais du film. C'est lui qui lance la musique, parce
+  // que c'est lui qui obtient le geste du client — un appui sur une langue.
+  // Pour un habitué, il ne s'affiche pas et la musique tente sa chance seule.
+  montrerLAccueil();
 }
 
 /**
@@ -2357,6 +2418,123 @@ function monterLeJuke() {
 
   peindreLeJuke();
 
+}
+
+/**
+ * Le choix de la langue dans le profil.
+ *
+ * Les mêmes boutons que sur l'écran d'accueil, au même endroit du code :
+ * deux listes de drapeaux écrites séparément finiraient par diverger, et
+ * c'est le genre d'écart qu'on ne remarque qu'une fois une langue ajoutée
+ * d'un côté seulement.
+ */
+function renderLangues() {
+  const zone = $('profilLangues');
+  if (!zone) return;
+  zone.replaceChildren(
+    ...LANGUES.map((l) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'bienvenue__langue' + (l.code === langue ? ' bienvenue__langue--choisie' : '');
+      b.innerHTML = `<span aria-hidden="true">${l.drapeau}</span>${l.nom}`;
+      b.setAttribute('aria-pressed', l.code === langue ? 'true' : 'false');
+      b.addEventListener('click', () => {
+        appliquerLaLangue(l.code, { retenir: true });
+        // Les listes fabriquées par le script ne portent pas de `data-t` :
+        // elles se refont. Le profil d'abord, puisqu'on y est.
+        renderLangues();
+        renderGrid();
+        renderCategories();
+        haptic('light');
+      });
+      return b;
+    })
+  );
+}
+
+/* ── L'accueil ───────────────────────────────────────────── */
+
+/**
+ * Le cadre qui suit le film : qui on est, à qui on parle, et la langue.
+ *
+ * Il ne paraît qu'une fois. Le client qui revient a déjà choisi, et lui
+ * reposer la question à chaque visite ferait de son choix une formalité
+ * plutôt qu'un réglage — il le retrouve dans son profil.
+ *
+ * Son rôle technique compte autant que son rôle d'accueil : l'appui sur une
+ * langue est un geste du client DANS la page, et c'est exactement ce que le
+ * navigateur réclame pour autoriser un son. La musique démarre là, et elle
+ * démarre pour de bon.
+ */
+function montrerLAccueil() {
+  const cadre = $('bienvenue');
+  if (!cadre) return false;
+
+  const { code, dejaChoisie } = langueDeDepart();
+  appliquerLaLangue(code);
+  if (dejaChoisie) {
+    // Déjà venu : on ne lui montre rien, et la musique tente sa chance comme
+    // avant — sans geste, le navigateur décidera.
+    lancerLaMusiqueALArrivee();
+    return false;
+  }
+
+  const prenom = tg?.initDataUnsafe?.user?.first_name;
+  const pseudo = tg?.initDataUnsafe?.user?.username;
+  // « @pseudo » quand il existe, le prénom sinon : c'est ainsi que Telegram
+  // le nomme, et c'est ce que le client reconnaît de lui-même.
+  const nom = pseudo ? `@${pseudo}` : (prenom ?? '');
+  $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
+  $('bienvenueTexte').textContent = t('accueil.texte');
+  $('bienvenueLegende').textContent = t('accueil.langue');
+  $('bienvenueEntrer').textContent = t('accueil.entrer');
+
+  let choisie = code;
+  const choix = $('bienvenueChoix');
+  choix.replaceChildren(
+    ...LANGUES.map((l) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'bienvenue__langue' + (l.code === choisie ? ' bienvenue__langue--choisie' : '');
+      b.innerHTML = `<span aria-hidden="true">${l.drapeau}</span>${l.nom}`;
+      b.setAttribute('aria-pressed', l.code === choisie ? 'true' : 'false');
+      b.addEventListener('click', () => {
+        choisie = l.code;
+        appliquerLaLangue(l.code, { retenir: true });
+        // On réécrit le cadre lui-même : il est le premier à devoir parler
+        // la langue qu'on vient de choisir, sinon le client change de langue
+        // et voit la précédente lui répondre.
+        $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
+        $('bienvenueTexte').textContent = t('accueil.texte');
+        $('bienvenueLegende').textContent = t('accueil.langue');
+        $('bienvenueEntrer').textContent = t('accueil.entrer');
+        for (const autre of choix.children) {
+          const sien = autre === b;
+          autre.classList.toggle('bienvenue__langue--choisie', sien);
+          autre.setAttribute('aria-pressed', sien ? 'true' : 'false');
+        }
+        // Le geste est donné : la musique peut partir, et elle partira.
+        lancerLaMusiqueALArrivee();
+        haptic('light');
+      });
+      return b;
+    })
+  );
+
+  $('bienvenueEntrer').addEventListener('click', () => {
+    // Entrer sans avoir touché aux drapeaux, c'est accepter celui qui était
+    // proposé : on le retient, sinon la question reviendrait à chaque visite.
+    appliquerLaLangue(choisie, { retenir: true });
+    cadre.hidden = true;
+    // Au cas où il serait entré sans toucher à la langue : ce bouton aussi
+    // est un geste, et c'est la dernière occasion de lancer la musique
+    // pendant que le navigateur y consent encore.
+    lancerLaMusiqueALArrivee();
+    haptic('light');
+  }, { once: true });
+
+  cadre.hidden = false;
+  return true;
 }
 
 /**
