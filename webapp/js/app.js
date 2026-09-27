@@ -933,6 +933,9 @@ function montrerLOnglet(nom) {
   // qu'un sélecteur conditionnel en CSS — celui-ci se serait appuyé sur
   // `:has()`, que toutes les WebView ne servent pas encore.
   $('juke')?.classList.toggle('juke--haut', nom === 'produit');
+  // Le panneau est ancré sur la pastille, qui monte ou descend selon la vue :
+  // laissé ouvert, il se retrouverait décalé de la hauteur d'une barre.
+  fermerLeMenu();
 
   for (const [clef, id] of Object.entries(VUES)) $(id).hidden = clef !== nom;
   for (const bouton of $('tabbar').querySelectorAll('.tabbar__item')) {
@@ -2228,7 +2231,22 @@ function monterLeJuke() {
   // morceaux à la fin du premier.
   if (!juke.branche) {
     juke.branche = true;
-    bouton.addEventListener('click', basculerLeJuke);
+    bouton.addEventListener('click', basculerLeMenu);
+    $('jukeLecture').addEventListener('click', basculerLeJuke);
+    $('jukePrec').addEventListener('click', () => changerDeMorceau(-1));
+    $('jukeSuiv').addEventListener('click', () => changerDeMorceau(1));
+
+    // Un appui ailleurs referme le panneau. Il est posé sur la phase de
+    // capture : sans elle, un appui sur une carte ouvrirait la fiche ET
+    // laisserait le panneau ouvert par-dessus.
+    document.addEventListener('click', (ev) => {
+      if ($('jukeMenu')?.hidden) return;
+      if (ev.target.closest('#jukeMenu') || ev.target.closest('#juke')) return;
+      fermerLeMenu();
+    }, true);
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && !$('jukeMenu')?.hidden) fermerLeMenu();
+    });
     son.addEventListener('ended', () => jouerLeMorceau(juke.index + 1));
     // Un morceau introuvable ne doit pas arrêter la playlist : on passe au
     // suivant. Sans ça, un `file_id` périmé gèle le lecteur sans rien dire.
@@ -2254,16 +2272,90 @@ function monterLeJuke() {
   }
 }
 
+/**
+ * Ouvre ou referme le panneau du lecteur.
+ *
+ * Rien ne démarre ici : le panneau s'ouvre en silence. Le geste qui autorise
+ * la lecture, aux yeux du navigateur comme à ceux du client, c'est l'appui
+ * sur « lecture » — pas l'appui sur la pastille.
+ */
+function basculerLeMenu() {
+  const menu = $('jukeMenu');
+  if (!menu) return;
+  if (menu.hidden) {
+    // Le titre flottant n'a plus lieu d'être : le panneau le dit en grand.
+    masquerLeTitre();
+    menu.hidden = false;
+    requestAnimationFrame(() => menu.classList.add('juke__menu--ouvert'));
+    $('juke')?.setAttribute('aria-expanded', 'true');
+    peindreLeJuke();
+    // Le premier geste au clavier tombe sur la commande principale.
+    $('jukeLecture')?.focus({ preventScroll: true });
+  } else {
+    fermerLeMenu();
+  }
+  haptic('light');
+}
+
+function fermerLeMenu() {
+  const menu = $('jukeMenu');
+  if (!menu || menu.hidden) return;
+  menu.classList.remove('juke__menu--ouvert');
+  $('juke')?.setAttribute('aria-expanded', 'false');
+  // On attend la fin du repli avant de le retirer du calque : caché
+  // aussitôt, il disparaîtrait d'un coup au lieu de se refermer.
+  setTimeout(() => { menu.hidden = true; }, 200);
+}
+
+/**
+ * Le morceau d'avant ou celui d'après.
+ *
+ * Si rien ne joue, on change quand même de morceau — mais sans lancer la
+ * lecture : le client explore sa playlist, il la démarrera quand il voudra.
+ * L'appel vient d'un appui, donc lancer serait autorisé ; ce n'est pas une
+ * raison pour le faire à sa place.
+ */
+function changerDeMorceau(sens) {
+  if (!juke.liste.length) return;
+  if (juke.voulue) {
+    jouerLeMorceau(juke.index + sens);
+  } else {
+    juke.index = ((juke.index + sens) % juke.liste.length + juke.liste.length) % juke.liste.length;
+    peindreLeJuke();
+  }
+  haptic('light');
+}
+
 /** L'état de la pastille : au repos, ou en train de jouer. */
 function peindreLeJuke() {
   const bouton = $('juke');
   if (!bouton) return;
   bouton.classList.toggle('juke--joue', juke.voulue);
-  bouton.setAttribute('aria-pressed', juke.voulue ? 'true' : 'false');
-  bouton.setAttribute(
-    'aria-label',
-    juke.voulue ? 'Couper la musique de la boutique' : 'Écouter la musique de la boutique'
-  );
+  bouton.setAttribute('aria-label', 'Ouvrir le lecteur de musique');
+
+  // Le panneau porte le même état : c'est là qu'on lit ce qui joue et qu'on
+  // agit dessus, la pastille ne fait plus que l'ouvrir.
+  const lecture = $('jukeLecture');
+  if (lecture) {
+    lecture.classList.toggle('juke--joue', juke.voulue);
+    lecture.setAttribute('aria-label', juke.voulue ? 'Pause' : 'Lecture');
+  }
+  const morceau = juke.liste[juke.index];
+  const titre = $('jukeMenuTitre');
+  if (titre) titre.textContent = morceau?.titre ?? '—';
+  const rang = $('jukeMenuRang');
+  if (rang) {
+    rang.textContent = juke.liste.length
+      ? `${juke.index + 1} / ${juke.liste.length}`
+      : '';
+  }
+  // Un seul morceau : « précédent » et « suivant » ramèneraient au même, et
+  // un bouton qui ne fait rien vaut moins qu'un bouton éteint.
+  const seul = juke.liste.length < 2;
+  for (const id of ['jukePrec', 'jukeSuiv']) {
+    const b = $(id);
+    if (b) b.disabled = seul;
+  }
 }
 
 function basculerLeJuke() {
@@ -2320,6 +2412,9 @@ function jouerLeMorceau(n) {
 function montrerLeTitre(titre) {
   const ligne = $('jukeTitre');
   if (!ligne) return;
+  // Panneau ouvert, il affiche déjà le titre en grand : la pastille flottante
+  // ferait doublon, et par-dessus le panneau en plus.
+  if (!$('jukeMenu')?.hidden) return;
   ligne.textContent = titre;
   ligne.hidden = false;
   requestAnimationFrame(() => ligne.classList.add('juke__titre--vu'));
