@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TANJA HH 67 — quatre pastilles</title>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+/* ══ Maquette : quatre traitements de pastille ══════════════════
+   La grille, la carte, les polices et les couleurs viennent du vrai
+   style.css : seule la pastille change d'une colonne à l'autre. C'est
+   la seule façon de comparer honnêtement — une maquette réécrite à
+   côté flatte toujours la proposition.
+
+   Le fond gris du body de la boutique est repris tel quel ; on neutralise
+   juste la mise en page pleine page. */
+body { padding: 0; margin: 0; }
+.planche { display: flex; gap: 22px; padding: 24px; align-items: flex-start; }
+.col { width: 330px; flex: none; }
+.col h2 {
+  font-family: var(--display); font-size: 20px; letter-spacing: .05em;
+  color: var(--jaune); margin: 0 0 4px; text-transform: uppercase;
+}
+.col p {
+  font-size: 12.5px; line-height: 1.5; color: var(--muted);
+  margin: 0 0 14px; min-height: 76px;
+}
+.col .grid { grid-template-columns: repeat(2, 1fr); }
+
+/* ── A · Le filet ───────────────────────────────────────────────
+   Pas de cadre du tout. Le mot, et un trait sous le mot. La pastille
+   cesse d'être un objet posé sur la photo pour devenir une mention,
+   comme une légende de magazine. */
+.a .card__badge {
+  background: none; border: 0; border-radius: 0; padding: 0 0 4px;
+  backdrop-filter: none;
+  color: var(--cream); font-size: 10px; letter-spacing: .16em;
+  box-shadow: inset 0 -2px 0 var(--jaune);
+  text-shadow: 0 1px 6px rgb(var(--void-rgb) / .9);
+}
+.a .card__badge--out { color: var(--muted); box-shadow: inset 0 -2px 0 rgb(var(--cream-rgb) / .3); }
+
+/* ── B · L'onglet ───────────────────────────────────────────────
+   Collée dans l'angle, sans marge : elle épouse le coin de la carte au
+   lieu de flotter à huit pixels du bord. Une arête jaune à gauche, le
+   reste en encre. Elle appartient au cadre, elle n'est plus dessus. */
+.b .card__badge {
+  top: 0; left: 0; border: 0; border-radius: 0;
+  border-top-left-radius: calc(var(--radius) - 1px);
+  border-bottom-right-radius: 8px;
+  background: rgb(var(--void-rgb) / .92);
+  box-shadow: inset 3px 0 0 var(--jaune);
+  color: var(--cream); padding: 5px 9px 5px 11px;
+  font-size: 9.5px; letter-spacing: .13em;
+}
+.b .card__badge--out { box-shadow: inset 3px 0 0 rgb(var(--cream-rgb) / .35); color: var(--muted); }
+
+/* ── C · Le cran ────────────────────────────────────────────────
+   La forme d'une étiquette cartonnée : le coin bas-droit est coupé en
+   biais. C'est un objet physique, pas un champ de formulaire — et c'est
+   justement ce que le rectangle arrondi ne dit pas. */
+.c .card__badge {
+  border: 0; border-radius: 0; background: rgb(var(--void-rgb) / .9);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
+  color: var(--jaune); padding: 5px 13px 5px 8px;
+  font-size: 9.5px; letter-spacing: .13em;
+}
+.c .card__badge--out { color: var(--muted); background: rgb(var(--ink-rgb) / .9); }
+
+/* ── D · L'éclair ───────────────────────────────────────────────
+   Rien qu'un signe et un mot, en jaune, posés sur la photo. Aucun fond :
+   l'ombre portée fait tout le travail de lisibilité. C'est la boutique
+   qui parle, pas une étiquette collée par-dessus. */
+.d .card__badge {
+  background: none; border: 0; border-radius: 0; padding: 0;
+  backdrop-filter: none;
+  display: flex; align-items: center; gap: 4px;
+  color: var(--jaune); font-size: 10px; letter-spacing: .14em;
+  text-shadow: 0 1px 3px rgb(var(--void-rgb)), 0 0 12px rgb(var(--void-rgb) / .9);
+}
+.d .card__badge::before {
+  content: ''; width: 7px; height: 11px; flex: none; background: currentColor;
+  clip-path: polygon(58% 0, 0 58%, 42% 58%, 34% 100%, 100% 40%, 52% 40%);
+}
+.d .card__badge--out { color: var(--muted); }
+
+/* ── E · L'onglet à éclair ──────────────────────────────────────
+   La forme de B et le signe de D. Le fond plein règle la lisibilité
+   que D ne tiendra pas sur une vraie photo, et l'éclair rend à la
+   pastille ce que l'onglet seul n'a pas : la boutique. */
+.e .card__badge {
+  top: 0; left: 0; border: 0; border-radius: 0;
+  border-top-left-radius: calc(var(--radius) - 1px);
+  border-bottom-right-radius: 9px;
+  background: rgb(var(--void-rgb) / .92);
+  box-shadow: inset 3px 0 0 var(--jaune);
+  color: var(--cream); padding: 5px 10px 5px 11px;
+  font-size: 9.5px; letter-spacing: .13em;
+  display: flex; align-items: center; gap: 5px;
+}
+.e .card__badge::before {
+  content: ''; width: 7px; height: 11px; flex: none; background: var(--jaune);
+  clip-path: polygon(58% 0, 0 58%, 42% 58%, 34% 100%, 100% 40%, 52% 40%);
+}
+.e .card__badge--out { box-shadow: inset 3px 0 0 rgb(var(--cream-rgb) / .35); color: var(--muted); }
+.e .card__badge--out::before { background: rgb(var(--cream-rgb) / .35); }
+</style>
+</head>
+<body>
+<div class="planche" id="planche"></div>
+<script type="module">
+/* On tire les produits de la vraie API : mêmes noms, mêmes prix, mêmes
+   dessins que dans la boutique. Une maquette sur des données inventées
+   ne prouve rien sur la longueur des libellés. */
+const cat = await (await fetch('/api/catalog')).json();
+const produits = (cat.products ?? cat).slice(0, 6);
+const euro = (c) => (c / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
+  .replace(/ /g, ' ').replace(',00', '');
+
+const pistes = [
+  ['a', 'A · Le filet', "Le cadre disparaît. Reste le mot, souligné d'un trait jaune. C'est la plus sobre des quatre : elle ne dispute jamais la vedette à la photo, mais sur un visuel clair elle tient moins bien."],
+  ['b', "B · L'onglet", "Encastrée dans l'angle, arête jaune à gauche. Elle fait partie de la carte au lieu d'être posée dessus — c'est celle qui vieillit le mieux quand les vraies photos arriveront."],
+  ['c', 'C · Le cran', "Un coin coupé en biais : la forme d'une étiquette cartonnée. Lisible de loin, avec un caractère de marché plutôt que d'application."],
+  ['d', "D · L'éclair", "Plus de pastille du tout : un éclair et un mot, en jaune, directement sur l'image. La plus dans le ton de la boutique, la plus fragile sur une photo chargée."],
+  ['e', "E · L'onglet à éclair", "La forme de B, le signe de D. Le fond plein garantit la lisibilité que D perdra sur une vraie photo, et l'éclair rend à la pastille ce qui manque à l'onglet seul : la boutique."],
+];
+
+document.getElementById('planche').innerHTML = pistes.map(([cls, titre, texte]) => `
+  <div class="col ${cls}">
+    <h2>${titre}</h2>
+    <p>${texte}</p>
+    <div class="grid">${produits.map((p, i) => `
+      <button class="card${i === 5 ? ' card--soldout' : ''}" type="button">
+        <div class="card__art">
+          ${p.badge || i === 5 ? `<span class="card__badge${i === 5 ? ' card__badge--out' : ''}">${i === 5 ? 'ÉPUISÉ' : p.badge}</span>` : ''}
+          <img src="${p.image}" alt="" loading="lazy">
+        </div>
+        <div class="card__body">
+          <span class="card__name">${p.name}</span>
+          <span class="card__foot">
+            <span class="card__price goldtext">${p.variants ? '<small>dès</small> ' : ''}${euro(p.price)}</span>
+            <span class="card__fleche" aria-hidden="true">›</span>
+          </span>
+        </div>
+      </button>`).join('')}</div>
+  </div>`).join('');
+</script>
+</body></html>

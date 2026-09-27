@@ -825,21 +825,46 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .card__art img { width: 66%; opacity: .45; }
 
-/* Une pastille penchée, comme collée à la main. Deux degrés suffisent :
-   au-delà on croit à un défaut d'affichage. */
+/* Un onglet encastré dans l'angle, pas une pastille posée dessus.
+   L'étiquette au pochoir d'avant — cadre ambre, coins arrondis, huit
+   pixels de marge — flottait dans le vide en haut de la photo et avait
+   la mine d'un champ de formulaire : c'est la forme la plus faible
+   qu'on puisse donner à une mention. Ici la pastille épouse le coin de
+   la carte et n'a plus de cadre du tout. Ce qui la tient, c'est une
+   arête jaune de trois pixels sur sa gauche — la même lumière que le
+   reste de la boutique — et un éclair devant le mot.
+
+   Le fond reste plein et opaque : le jour où les vraies photos
+   remplaceront les dessins, un libellé clair posé sans fond sur un
+   emballage clair deviendrait illisible, et on ne s'en apercevrait
+   qu'une fois la photo en ligne. */
 .card__badge {
-  position: absolute; top: 8px; left: 8px; z-index: 3;
-  max-width: calc(100% - 16px); overflow: hidden;
+  position: absolute; top: 0; left: 0; z-index: 3;
+  /* On s'arrête avant le cœur : 34 px de bouton et 8 px de marge. Un
+     libellé long est coupé par les points de suspension plutôt que de
+     passer dessous — deux éléments empilés dans le même coin, c'est
+     l'un des deux qu'on ne peut plus lire. */
+  max-width: calc(100% - 52px); overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap;
-  /* Une étiquette au pochoir, pas un autocollant penché : fond sombre,
-     lettres ambre, un filet. Le jaune plein cerné d'encre et incliné de
-     deux degrés, c'était le sticker — il tirait l'œil avant la photo. */
-  background: rgb(var(--void-rgb) / .78);
+  display: flex; align-items: center; gap: 5px;
+  background: rgb(var(--void-rgb) / .92);
   backdrop-filter: blur(6px);
-  color: var(--gold); font-size: 9.5px; font-weight: 700;
-  letter-spacing: .12em; text-transform: uppercase;
-  padding: 4px 8px; border: 1px solid rgb(var(--gold-rgb) / .45);
-  border-radius: 4px; box-shadow: none;
+  color: var(--cream); font-size: 9.5px; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase;
+  padding: 5px 10px 5px 11px;
+  border: 0; border-radius: 0;
+  /* Le coin haut-gauche suit celui de la carte, moins son filet ; le coin
+     bas-droit, le seul qui donne sur la photo, s'arrondit franchement. */
+  border-top-left-radius: calc(var(--radius) - 1px);
+  border-bottom-right-radius: 9px;
+  box-shadow: inset 3px 0 0 var(--jaune);
+}
+/* L'éclair est dessiné en découpe plutôt qu'écrit : l'emoji ⚡ change de
+   forme et de couleur d'un téléphone à l'autre, et sur plusieurs il
+   arrive en bleu. */
+.card__badge::before {
+  content: ''; width: 7px; height: 11px; flex: none; background: var(--jaune);
+  clip-path: polygon(58% 0, 0 58%, 42% 58%, 34% 100%, 100% 40%, 52% 40%);
 }
 
 /* Le bandeau du bas. Un dégradé sous lui, pour que le texte tienne même
@@ -1204,7 +1229,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
    cette ligne, le dégradé de .goldtext repeindrait le prix en blanc. */
 .card__price { -webkit-text-fill-color: var(--jaune); }
 .card--soldout .card__fleche { color: rgb(var(--cream-rgb) / .2); }
-.card__badge--out { background: rgb(var(--ink-rgb) / .85); border-color: var(--line-soft); box-shadow: none; color: var(--muted); }
+/* Épuisé : l'onglet s'éteint. Il garde sa forme — c'est la même mention,
+   au même endroit — mais l'arête et l'éclair passent au gris, parce
+   qu'il n'y a plus rien à allumer. */
+.card__badge--out { background: rgb(var(--ink-rgb) / .9); color: var(--muted); box-shadow: inset 3px 0 0 rgb(var(--cream-rgb) / .35); }
+.card__badge--out::before { background: rgb(var(--cream-rgb) / .35); }
 
 .variant[disabled] {
   background: rgba(255, 255, 255, .03); color: rgb(var(--cream-rgb) / .38);
