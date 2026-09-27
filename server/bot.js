@@ -105,8 +105,11 @@ const isAdmin = (id) => estAdmin(id);
 const accueillir = (ctx) =>
   ctx.reply(
     `🌿 *${escapeMarkdown(config.shopName)}*\n\n` +
+      // Le panier a disparu de la boutique il y a longtemps : ce message
+      // continuait d'en promettre un à chaque nouveau client, et c'est la
+      // toute première phrase qu'il lit.
       "Bienvenue dans la boutique\\. Tout se passe dans l'app : catalogue en images, " +
-      'panier, et commande envoyée en un bouton\\.\n\n' +
+      'fiches produits, et un bouton qui ouvre ta commande ici même, déjà écrite\\.\n\n' +
       `Ton ID Telegram : \`${ctx.from.id}\``,
     {
       parse_mode: 'MarkdownV2',
