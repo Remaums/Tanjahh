@@ -80,6 +80,16 @@ const DEFAULTS = {
       days: defaultHours(),
     },
   },
+  /* Le rideau de fer.
+   *
+   * Allumé, la boutique n'existe plus pour personne : la page renvoie
+   * ailleurs et l'API refuse. Ce n'est pas la fermeture ordinaire — celle-ci
+   * dit « on rouvre à 13h » et reste une boutique fermée, visible et
+   * reconnaissable. Le rideau, lui, ne laisse rien à voir.
+   *
+   * Il ne s'éteint que depuis l'espace admin, jamais tout seul : un rideau
+   * qui se relève à l'heure dite ne servirait à rien le jour où il sert. */
+  urgence: false,
   // La playlist d'ambiance. Chaque morceau est `{ id, titre, fileId }` :
   // comme les photos et les vidéos, le fichier vit chez Telegram et la
   // boutique n'en garde que la référence. Rien sur le disque, donc rien à
@@ -126,6 +136,7 @@ export async function getSettings() {
         days: normalizeHours(data.opening?.hours?.days),
       },
     },
+    urgence: Boolean(data.urgence),
     musique: normalizeMusique(data.musique),
     blocked: Array.isArray(data.blocked) ? data.blocked : [],
   };
@@ -186,6 +197,12 @@ export async function saveSettings(patch) {
     // par les routes dédiées, qui écrivent ensuite par ici.
     if (patch.musique) {
       data.musique = normalizeMusique(patch.musique);
+    }
+    // Le rideau se lève et se baisse tout seul, sans dépendre d'autre chose :
+    // le jour où l'on s'en sert, on ne veut pas découvrir qu'il fallait aussi
+    // envoyer un autre réglage pour qu'il prenne.
+    if (patch.urgence !== undefined) {
+      data.urgence = Boolean(patch.urgence);
     }
     if (patch.alerts) {
       data.alerts = {

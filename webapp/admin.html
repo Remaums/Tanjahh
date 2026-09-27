@@ -56,6 +56,20 @@
        qui suit : une période par graphique donnerait quatre
        lectures différentes du même magasin. -->
   <section class="a-panel" id="panel-board">
+    <!-- Les deux gestes qu'on fait dans l'urgence, avant tout le reste.
+         Ils sont en tête parce qu'on ne les cherche pas : on les veut sous
+         le pouce à la seconde où l'on ouvre l'écran. -->
+    <div class="a-urgence" id="commandes">
+      <button class="a-gros a-gros--rideau" id="btnUrgence" type="button" aria-pressed="false">
+        <span class="a-gros__titre" id="btnUrgenceTitre">Urgence</span>
+        <span class="a-gros__dit" id="btnUrgenceDit">La boutique est visible</span>
+      </button>
+      <button class="a-gros a-gros--porte" id="btnOuverture" type="button" aria-pressed="true">
+        <span class="a-gros__titre" id="btnOuvertureTitre">Ouverte</span>
+        <span class="a-gros__dit" id="btnOuvertureDit">On prend les commandes</span>
+      </button>
+    </div>
+
     <div class="a-periode" id="periode" role="group" aria-label="Période observée"></div>
 
     <div class="a-hero" id="hero"></div>

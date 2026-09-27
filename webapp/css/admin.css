@@ -868,3 +868,49 @@ body.admin {
 }
 .a-musique__geste[disabled] { opacity: .3; cursor: default; }
 .a-musique__geste--oter { color: var(--red); }
+
+/* ── Les deux gestes d'urgence ───────────────────────────────
+   En tête du tableau de bord, côte à côte, assez grands pour être touchés
+   sans viser. On ne cherche pas ces boutons-là : on les veut sous le pouce
+   à la seconde où l'écran s'ouvre. */
+.a-urgence {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin: 0 0 16px;
+}
+.a-gros {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  min-height: 74px; padding: 12px 13px; border-radius: 14px;
+  cursor: pointer; text-align: left;
+  color: var(--cream);
+  background: rgb(var(--panel-rgb) / .55);
+  border: 1px solid var(--line-soft);
+  transition: transform .12s ease, background .16s ease, border-color .16s ease;
+}
+.a-gros:active { transform: scale(.98); }
+.a-gros[disabled] { opacity: .5; cursor: default; }
+.a-gros__titre { font-size: 15px; font-weight: 800; letter-spacing: .01em; }
+.a-gros__dit {
+  font-size: 11.5px; font-weight: 600; line-height: 1.3;
+  color: var(--muted);
+}
+
+/* Au repos, les deux boutons se ressemblent : rien d'anormal ne se passe,
+   et un écran de bord qui crie en permanence n'apprend plus rien. C'est
+   l'état actif qui parle — et il parle fort, parce qu'oublier un rideau
+   baissé coûte une journée de commandes. */
+.a-gros--rideau.a-gros--actif {
+  color: #fff;
+  background: rgb(var(--red-rgb) / .22);
+  border-color: rgb(var(--red-rgb) / .75);
+  box-shadow: 0 0 0 1px rgb(var(--red-rgb) / .35), 0 0 18px rgb(var(--red-rgb) / .2);
+}
+.a-gros--rideau.a-gros--actif .a-gros__dit { color: rgb(255 255 255 / .85); }
+.a-gros--porte.a-gros--actif {
+  background: rgb(var(--gold-rgb) / .18);
+  border-color: rgb(var(--gold-rgb) / .65);
+}
+.a-gros--porte.a-gros--actif .a-gros__dit { color: rgb(var(--cream-rgb) / .8); }
+
+@media (prefers-reduced-motion: reduce) {
+  .a-gros { transition: none; }
+}

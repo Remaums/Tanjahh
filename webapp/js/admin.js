@@ -152,6 +152,8 @@ function bindHandlers() {
   });
   $('pickMedia').addEventListener('click', () => $('mediaFile').click());
   $('mediaFile').addEventListener('change', envoyerDepuisLaGalerie);
+  $('btnUrgence').addEventListener('click', basculerLUrgence);
+  $('btnOuverture').addEventListener('click', basculerLOuverture);
   $('pickMusique').addEventListener('click', () => $('fileMusique').click());
   $('fileMusique').addEventListener('change', (ev) => {
     const fichier = ev.target.files?.[0];
@@ -1802,6 +1804,7 @@ function renderSettings() {
   renderFeatures();
   renderLinkTargets();
   renderMusique();
+  renderCommandes();
 
   const opening = settings.opening ?? { open: true, hours: {} };
   $('fOpen').checked = Boolean(opening.open);
@@ -3215,6 +3218,85 @@ async function saveCategoryList() {
 }
 
 /* ── Utilitaires ─────────────────────────────────────────── */
+
+/* ── Les deux gestes d'urgence ──────────────────────────── */
+
+/**
+ * Le rideau de fer et la porte, en tête du tableau de bord.
+ *
+ * Deux choses différentes, et c'est pourquoi il y a deux boutons plutôt
+ * qu'un seul à trois positions. Fermer la boutique, c'est dire « on rouvre
+ * à 13h » : elle reste visible, reconnaissable, et le client comprend. Le
+ * rideau, lui, ne laisse rien à voir — la page s'en va ailleurs et l'API se
+ * tait. On ne baisse pas l'un en croyant faire l'autre.
+ */
+function renderCommandes() {
+  const reglages = state.settings;
+  if (!reglages || !$('btnUrgence')) return;
+
+  const baisse = reglages.urgence === true;
+  $('btnUrgence').classList.toggle('a-gros--actif', baisse);
+  $('btnUrgence').setAttribute('aria-pressed', baisse ? 'true' : 'false');
+  $('btnUrgenceTitre').textContent = baisse ? 'Urgence active' : 'Urgence';
+  $('btnUrgenceDit').textContent = baisse
+    ? 'La boutique renvoie sur Google'
+    : 'La boutique est visible';
+
+  const ouverte = reglages.opening?.open !== false;
+  $('btnOuverture').classList.toggle('a-gros--actif', !ouverte);
+  $('btnOuverture').setAttribute('aria-pressed', ouverte ? 'true' : 'false');
+  $('btnOuvertureTitre').textContent = ouverte ? 'Ouverte' : 'Fermée';
+  $('btnOuvertureDit').textContent = ouverte
+    ? 'On prend les commandes'
+    : 'Les commandes sont refusées';
+}
+
+/**
+ * Baisse ou relève le rideau.
+ *
+ * On demande confirmation dans les deux sens, et pas seulement pour le
+ * baisser : relever par erreur rend la boutique visible à l'instant même,
+ * ce qui est exactement ce qu'on cherchait à éviter.
+ */
+async function basculerLUrgence() {
+  const baisse = state.settings?.urgence === true;
+  const question = baisse
+    ? 'Relever le rideau ? La boutique redevient visible immédiatement.'
+    : "Baisser le rideau ?\n\nLa boutique renverra tous les visiteurs sur Google, "
+      + "et l'API refusera tout, jusqu'à ce que tu la relèves ici.\n\n"
+      + 'Cet écran, lui, reste accessible.';
+  if (!confirm(question)) return;
+
+  const bouton = $('btnUrgence');
+  bouton.disabled = true;
+  try {
+    state.settings = await api('/settings', { method: 'PUT', body: { urgence: !baisse } });
+    renderCommandes();
+    renderSettings();
+    toast(baisse ? 'Rideau relevé — la boutique est de nouveau visible.' : 'Rideau baissé.');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    bouton.disabled = false;
+  }
+}
+
+/** Ferme ou rouvre la boutique. Pas de confirmation : c'est un geste du jour. */
+async function basculerLOuverture() {
+  const ouverte = state.settings?.opening?.open !== false;
+  const bouton = $('btnOuverture');
+  bouton.disabled = true;
+  try {
+    state.settings = await api('/settings', { method: 'PUT', body: { opening: { open: !ouverte } } });
+    renderCommandes();
+    renderSettings();
+    toast(ouverte ? 'Boutique fermée.' : 'Boutique ouverte.');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    bouton.disabled = false;
+  }
+}
 
 /* ── La playlist d'ambiance ─────────────────────────────── */
 

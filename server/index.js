@@ -120,6 +120,69 @@ app.use((req, res, next) => {
   next();
 });
 
+/* ── Le rideau de fer ────────────────────────────────────────
+   Baissé, la boutique n'existe plus : la page d'accueil renvoie ailleurs et
+   l'API du client refuse tout. Ce n'est pas la fermeture ordinaire, qui dit
+   « on rouvre à 13h » et reste une boutique reconnaissable — ici il n'y a
+   rien à reconnaître.
+
+   Trois choses restent debout, et ce n'est pas un oubli :
+
+   - l'espace admin et son API, sans quoi le bouton serait une porte à sens
+     unique : baissé le rideau, plus moyen d'aller le relever ;
+   - les fichiers dont cet espace a besoin pour s'afficher — feuilles de
+     style, script, polices — pour la même raison ;
+   - la route de santé, qui ne dit qu'un booléen et sert à savoir si le
+     serveur tourne encore.
+
+   Le reste est coupé avant `express.static` : plus haut dans la chaîne, la
+   page aurait été servie avant qu'on ait pu la retenir. */
+const RIDEAU_LAISSE_PASSER = [
+  '/admin', '/admin.html',
+  '/api/admin/',
+  '/css/', '/js/', '/assets/',
+  '/api/health',
+];
+
+app.use(async (req, res, next) => {
+  let baisse = false;
+  try {
+    baisse = (await getSettings()).urgence === true;
+  } catch {
+    // Réglages illisibles : on ne baisse pas un rideau sur un doute. Une
+    // panne de disque fermerait la boutique sans que personne ne l'ait
+    // demandé, et sans moyen de la rouvrir.
+    return next();
+  }
+  if (!baisse) return next();
+  if (RIDEAU_LAISSE_PASSER.some((prefixe) => req.path === prefixe || req.path.startsWith(prefixe))) {
+    return next();
+  }
+
+  // L'API du client se tait, en refusant proprement : une page blanche
+  // laisserait une Mini App déjà ouverte tourner dans le vide.
+  if (req.path.startsWith('/api/')) {
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(503).json({ error: 'Boutique indisponible.' });
+  }
+
+  // Et la page s'en va. Une redirection 302 suffirait sur un navigateur ;
+  // une WebView est plus capricieuse avec les redirections vers un autre
+  // domaine, alors on sert une page minuscule qui s'en va elle-même — par
+  // le script, et par la balise de rafraîchissement s'il est coupé.
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.status(200).send(
+    '<!doctype html><html lang="fr"><head><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<meta http-equiv="refresh" content="0;url=https://www.google.com/">' +
+      '<title>Google</title></head><body style="margin:0;background:#fff">' +
+      '<script>location.replace("https://www.google.com/")</script>' +
+      '<noscript><a href="https://www.google.com/">Google</a></noscript>' +
+      '</body></html>'
+  );
+});
+
 app.use(express.static(webappDir, { extensions: ['html'] }));
 
 /* ── Santé ───────────────────────────────────────────────── */
