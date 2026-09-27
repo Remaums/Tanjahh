@@ -763,7 +763,7 @@ function mesurerLaBarre() {
   // La barre d'achat de la fiche produit se mesure aussi, et pour la même
   // raison : la réserve écrite en dur sous la fiche ne tenait pas compte de
   // sa hauteur réelle, si bien que le dernier carrousel finissait dessous —
-  // on voyait la vignette d'une suggestion, mais plus son nom ni son prix.
+  // on voyait la vignette d'une suggestion, mais plus son nom.
   const achat = place($('pbar'));
   if (achat > 0) document.documentElement.style.setProperty('--pbar-h', `${achat}px`);
 }
@@ -1713,7 +1713,7 @@ function carteSuggeree(produit) {
   const carte = document.createElement('button');
   carte.type = 'button';
   carte.className = 'suggestion';
-  carte.setAttribute('aria-label', `${produit.name}, ${formatPrice(produit.price)}`);
+  carte.setAttribute('aria-label', produit.name);
 
   const vignette = document.createElement('span');
   vignette.className = 'suggestion__art';
@@ -1729,11 +1729,11 @@ function carteSuggeree(produit) {
   nom.className = 'suggestion__nom';
   nom.textContent = produit.name;
 
-  const prix = document.createElement('span');
-  prix.className = 'suggestion__prix';
-  prix.textContent = formatPrice(produit.price);
-
-  carte.append(vignette, nom, prix);
+  // Pas de prix ici non plus. La grille n'en montre plus ; le montrer dans
+  // le carrousel le ferait disparaître d'un écran pour revenir trois écrans
+  // plus loin, et un prix d'entrée sorti de son format ne veut rien dire —
+  // c'est toute la raison pour laquelle il a quitté la grille.
+  carte.append(vignette, nom);
   carte.addEventListener('click', () => {
     openProduct(produit);
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -2961,7 +2961,10 @@ function renderFavoris(favoris) {
         `<img class="favori__image" src="${escapeHtml(photoDeVitrine(produit) ?? produit.image)}" alt="" loading="lazy">` +
         '<div class="favori__corps">' +
         `<span class="favori__nom">${escapeHtml(produit.name)}</span>` +
-        `<span class="favori__prix goldtext">${produit.variants ? '<small>dès</small> ' : ''}${formatPrice(produit.price)}</span>` +
+        // Les favoris étaient la dernière liste à afficher « dès 20 € ». Le
+        // prix d'entrée sorti de son format ne veut rien dire, et le laisser
+        // ici seul aurait rendu le seul écran où il subsiste le seul auquel
+        // on ne peut pas se fier.
         (epuise ? '<span class="favori__etat">Épuisé — active l\'alerte de retour</span>' : '') +
         '</div>' +
         '<button class="favori__coeur" type="button" aria-label="Retirer des favoris">♥</button>';
