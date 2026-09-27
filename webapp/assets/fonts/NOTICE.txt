@@ -1,6 +1,22 @@
 Polices embarquées dans la boutique
 ===================================
 
+Chakra Petch — le lettrage de la boutique
+  Auteur   : Cadson Demak
+  Source   : https://fonts.google.com/specimen/Chakra+Petch
+  Licence  : SIL Open Font License 1.1 (https://openfontlicense.org)
+
+Inter — le texte courant (fichier variable, graisses 400 à 800)
+  Auteur   : Rasmus Andersson
+  Source   : https://fonts.google.com/specimen/Inter
+  Licence  : SIL Open Font License 1.1 (https://openfontlicense.org)
+
+── Plus utilisées par la boutique ──────────────────────────────────
+Les quatre familles ci-dessous ne sont plus appelées par style.css. Leurs
+fichiers restent parce que maquette.html, la planche des trois structures
+de catalogue, s'en sert encore ; un @font-face que personne ne réclame ne
+coûte rien au client, le navigateur ne le télécharge pas.
+
 Luckiest Guy
   Auteur   : Astigmatic (AOETI)
   Source   : https://fonts.google.com/specimen/Luckiest+Guy
