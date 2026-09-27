@@ -162,6 +162,37 @@ check('Un morceau se retire', r.ok && reste.titres.length === 2, `${reste.titres
 r = await call('/api/admin/musique/aaa', { method: 'DELETE' });
 check('Le retirer deux fois répond 404', r.status === 404, `HTTP ${r.status}`);
 
+console.log('\n── L\'envoi d\'un morceau ────────────────────────────');
+
+// Ce qui suit ne vérifie pas l'aller-retour avec Telegram — injoignable
+// depuis une machine d'intégration — mais tout ce qui se passe avant lui, et
+// c'est là que le premier envoi réel a échoué : la route n'était pas déclarée
+// auprès du lecteur de corps brut, le binaire tombait dans `express.json()`,
+// et la boutique répondait « Aucun fichier reçu » sur un fichier bien arrivé.
+const envoyer = (corps, type, nom = 'essai.mp3') =>
+  fetch(`${BASE}/api/admin/musique/upload?nom=${encodeURIComponent(nom)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': type, 'X-Telegram-Init-Data': admin },
+    body: corps,
+  });
+
+r = await envoyer(Buffer.from('ID3\x04\x00\x00\x00' + 'x'.repeat(4000)), 'audio/mpeg');
+let dit = await r.json().catch(() => ({}));
+check('Le corps brut arrive jusqu\'à la route',
+  dit.error !== 'Aucun fichier reçu.', dit.error ?? `HTTP ${r.status}`);
+
+r = await envoyer(Buffer.from('ceci est un texte'), 'text/plain', 'notes.txt');
+dit = await r.json().catch(() => ({}));
+check('Un fichier qui n\'est pas un morceau est refusé',
+  r.status === 400 && /morceau/i.test(dit.error ?? ''), dit.error ?? `HTTP ${r.status}`);
+
+// Telegram ne rend pas à un bot un fichier de plus de 20 Mo : au-delà,
+// l'envoi réussirait et la lecture échouerait pour toujours.
+r = await envoyer(Buffer.alloc(20 * 1024 * 1024 + 512 * 1024, 7), 'audio/mpeg');
+dit = await r.json().catch(() => ({}));
+check('Un morceau de plus de 20 Mo est refusé, avec la raison',
+  r.status === 400 && /20 Mo/.test(dit.error ?? ''), (dit.error ?? `HTTP ${r.status}`).slice(0, 70));
+
 // La porte : la playlist est un réglage de boutique, pas une donnée publique.
 r = await fetch(`${BASE}/api/admin/musique/aaa`, { method: 'DELETE' });
 check('Un client ne touche pas à la playlist', r.status === 401, `HTTP ${r.status}`);

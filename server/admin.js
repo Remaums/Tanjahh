@@ -705,6 +705,17 @@ function recevoirFichier(req, attendu) {
   if (attendu === 'audio' && kind !== 'audio') {
     throw new HttpError(400, 'La playlist attend un fichier audio : MP3, M4A, OGG ou FLAC.');
   }
+  // Un bot ne peut retélécharger chez Telegram qu'un fichier de 20 Mo au
+  // plus. Au-delà, l'envoi réussirait et la lecture échouerait toujours :
+  // autant refuser ici, où l'on peut encore dire pourquoi.
+  if (kind === 'audio' && octets.length > 20 * 1024 * 1024) {
+    throw new HttpError(
+      400,
+      `Ce morceau fait ${Math.round(octets.length / 1024 / 1024)} Mo. ` +
+        'Telegram ne rend pas un fichier de plus de 20 Mo à un bot : il ne pourrait jamais être joué. ' +
+        'Réencode-le plus léger — trois minutes en 128 kbps font moins de 3 Mo.'
+    );
+  }
   if (attendu === 'photo' && kind !== 'photo') {
     throw new HttpError(
       400,

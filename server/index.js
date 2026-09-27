@@ -100,7 +100,14 @@ app.use(['/api/admin/backup/restore', '/api/admin/backup/inspect'], express.json
 // le type voyagent dans l'URL, le fichier est le corps. La limite couvre le
 // plus gros des deux plafonds Telegram ; la route affine ensuite selon le type.
 app.use(
-  ['/api/admin/products/:id/media/upload', '/api/admin/products/:id/image/upload'],
+  [
+    '/api/admin/products/:id/media/upload',
+    '/api/admin/products/:id/image/upload',
+    // Sans cette ligne, un morceau tombait dans `express.json()` juste en
+    // dessous, qui rendait un objet vide : la route répondait « Aucun fichier
+    // reçu » sur un fichier pourtant bien arrivé.
+    '/api/admin/musique/upload',
+  ],
   express.raw({ type: () => true, limit: '21mb' })
 );
 app.use(express.json({ limit: '64kb' }));
