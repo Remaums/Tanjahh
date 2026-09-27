@@ -1596,6 +1596,30 @@ const regardSurLaGrille =
       )
     : null;
 
+/**
+ * Cette mention mérite-t-elle l'étoile ?
+ *
+ * L'étoile dit « c'est ce qui se vend le mieux ». Posée aussi sur « NOUVEAU »
+ * et sur « -15 % », elle ne disait plus rien : trois mentions différentes
+ * sous le même signe finissent par n'en désigner aucune. Elle est donc
+ * réservée à la vedette, et les autres pastilles n'ont que leur mot.
+ *
+ * La reconnaissance se fait sur le libellé, faute de champ dédié : on retire
+ * les accents, la casse et les espaces en trop, et on accepte le singulier
+ * comme le pluriel. « Top Ventes » et « TOP VENTE » marchent donc tous les
+ * deux. Le jour où le rang mérite sa propre case dans le panneau d'admin,
+ * c'est cette fonction qui disparaît.
+ */
+function estUneVedette(badge) {
+  const mot = String(badge ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  return /^top ventes?$/.test(mot);
+}
+
 function productCard(product) {
   const card = document.createElement('button');
   card.type = 'button';
@@ -1625,7 +1649,7 @@ function productCard(product) {
 
   card.innerHTML = `
     <div class="card__art${video ? ' card__art--video' : photo ? ' card__art--photo' : ''}">
-      ${badge ? `<span class="card__badge ${soldOut ? 'card__badge--out' : ''}">${escapeHtml(badge)}</span>` : ''}
+      ${badge ? `<span class="card__badge ${soldOut ? 'card__badge--out' : ''} ${estUneVedette(badge) ? 'card__badge--etoile' : ''}">${escapeHtml(badge)}</span>` : ''}
       ${visuel}
     </div>
     <div class="card__body">

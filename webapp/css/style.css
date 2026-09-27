@@ -895,15 +895,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
   border-bottom-right-radius: 9px;
   box-shadow: inset 3px 0 0 var(--jaune);
 }
-/* Une étoile, et non plus un éclair : l'éclair disait la boutique, l'étoile
-   dit l'article. C'est le rang qu'on met en avant sur une carte, pas la
-   marque — elle est déjà partout ailleurs.
+/* L'étoile ne va qu'à la vedette.
+
+   Elle dit « c'est ce qui se vend le mieux ». Posée aussi sur « NOUVEAU » et
+   sur « -15 % », elle ne disait plus rien : trois mentions différentes sous
+   le même signe finissent par n'en désigner aucune. Les autres pastilles
+   n'ont que leur mot — l'arête jaune suffit à les tenir.
 
    Dessinée en découpe plutôt qu'écrite : ★ et ⚡ sont rendus par la police
    d'emoji sur la plupart des téléphones, qui leur impose sa forme et
    parfois sa couleur — on ne peut ni les mettre au jaune de l'enseigne ni
    savoir de quoi ils auront l'air. */
-.card__badge::before {
+.card__badge--etoile::before {
   content: ''; width: 10px; height: 10px; flex: none; background: var(--jaune);
   clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
                      50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
@@ -1279,6 +1282,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
    qu'il n'y a plus rien à allumer. */
 .card__badge--out { background: rgb(var(--ink-rgb) / .9); color: var(--muted); box-shadow: inset 3px 0 0 rgb(var(--cream-rgb) / .35); }
 .card__badge--out::before { background: rgb(var(--cream-rgb) / .35); }
+/* Sans étoile, le mot se recolle à l'arête : l'espace réservé au signe
+   laisserait un décalage que rien ne justifie. */
+.card__badge:not(.card__badge--etoile) { padding-left: 10px; gap: 0; }
 
 .variant[disabled] {
   background: rgba(255, 255, 255, .03); color: rgb(var(--cream-rgb) / .38);
