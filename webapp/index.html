@@ -422,7 +422,11 @@
 <div class="pbar" id="pbar" hidden>
   <button class="btn btn--primary btn--grow btn--block" id="commander" type="button">
     <svg class="btn__icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.5 2.8 10.6c-.9.3-.9 1.6 0 1.9l4.7 1.5 1.8 5.4c.3.8 1.3 1 1.8.3l2.4-3 4.6 3.4c.7.5 1.7.1 1.9-.7l3-14.2c.2-1-.7-1.9-1.5-1.7Z" fill="currentColor"/></svg>
-    Commander · <span id="pPrice"></span>
+    <!-- Le libellé et le prix dans un seul élément. Le bouton est une boîte
+         flexible : un texte nu posé à côté d'une icône y devient un élément
+         anonyme, qui se replie tout seul dès qu'il manque de place. On a vu
+         « Commander », puis un point tout seul sur sa ligne, puis le prix. -->
+    <span class="btn__libelle">Commander · <span id="pPrice"></span></span>
   </button>
   <!-- Demander n'est pas commander. Sans ce bouton, tout arrivait dans la
        conversation avec le même message pré-rempli : impossible de
@@ -431,7 +435,12 @@
   <button class="btn btn--ghost pbar__question" id="question" type="button"
           aria-label="Poser une question sur ce produit">
     <svg class="btn__icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.6-.4L4 21l1.5-4.3A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12.3 3 8.4 8.4 0 0 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-    Une question
+    <!-- Deux libellés, un seul visible : sous 392 px — la largeur d'un
+         Android courant — « Une question » et « Commander · 130 € » ne
+         tiennent pas côte à côte, et la barre se repliait sur deux rangées
+         hautes de 123 px. Le mot seul suffit là où la place manque. -->
+    <span class="pbar__long">Une question</span>
+    <span class="pbar__court">Question</span>
   </button>
   <button class="btn btn--ghost btn--grow" id="notifyMe" type="button" hidden>
     🔔 Préviens-moi du retour

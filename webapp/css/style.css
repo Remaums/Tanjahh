@@ -97,12 +97,21 @@
   --red: rgb(var(--red-rgb));
   --paper: var(--night);
 
-  /* La typo des pancartes. Bebas Neue est une condensée en capitales : le
-     lettrage cloué au poteau, celui qui dit OPEN 7/7 · 13H-00H. Le
-     Luckiest Guy cerné d'encre de la version d'avant faisait fête
-     foraine ; ici les titres s'annoncent, ils ne crient pas. */
-  --display: 'Bebas Neue', 'Barlow', system-ui, sans-serif;
-  --sans: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* La typo de la boutique. Chakra Petch a les angles coupés d'une borne
+     d'arcade et d'un écran de jeu : c'est la seule des candidates qui
+     parle la même langue que l'éclair et le néon du reste. Elle remplace
+     Bebas Neue, qui était une condensée en capitales — le lettrage cloué
+     au poteau, juste, mais muet sur ce que vend cette boutique-là.
+
+     Le prix à payer est réel et il est dans les cartes : Bebas était
+     condensée, Chakra Petch ne l'est pas, et un nom de produit y prend
+     une ligne de plus. Voir .card__name.
+
+     Inter dessous, pour tout ce qui se lit : c'est le caractère le plus
+     lisible aux petites tailles, et une WebView de téléphone n'offre que
+     des petites tailles. */
+  --display: 'Chakra Petch', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Un filet fin et des angles à peine cassés : du béton coffré, pas un
      autocollant découpé. Le contour de 2 px et les coins vifs, c'était la
@@ -368,11 +377,12 @@ body {
 h1, h2, h3, .display,
 .topbar__name, .card__name {
   font-family: var(--display);
-  /* Bebas Neue n'existe qu'en 400 : on demande 700 pour que la police de
-     secours reste grasse, et on coupe la fausse graisse pour ne pas
-     l'épaissir artificiellement quand le fichier est bien chargé. */
+  /* Chakra Petch a un vrai 700, contrairement à Bebas Neue qui n'existait
+     qu'en 400. On peut donc laisser le navigateur l'utiliser : la coupure
+     de synthèse d'avant existait pour l'empêcher d'épaissir lui-même des
+     lettres qui n'avaient pas de version grasse, et elle rendrait
+     maintenant le titre plus maigre que demandé. */
   font-weight: 700;
-  font-synthesis-weight: none;
   letter-spacing: .02em;
   margin: 0;
 }
@@ -460,9 +470,22 @@ button { font: inherit; color: inherit; cursor: pointer; }
    Il reste assez large pour porter son mot : une icône seule se lit « chat »,
    pas « une question sur ce produit », et on n'ose pas appuyer sur ce qu'on
    ne comprend pas. */
+/* Inter est plus large que Barlow : à 390 px la barre passait sur deux
+   rangées — 123 px de haut au lieu de 68 — et « Commander » n'était plus
+   sur la même ligne que « Une question ». On rend les quelques pixels
+   qu'il faut, aux marges intérieures d'abord, au corps ensuite : c'est
+   moins voyant que de raccourcir un libellé. */
+.pbar .btn { padding-left: 14px; padding-right: 14px; font-size: 14.5px; }
+.pbar .btn--block { gap: 7px; }
+.btn__libelle { white-space: nowrap; }
+/* Le bouton peut rétrécir sous la largeur de son texte : sans cette ligne,
+   un élément de flex refuse de descendre sous son contenu, et c'est la
+   barre entière qui se replie au lieu du seul libellé. */
+.pbar .btn { min-width: 0; }
+
 .pbar__question {
   flex: none; display: flex; align-items: center; gap: 7px;
-  padding: 13px 14px; font-size: 13.5px;
+  padding: 13px 12px; font-size: 13.5px; white-space: nowrap;
   color: rgb(var(--cream-rgb) / .82);
 }
 .pbar__question .btn__icone { width: 17px; height: 17px; }
@@ -471,7 +494,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Sur un écran étroit, les deux ne tiennent pas côte à côte sans que le prix
    du bouton principal ne passe à la ligne. La question descend alors sous
    « Commander », pleine largeur — deux lignes valent mieux qu'un prix coupé. */
-@media (max-width: 360px) {
+.pbar__court { display: none; }
+@media (max-width: 392px) {
+  .pbar__long { display: none; }
+  .pbar__court { display: inline; }
+}
+/* Sous 330 px il n'y a plus de tour de passe-passe qui tienne : le bouton
+   prend sa propre rangée. La réserve sous la fiche est mesurée à
+   l'affichage, elle suit donc la barre qui grandit. */
+@media (max-width: 330px) {
   .pbar__question { flex: 1 0 100%; justify-content: center; }
 }
 .btn[disabled] { opacity: .45; pointer-events: none; box-shadow: none; }
@@ -496,7 +527,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .agegate__seal {
   display: grid; place-items: center;
   width: 84px; height: 84px; margin: -62px auto 6px;
-  font-family: var(--display); font-weight: 700; font-synthesis-weight: none;
+  font-family: var(--display); font-weight: 700;
   font-size: 27px; line-height: 1; color: var(--ink);
   background: var(--neon);
   border: 4px solid var(--night-2); border-radius: 50%;
@@ -884,7 +915,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: linear-gradient(180deg, transparent, rgb(var(--ink-rgb) / .92) 42%);
 }
 .card__name {
-  font-size: 15px; line-height: 1.05; letter-spacing: .01em;
+  /* 1.05 était l'interligne de Bebas Neue : une capitale sans jambage, qu'on
+     peut serrer sans que rien ne se touche. Chakra Petch a des bas de casse
+     et des accents, et deux lignes à 1.05 se collaient. */
+  font-size: 15px; line-height: 1.14; letter-spacing: .01em;
   text-transform: uppercase;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
@@ -1187,7 +1221,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   border-radius: 18px; padding: 13px 14px; box-shadow: var(--shadow-sm);
 }
 .order__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.order__ref { font-family: var(--display); font-weight: 700; font-synthesis-weight: none; font-size: 17px; letter-spacing: .02em; }
+.order__ref { font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: .02em; }
 .order__status {
   flex: none; font-size: 11px; font-weight: 800; letter-spacing: .03em;
   border: 1px solid currentColor; border-radius: var(--radius); padding: 4px 10px;
