@@ -162,36 +162,62 @@ const isAdmin = (id) => estAdmin(id);
 /**
  * L'accueil : ce que voit quelqu'un qui vient d'ouvrir la conversation.
  *
- * La porte de secours est nommée ici, et pas ailleurs, parce que c'est le
- * seul message que tout le monde lit. Telegram interdit à un bot d'écrire le
- * premier à qui ne l'a jamais démarré : le registre du secours ne peut donc
- * se remplir que pendant que ce bot-ci fonctionne encore. Le jour où il
- * faudra s'en servir, il sera trop tard pour le dire.
+ * C'est le dernier message du parcours, pas le premier : d'abord le bot de
+ * secours, puis le calcul, et seulement ensuite celui-ci, avec le bouton qui
+ * ouvre la boutique. Il ne dit donc rien des deux marches — elles sont déjà
+ * franchies quand il arrive.
+ *
+ * La porte de secours y était collée, en un paragraphe sans bouton au milieu
+ * du texte de bienvenue. Elle a désormais son message à elle, juste après :
+ * un lien noyé dans un mot d'accueil ne se touche pas, et celui-là est le
+ * seul geste qu'on demande.
  */
 const accueillir = async (ctx) => {
-  const secours = await lienDuSecours().catch(() => '');
-  const filet = secours
-    ? '\n\n🆘 *Garde aussi la porte de secours* : ' + escapeMarkdown(secours) + '\n' +
-      escapeMarkdown(
-        "Écris-lui une fois. C'est la même boutique, et c'est là que tu " +
-        'recevrais la nouvelle adresse si cette conversation venait à disparaître.'
-      )
-    : '';
-  return ctx.reply(
+  await ctx.reply(
     `🌿 *${escapeMarkdown(config.shopName)}*\n\n` +
       // Le panier a disparu de la boutique il y a longtemps : ce message
       // continuait d'en promettre un à chaque nouveau client, et c'est la
       // toute première phrase qu'il lit.
       "Bienvenue dans la boutique\\. Tout se passe dans l'app : catalogue en images, " +
       'fiches produits, et un bouton qui ouvre ta commande ici même, déjà écrite\\.' +
-      filet +
       `\n\nTon ID Telegram : \`${ctx.from.id}\``,
     {
       parse_mode: 'MarkdownV2',
       reply_markup: shopKeyboard(),
     }
   );
+  return proposerLeSecours(ctx);
 };
+
+/**
+ * La porte de secours, proposée à qui n'est pas passé par le péage.
+ *
+ * Quatre personnes entrent sans franchir la marche du secours : le vendeur,
+ * qui ne doit jamais pouvoir se fermer sa propre boutique, et ceux qui ont
+ * déjà commandé, à qui on ne pose pas une condition nouvelle après coup. Ce
+ * sont, précisément, les gens les plus anciens de la boutique — et sans ce
+ * message ils seraient les seuls à ne jamais s'entendre proposer le geste,
+ * donc les seuls impossibles à prévenir le jour de la panne.
+ *
+ * Un message à part, avec les mêmes boutons que le péage. Rien du tout pour
+ * qui est déjà inscrit : lui redemander à chaque /start ferait du filet une
+ * corvée.
+ */
+async function proposerLeSecours(ctx) {
+  if (!configureSecours()) return undefined;
+  if (!(await getSettings()).features.porteSecours) return undefined;
+  if (await estInscritAuSecours(ctx.from.id)) return undefined;
+  const lien = await lienDuSecours().catch(() => '');
+  if (!lien) return undefined;
+  return ctx.reply(
+    "🆘 Une dernière chose, et elle compte.\n\n" +
+      'Cette boutique a un second bot, au cas où celui-ci disparaîtrait. ' +
+      "Écris-lui une fois — un simple /start suffit.\n\n" +
+      'Sans ce message, Telegram ne me laissera jamais te donner la nouvelle ' +
+      "adresse le jour où cette conversation s'arrêtera.",
+    { reply_markup: clavierDuSecours(lien) }
+  );
+}
 
 /* ── La porte du bot ─────────────────────────────────────── */
 
@@ -1253,6 +1279,33 @@ bot.callbackQuery(/^ann:(\d+)$/, async (ctx) => {
   } catch (err) {
     await ctx.answerCallbackQuery({ text: err.message?.slice(0, 180) ?? 'Raté.', show_alert: true });
   }
+});
+
+/**
+ * « J'ai écrit au bot de secours », touché hors du péage.
+ *
+ * Le péage attrape ce bouton lui-même, mais seulement pour ceux qu'il
+ * retient. Le vendeur et les anciens clients reçoivent la même proposition
+ * après l'accueil, sans être retenus : leur appui arrive donc jusqu'ici, et
+ * sans ce gestionnaire il ne se passait rien — un bouton qui tourne dans le
+ * vide passe pour cassé, et on le touche trois fois.
+ */
+bot.callbackQuery('sec:fait', async (ctx) => {
+  if (await estInscritAuSecours(ctx.from.id)) {
+    await ctx.answerCallbackQuery('✅').catch(() => {});
+    await ctx.editMessageReplyMarkup({ reply_markup: undefined }).catch(() => {});
+    return ctx.reply(
+      "✅ C'est bon, je t'ai vu chez le bot de secours. Tu es joignable là-bas " +
+        'si cette conversation venait à disparaître.'
+    );
+  }
+  await ctx.answerCallbackQuery("Je ne t'ai pas encore vu là-bas.").catch(() => {});
+  const lien = await lienDuSecours().catch(() => '');
+  return ctx.reply(
+    "⏳ Je ne t'ai pas encore vu chez le bot de secours.\n\n" +
+      'Touche le bouton du haut, envoie-lui /start, puis reviens.',
+    lien ? { reply_markup: clavierDuSecours(lien) } : undefined
+  );
 });
 
 bot.callbackQuery('ann:non', async (ctx) => {

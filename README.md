@@ -624,10 +624,21 @@ pas de carte dans la boutique, pas de veille. Rien ne casse.
 
 ### Le premier /start passe par lui
 
-Au tout premier `/start`, le bot demande d'abord d'écrire au bot de secours,
-**puis** pose le calcul, **puis** ouvre la boutique. Deux gestes au lieu d'un,
-et c'est cher — c'est le prix de ne pas perdre toute sa clientèle d'un coup,
-et il ne se paie qu'une fois.
+Au tout premier `/start`, dans cet ordre, un message par étape :
+
+1. **le bot de secours** — un lien, et un bouton « j'ai écrit » ;
+2. **le calcul** — six boutons ;
+3. **la bienvenue**, avec le bouton qui ouvre la boutique.
+
+Le mot d'accueil arrive donc en dernier, pas en premier : c'est la récompense
+des deux marches, et il ne parle ni de l'une ni de l'autre. Deux gestes au
+lieu d'un, et c'est cher — c'est le prix de ne pas perdre toute sa clientèle
+d'un coup, et il ne se paie qu'une fois.
+
+Les exemptés — le vendeur, ceux qui ont déjà commandé — reçoivent l'accueil
+tout de suite, puis **un second message** qui leur propose le geste sans les
+y contraindre. Ce sont les plus anciens de la boutique : sans ce message, ils
+seraient les seuls qu'on ne pourrait jamais prévenir.
 
 Le bouton « j'ai écrit au bot de secours » n'est pas cru sur parole : le
 registre est écrit par le second bot lui-même, dans le même processus, et

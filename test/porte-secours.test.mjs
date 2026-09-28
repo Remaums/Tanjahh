@@ -117,6 +117,14 @@ if (process.env.PORTE_SECOURS_SCENARIO) {
   // Le vendeur n'a pas à s'enregistrer auprès de sa propre boutique.
   const patron = await ecrire('/start', PATRON);
 
+  // Le vendeur touche « j'ai écrit » sans l'avoir fait : le péage ne l'attrape
+  // pas (il n'est pas retenu), donc l'appui va jusqu'au gestionnaire de fin.
+  // Sans lui, rien ne se passait — et un bouton qui tourne dans le vide passe
+  // pour cassé, on le touche trois fois.
+  const patronMenteur = await toucher('sec:fait', PATRON);
+  await inscrire(PATRON.id);
+  const patronVrai = await toucher('sec:fait', PATRON);
+
   // Le client va écrire au second bot : c'est ce que son premier middleware
   // aurait fait. Même processus, même magasin.
   await inscrire(CLIENT.id);
@@ -136,8 +144,10 @@ if (process.env.PORTE_SECOURS_SCENARIO) {
   await saveSettings({ features: { porteSecours: true } });
   await oublierLeSecours(CLIENT.id);
 
+  await oublierLeSecours(PATRON.id);
   console.log(JSON.stringify({
-    premier, menteur, demandeDuLien, patron, apresInscription, apresCalcul, eteint,
+    premier, menteur, demandeDuLien, patron, patronMenteur, patronVrai,
+    apresInscription, apresCalcul, eteint,
   }));
   process.exit(0);
 }
@@ -200,9 +210,33 @@ console.log('\n── Ce que le péage laisse passer ─────────
 check('/secours répond, même non inscrit',
   vu.demandeDuLien.some((m) => new RegExp(SECOURS_NOM).test(m.texte)),
   vu.demandeDuLien.map((m) => m.texte.slice(0, 40)).join(' | '));
-check('Le vendeur n est pas soumis au péage',
-  !vu.patron.some(parleDuSecours) && vu.patron.some((m) => m.boutique),
-  vu.patron.map((m) => m.texte.slice(0, 34)).join(' | '));
+// Le vendeur ne doit jamais pouvoir se fermer sa propre boutique : il entre.
+// Mais il n'est pas inscrit pour autant, donc injoignable le jour de la
+// panne — on lui propose donc le geste, dans un message À PART. C'est le
+// défaut que le vendeur a signalé : le lien était noyé dans l'accueil, sans
+// bouton, et ne se touchait jamais.
+check('Le vendeur entre sans être retenu', vu.patron.some((m) => m.boutique),
+  vu.patron.map((m) => m.texte.slice(0, 30)).join(' | '));
+check("L'accueil ne parle plus du bot de secours",
+  !parleDuSecours(vu.patron.find((m) => /Bienvenue/.test(m.texte)) ?? { texte: '' }),
+  (vu.patron.find((m) => /Bienvenue/.test(m.texte))?.texte ?? '').slice(0, 70));
+check('La proposition est un message séparé, après',
+  vu.patron.findIndex(parleDuSecours) > vu.patron.findIndex((m) => /Bienvenue/.test(m.texte)),
+  vu.patron.map((m) => m.texte.slice(0, 22)).join(' | '));
+check('Et elle porte les boutons, pas un lien nu',
+  vu.patron.some((m) => parleDuSecours(m) && m.touches.includes('sec:fait') && m.liens.length > 0),
+  vu.patron.flatMap((m) => m.touches).join(' '));
+
+console.log('\n── Le bouton hors du péage ─────────────────────────');
+
+check('Il répond, au lieu de tourner dans le vide', vu.patronMenteur.length > 0,
+  `${vu.patronMenteur.length} message(s)`);
+check('Et il ne croit pas sur parole',
+  vu.patronMenteur.some((m) => /pas encore vu/i.test(m.texte) || /pas encore vu/i.test(m.alerte ?? '')),
+  vu.patronMenteur.map((m) => (m.alerte ?? m.texte).slice(0, 30)).join(' | '));
+check('Une fois le geste fait, il le confirme',
+  vu.patronVrai.some((m) => /je t'ai vu|joignable/i.test(m.texte)),
+  vu.patronVrai.map((m) => m.texte.slice(0, 40)).join(' | '));
 
 console.log('\n── Une fois écrit au bot de secours ────────────────');
 
@@ -215,6 +249,16 @@ console.log('\n── Puis le calcul juste ────────────�
 check('Il est accepté', vu.apresCalcul.some((m) => /Merci/i.test(m.texte)),
   vu.apresCalcul.map((m) => m.texte.slice(0, 34)).join(' | '));
 check('Et la boutique s ouvre enfin', vu.apresCalcul.some((m) => m.boutique));
+// L'ordre demandé par le vendeur : bot de secours, calcul, PUIS bienvenue.
+// L'accueil est le dernier message du parcours, pas le premier.
+check("Le mot de bienvenue n arrive qu ici, à la fin",
+  vu.apresCalcul.some((m) => /Bienvenue/.test(m.texte)) &&
+    !vu.premier.some((m) => /Bienvenue/.test(m.texte)) &&
+    !vu.apresInscription.some((m) => /Bienvenue/.test(m.texte)),
+  vu.apresCalcul.map((m) => m.texte.slice(0, 26)).join(' | '));
+check("Et il ne redemande pas le bot de secours, déjà fait",
+  !vu.apresCalcul.some(parleDuSecours),
+  vu.apresCalcul.map((m) => m.texte.slice(0, 26)).join(' | '));
 
 console.log('\n── L interrupteur éteint ───────────────────────────');
 
