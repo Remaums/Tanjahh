@@ -128,21 +128,14 @@ if (botSecours) {
     return poserLEpreuve(ctx, porte.epreuve);
   });
 
-  botSecours.command('start', (ctx) => accueillir(ctx));
+  botSecours.command('start', (ctx) =>
+    // `?start=entree` : il arrive du péage du bot principal, où on vient de
+    // lui demander ce message. Le renvoyer tout de suite là-bas lui épargne
+    // de chercher comment revenir — et c'est là-bas que la boutique s'ouvre.
+    ctx.match === 'entree' ? renvoyerAuPrincipal(ctx) : accueillir(ctx)
+  );
   botSecours.command('boutique', (ctx) =>
     ctx.reply('Voilà le catalogue 👇', { reply_markup: clavierBoutique() })
-  );
-
-  botSecours.command('aide', (ctx) =>
-    ctx.reply(
-      "Tu es sur la porte de secours de la boutique.\n\n" +
-        "Elle sert exactement à ça : rester ouverte si l'autre bot disparaît. " +
-        "Tu n'as rien à faire de plus — le fait d'avoir écrit ici suffit, " +
-        "je saurai te prévenir.\n\n" +
-        '/boutique — ouvrir le catalogue\n' +
-        '/stop — ne plus recevoir de message de secours',
-      { reply_markup: clavierBoutique() }
-    )
   );
 
   // Partir d'ici, c'est renoncer à être prévenu : on le dit franchement
@@ -164,7 +157,7 @@ if (botSecours) {
     if (texte.startsWith('/')) {
       return ctx.reply(
         "Cette commande n'existe pas ici — cette conversation est la porte de " +
-          'secours de la boutique. /aide pour savoir ce qu\'elle sait faire.',
+          'secours de la boutique. Le bouton ci-dessous ouvre le catalogue.',
         { reply_markup: clavierBoutique() }
       );
     }
@@ -233,6 +226,41 @@ const accueillir = (ctx) =>
       `Ton ID Telegram : \`${ctx.from.id}\``,
     { parse_mode: 'MarkdownV2', reply_markup: clavierBoutique() }
   );
+
+/**
+ * Il vient d'être enregistré : on le remet sur le chemin qu'il suivait.
+ *
+ * Sans ce renvoi, le client se retrouve dans une conversation vide qui le
+ * félicite, avec la boutique restée dans l'autre onglet et un calcul qui
+ * l'attend sans qu'il le sache. Deux gestes demandés, c'est déjà beaucoup :
+ * le second ne doit pas laisser perdu.
+ */
+const renvoyerAuPrincipal = (ctx) => {
+  const clavier = config.botUsername
+    ? new InlineKeyboard().url('← Revenir à la boutique', `https://t.me/${config.botUsername}`)
+    : undefined;
+  return ctx.reply(
+    "✅ C'est noté, tu es enregistré ici.\n\n" +
+      "Garde cette conversation : si l'autre bot venait à disparaître, c'est " +
+      'ici que tu recevrais la nouvelle adresse.\n\n' +
+      "Maintenant retourne dans l'autre conversation — c'est là que la " +
+      "boutique s'ouvre.",
+    { reply_markup: clavier }
+  );
+};
+
+/**
+ * Le menu « / » du bot de secours : vide, pour tout le monde.
+ *
+ * Il n'a que trois commandes et aucune n'est utile à taper — le bouton
+ * ouvre la boutique, et ce bot n'a pas de vendeur à servir. Une liste
+ * affichée ne renseignerait que sur ce qu'il y a à essayer.
+ */
+export async function configurerLesCommandesDuSecours() {
+  if (!botSecours) return false;
+  await botSecours.api.setMyCommands([], { scope: { type: 'all_private_chats' } });
+  return true;
+}
 
 /**
  * Envoie un message à tous les inscrits du secours.

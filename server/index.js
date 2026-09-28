@@ -6,7 +6,9 @@ import { webhookCallback } from 'grammy';
 import { config, publicConfig, assertConfigured } from './config.js';
 import { verifyInitDataAny } from './telegram-auth.js';
 import { configure as secoursConfigure, estInscrit as estInscritAuSecours, combien as combienAuSecours } from './secours.js';
-import { lienDuSecours, botSecours, prevenirLesInscrits } from './bot-secours.js';
+import {
+  lienDuSecours, botSecours, prevenirLesInscrits, configurerLesCommandesDuSecours,
+} from './bot-secours.js';
 import { creerLaVeille, resumeDuSecours } from './veille.js';
 import {
   HttpError,
@@ -32,6 +34,7 @@ import {
 import { adminRouter, requireAdmin } from './admin.js';
 import {
   bot, notifyAdmin, notifyOrderPlaced, notifyLowStock, notifyNouvelAvis, configurerMenu,
+  configurerLesCommandes,
   sendFileToAdmin,
 } from './bot.js';
 import { demarrerLEntretien } from './entretien.js';
@@ -1398,6 +1401,14 @@ if (standalone) {
               )
             )
             .catch((err) => console.warn(`  Bouton de menu non réglé : ${err.message}`));
+          // Le menu « / » : vide pour les clients, garni pour le vendeur.
+          configurerLesCommandes()
+            .then((r) =>
+              console.log(
+                `  Menu des commandes : caché aux clients, posé pour ${r.poses}/${r.patrons} admin(s).`
+              )
+            )
+            .catch((err) => console.warn(`  Menu des commandes non réglé : ${err.message}`));
         },
       })
       .catch(signaler);
@@ -1415,7 +1426,10 @@ if (standalone) {
     try {
       botSecours
         .start({
-          onStart: (me) => console.log(`  Bot de secours @${me.username} démarré.`),
+          onStart: (me) => {
+            console.log(`  Bot de secours @${me.username} démarré.`);
+            configurerLesCommandesDuSecours().catch(() => {});
+          },
         })
         .catch((err) =>
           console.error(`  Bot de secours non démarré (${err.message}). Le principal n'est pas touché.`)

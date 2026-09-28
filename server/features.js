@@ -45,6 +45,16 @@ export const FEATURES = [
     default: true,
   },
   {
+    key: 'porteSecours',
+    label: 'Enregistrer le bot de secours en entrant',
+    hint:
+      "Au tout premier /start, le bot demande d'abord d'écrire au bot de secours, " +
+      'puis pose le calcul. Sans ce geste, il ne pourra jamais prévenir ce client ' +
+      "si la boutique change de bot : Telegram interdit d'écrire le premier à qui " +
+      "ne vous a jamais écrit. Sans second bot configuré, cet interrupteur ne fait rien.",
+    default: true,
+  },
+  {
     key: 'verification',
     label: "Vérification d'identité",
     hint: "Le client fait valider une pièce dans la conversation du bot avant de commander.",

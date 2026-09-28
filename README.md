@@ -562,11 +562,10 @@ dans ton bot.
 | `/start` | Message d'accueil + bouton boutique + affiche l'ID du client |
 | `/boutique` | Rouvre la Mini App |
 | `/commandes` | Les 5 dernières commandes du client |
-| `/aide` | Liste des commandes |
 | `/secours` | Le lien du bot de secours (+ le compte des inscrits, pour le vendeur) |
 | `/stop` | ne plus recevoir d'annonces |
 | `/annonces` | les recevoir de nouveau |
-| `/admin` | Espace d'administration (réservé) |
+| `/admin` | Espace d'administration **et la liste des commandes du vendeur** (réservé) |
 | `/ouvrir` `/fermer` | Ouvre ou ferme la boutique (réservé) |
 | `/verification on\|off` | Allume ou coupe la vérification d'identité (réservé) |
 | `/enligne` | Les **visites de la dernière demi-heure** (réservé) |
@@ -576,8 +575,19 @@ dans ton bot.
 | `/deladmin <id\|@pseudo>` | Les reprend (réservé) |
 
 Tout autre message d'un client est **relayé au vendeur**, qui répond en
-répondant au message. Un message du vendeur lui-même reçoit la liste des
-commandes.
+répondant au message. Une commande inconnue, elle, n'est pas relayée : le
+client reçoit le bouton de la boutique, et le vendeur n'a pas `/aide` qui
+arrive à côté des vraies questions.
+
+**Les clients ne voient aucune commande.** Le menu « / » de Telegram reçoit
+une liste vide sur la portée `all_private_chats`, et la liste du vendeur sur
+la portée `chat` de chacun de ses administrateurs — celle-ci l'emporte. Une
+liste affichée à un acheteur lui apprend surtout qu'il en existe d'autres :
+il essaie `/annonce`, se fait refuser, et le refus lui confirme qu'elles
+existent. Le catalogue s'ouvre d'un bouton ; un client n'a rien à taper.
+
+Il n'y a plus de `/aide`. La liste des commandes du vendeur est dans
+`/admin`, l'endroit qu'il ouvre déjà.
 
 ## Le bot de secours
 
@@ -611,6 +621,23 @@ BOT_USERNAME_SECOURS=ma_boutique_secours_bot
 
 Laisse ces lignes vides et tout ce qui suit s'éteint : pas de second bot,
 pas de carte dans la boutique, pas de veille. Rien ne casse.
+
+### Le premier /start passe par lui
+
+Au tout premier `/start`, le bot demande d'abord d'écrire au bot de secours,
+**puis** pose le calcul, **puis** ouvre la boutique. Deux gestes au lieu d'un,
+et c'est cher — c'est le prix de ne pas perdre toute sa clientèle d'un coup,
+et il ne se paie qu'une fois.
+
+Le bouton « j'ai écrit au bot de secours » n'est pas cru sur parole : le
+registre est écrit par le second bot lui-même, dans le même processus, et
+c'est lui qui décide. Quatre personnes ne sont pas soumises au péage : le
+vendeur, qui a déjà commandé ici, qui arrive depuis la Mini App, et tout le
+monde si `BOT_TOKEN_SECOURS` est absent.
+
+L'interrupteur **« Enregistrer le bot de secours en entrant »**, dans l'espace
+admin, l'éteint sans toucher au reste : le second bot continue de tourner, la
+carte reste dans le profil, seul le péage disparaît.
 
 ### Comment les clients l'apprennent
 
