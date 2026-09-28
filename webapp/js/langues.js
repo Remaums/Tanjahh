@@ -43,8 +43,9 @@ export const TEXTES = {
     // le jour où le vendeur renomme sa boutique, trois traductions
     // garderaient l'ancien sans que personne pense à venir les corriger.
     'accueil.texte':
-      "{boutique} t'apporte de nouvelles variétés et de nouvelles gammes, "
-      + 'renouvelées toute l\'année. Qualité garantie sur chaque produit du catalogue.',
+      '{boutique} est là pour vous faire découvrir <strong>de nouvelles variétés</strong> ainsi ' +
+      'que de nouvelles gammes, renouvelées toute l\'année. <strong>Qualité garantie</strong> sur ' +
+      'chaque produit du catalogue.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Meet-up & Livraison',
     'accueil.langue': 'Choisis ta langue',
@@ -352,8 +353,8 @@ export const TEXTES = {
   en: {
     'accueil.bienvenue': 'Welcome',
     'accueil.texte':
-      '{boutique} brings you new varieties and new ranges, refreshed all year round. '
-      + 'Quality guaranteed on every product in the catalogue.',
+      '{boutique} is here to show you <strong>new strains</strong> and new ranges, refreshed all ' +
+      'year round. <strong>Quality guaranteed</strong> on every product in the catalogue.',
     'accueil.horaires': '7/7 · 1PM-12AM',
     'accueil.service': 'Meet-up & Delivery',
     'accueil.langue': 'Choose your language',
@@ -643,8 +644,8 @@ export const TEXTES = {
   es: {
     'accueil.bienvenue': 'Bienvenido',
     'accueil.texte':
-      '{boutique} te trae nuevas variedades y nuevas gamas, renovadas todo el año. '
-      + 'Calidad garantizada en cada producto del catálogo.',
+      '{boutique} está aquí para descubrirte <strong>nuevas variedades</strong> y nuevas gamas, ' +
+      'renovadas todo el año. <strong>Calidad garantizada</strong> en cada producto del catálogo.',
     'accueil.horaires': '7/7 · 13:00-00:00',
     'accueil.service': 'Meet-up y Entrega',
     'accueil.langue': 'Elige tu idioma',
@@ -934,8 +935,8 @@ export const TEXTES = {
   it: {
     'accueil.bienvenue': 'Benvenuto',
     'accueil.texte':
-      '{boutique} ti porta nuove varietà e nuove gamme, rinnovate tutto l\'anno. Qualità garantita ' +
-      'su ogni prodotto del catalogo.',
+      '{boutique} è qui per farti scoprire <strong>nuove varietà</strong> e nuove gamme, ' +
+      'rinnovate tutto l\'anno. <strong>Qualità garantita</strong> su ogni prodotto del catalogo.',
     'accueil.horaires': '7/7 · 13-24',
     'accueil.service': 'Incontro e consegna',
     'accueil.langue': 'Scegli la tua lingua',
@@ -1203,8 +1204,9 @@ export const TEXTES = {
   nl: {
     'accueil.bienvenue': 'Welkom',
     'accueil.texte':
-      '{boutique} brengt je nieuwe soorten en nieuwe reeksen, het hele jaar door vernieuwd. ' +
-      'Gegarandeerde kwaliteit op elk product in de catalogus.',
+      '{boutique} laat je <strong>nieuwe soorten</strong> en nieuwe reeksen ontdekken, het hele ' +
+      'jaar door vernieuwd. <strong>Gegarandeerde kwaliteit</strong> op elk product in de ' +
+      'catalogus.',
     'accueil.horaires': '7/7 · 13-24 u',
     'accueil.service': 'Afspraak & levering',
     'accueil.langue': 'Kies je taal',
@@ -1476,8 +1478,9 @@ export const TEXTES = {
   pt: {
     'accueil.bienvenue': 'Bem-vindo',
     'accueil.texte':
-      '{boutique} traz-te novas variedades e novas gamas, renovadas todo o ano. Qualidade ' +
-      'garantida em cada produto do catálogo.',
+      '{boutique} está aqui para te dar a conhecer <strong>novas variedades</strong> e novas ' +
+      'gamas, renovadas todo o ano. <strong>Qualidade garantida</strong> em cada produto do ' +
+      'catálogo.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Encontro e entrega',
     'accueil.langue': 'Escolhe a tua língua',
@@ -1745,8 +1748,8 @@ export const TEXTES = {
   de: {
     'accueil.bienvenue': 'Willkommen',
     'accueil.texte':
-      '{boutique} bringt dir neue Sorten und neue Reihen, das ganze Jahr über erneuert. ' +
-      'Garantierte Qualität bei jedem Produkt im Katalog.',
+      '{boutique} zeigt dir <strong>neue Sorten</strong> und neue Reihen, das ganze Jahr über ' +
+      'erneuert. <strong>Garantierte Qualität</strong> bei jedem Produkt im Katalog.',
     'accueil.horaires': '7/7 · 13–24 Uhr',
     'accueil.service': 'Treffen & Lieferung',
     'accueil.langue': 'Wähle deine Sprache',
@@ -2016,8 +2019,8 @@ export const TEXTES = {
   ar: {
     'accueil.bienvenue': 'مرحباً',
     'accueil.texte':
-      '{boutique} تقدّم لك أصنافاً جديدة وتشكيلات جديدة، تتجدّد طوال السنة. جودة مضمونة في كل ' +
-      'منتج من الكتالوج.',
+      '{boutique} يعرّفك على <strong>أصناف جديدة</strong> وتشكيلات جديدة، تتجدّد طوال السنة. ' +
+      '<strong>جودة مضمونة</strong> في كل منتج من الكتالوج.',
     'accueil.horaires': '7/7 · 13:00-00:00',
     'accueil.service': 'لقاء وتوصيل',
     'accueil.langue': 'اختر لغتك',

@@ -2503,6 +2503,19 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
   margin: 10px 0 0; font-size: 13px; line-height: 1.55;
   color: rgb(var(--cream-rgb) / .78);
 }
+/* Ce que la phrase promet, au jaune de l'enseigne.
+
+   Le corps du paragraphe est volontairement en retrait — 78 % d'opacité :
+   c'est un texte d'accueil, pas le catalogue. Les deux passages qui portent
+   le message reviennent à pleine lumière et prennent la couleur de la
+   marque, ce qui suffit à les faire lire en premier sans crier.
+
+   Deux, et pas trois : le nom de la boutique est déjà écrit en gros juste
+   au-dessus, et un troisième passage en jaune ferait un paragraphe qui
+   clignote plutôt qu'une phrase qui accroche. */
+.bienvenue__texte strong {
+  color: var(--jaune); font-weight: 800;
+}
 
 /* L'horaire et le service. En capitales et espacés : ce sont deux
    étiquettes, pas des phrases, et on doit pouvoir les lire d'un coup d'œil

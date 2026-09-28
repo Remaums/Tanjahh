@@ -2731,7 +2731,15 @@ function montrerLAccueil() {
     $('bienvenueSalut').textContent = nom
       ? `${t('accueil.bienvenue')} ${isoler(nom)}`
       : t('accueil.bienvenue');
-    $('bienvenueTexte').textContent = t('accueil.texte', { boutique: state.shop?.shopName ?? '' }).trim();
+    // `innerHTML` et non `textContent` : la phrase porte du gras, et c'est le
+    // seul texte du cadre qui en porte. Le balisage vient de notre
+    // dictionnaire — jamais du client — mais le nom de la boutique, lui,
+    // vient des réglages : il est échappé avant d'entrer dans la phrase.
+    // Un vendeur qui appellerait sa boutique « Tanja <b>67</b> » verrait
+    // sinon son nom interprété plutôt qu'affiché.
+    $('bienvenueTexte').innerHTML = t('accueil.texte', {
+      boutique: escapeHtml(state.shop?.shopName ?? ''),
+    }).trim();
     ecrireLHoraire();
     $('bienvenueService').textContent = t('accueil.service');
     $('bienvenueLegende').textContent = t('accueil.langue');
