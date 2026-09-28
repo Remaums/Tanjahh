@@ -48,6 +48,9 @@ export const TEXTES = {
       'chaque produit du catalogue.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Meet-up & Livraison',
+    'accueil.botApp':
+      'Tout se passe dans l\'app : catalogue en images, fiches produits, et ta commande déjà ' +
+      'écrite.',
     'accueil.langue': 'Choisis ta langue',
     'accueil.entrer': 'Entrer dans la boutique',
 
@@ -357,6 +360,9 @@ export const TEXTES = {
       'year round. <strong>Quality guaranteed</strong> on every product in the catalogue.',
     'accueil.horaires': '7/7 · 1PM-12AM',
     'accueil.service': 'Meet-up & Delivery',
+    'accueil.botApp':
+      'Everything happens in the app: catalogue in pictures, product sheets, and your order ' +
+      'already written.',
     'accueil.langue': 'Choose your language',
     'accueil.entrer': 'Enter the shop',
 
@@ -648,6 +654,8 @@ export const TEXTES = {
       'renovadas todo el año. <strong>Calidad garantizada</strong> en cada producto del catálogo.',
     'accueil.horaires': '7/7 · 13:00-00:00',
     'accueil.service': 'Meet-up y Entrega',
+    'accueil.botApp':
+      'Todo pasa en la app: catálogo en imágenes, fichas de producto, y tu pedido ya redactado.',
     'accueil.langue': 'Elige tu idioma',
     'accueil.entrer': 'Entrar en la tienda',
 
@@ -939,6 +947,9 @@ export const TEXTES = {
       'rinnovate tutto l\'anno. <strong>Qualità garantita</strong> su ogni prodotto del catalogo.',
     'accueil.horaires': '7/7 · 13-24',
     'accueil.service': 'Incontro e consegna',
+    'accueil.botApp':
+      'Tutto avviene nell\'app: catalogo in immagini, schede prodotto, e il tuo ordine già ' +
+      'scritto.',
     'accueil.langue': 'Scegli la tua lingua',
     'accueil.entrer': 'Entra nel negozio',
 
@@ -1209,6 +1220,9 @@ export const TEXTES = {
       'catalogus.',
     'accueil.horaires': '7/7 · 13-24 u',
     'accueil.service': 'Afspraak & levering',
+    'accueil.botApp':
+      'Alles gebeurt in de app: catalogus in beeld, productpagina\'s, en je bestelling al ' +
+      'opgesteld.',
     'accueil.langue': 'Kies je taal',
     'accueil.entrer': 'Naar de winkel',
 
@@ -1483,6 +1497,9 @@ export const TEXTES = {
       'catálogo.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Encontro e entrega',
+    'accueil.botApp':
+      'Tudo acontece na app: catálogo em imagens, fichas de produto, e a tua encomenda já ' +
+      'escrita.',
     'accueil.langue': 'Escolhe a tua língua',
     'accueil.entrer': 'Entrar na loja',
 
@@ -1752,6 +1769,9 @@ export const TEXTES = {
       'erneuert. <strong>Garantierte Qualität</strong> bei jedem Produkt im Katalog.',
     'accueil.horaires': '7/7 · 13–24 Uhr',
     'accueil.service': 'Treffen & Lieferung',
+    'accueil.botApp':
+      'Alles läuft in der App: Katalog in Bildern, Produktseiten, und deine Bestellung schon ' +
+      'fertig geschrieben.',
     'accueil.langue': 'Wähle deine Sprache',
     'accueil.entrer': 'Zum Shop',
 
@@ -2023,6 +2043,7 @@ export const TEXTES = {
       '<strong>جودة مضمونة</strong> في كل منتج من الكتالوج.',
     'accueil.horaires': '7/7 · 13:00-00:00',
     'accueil.service': 'لقاء وتوصيل',
+    'accueil.botApp': 'كل شيء يجري في التطبيق: كتالوج بالصور، بطاقات المنتجات، وطلبك مكتوب سلفاً.',
     'accueil.langue': 'اختر لغتك',
     'accueil.entrer': 'ادخل المتجر',
 

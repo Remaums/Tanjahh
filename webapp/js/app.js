@@ -189,6 +189,18 @@ function appliquerLaLangue(code, { retenir = false } = {}) {
   // musique partait sans le geste qu'il devait justement recueillir.
   if (retenir) {
     try { localStorage.setItem(LANGUE_CLEF, langue); } catch { /* navigation privée */ }
+    // Et au serveur, pour que le bot parle la même langue. Sans cet envoi,
+    // le client choisit l'italien ici et reçoit ses messages en français :
+    // il recommence, ça ne tient toujours pas, et il conclut que le réglage
+    // ne marche pas. Sans attendre la réponse — c'est un réglage de confort,
+    // il ne doit pas retarder d'une seconde la traduction de l'écran.
+    if (tg?.initData) {
+      fetch('/api/langue', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Telegram-Init-Data': tg.initData },
+        body: JSON.stringify({ code: langue }),
+      }).catch(() => { /* hors ligne : le navigateur s'en souvient quand même */ });
+    }
   }
 
   for (const el of document.querySelectorAll('[data-t]')) {
@@ -252,6 +264,33 @@ function langueDeDepart() {
   return { code: langueProposee(tg?.initDataUnsafe?.user?.language_code), dejaChoisie: false };
 }
 
+/**
+ * La langue que le serveur connaît de ce client, s'il en connaît une.
+ *
+ * Elle vaut mieux que celle du navigateur : c'est la même qu'utilise le bot,
+ * et elle suit le client d'un téléphone à l'autre. Le navigateur, lui, ne
+ * sait que ce qui a été choisi sur CET appareil — et rien du tout après un
+ * nettoyage ou en navigation privée.
+ *
+ * On ne l'attend pas pour peindre le premier écran : la langue du navigateur
+ * s'applique tout de suite, et celle-ci corrige s'il y a lieu. Attendre le
+ * réseau pour afficher la première phrase, c'est afficher un écran vide.
+ */
+async function langueDuServeur() {
+  if (!tg?.initData) return null;
+  try {
+    const res = await fetch('/api/langue', { headers: { 'X-Telegram-Init-Data': tg.initData } });
+    if (!res.ok) return null;
+    const etat = await res.json();
+    // Seulement un choix explicite : une langue simplement devinée par le
+    // serveur ne vaut pas plus que celle devinée ici, et écraserait ce que
+    // le client vient peut-être de choisir sur cet appareil.
+    return etat.source === 'choisie' && TEXTES[etat.code] ? etat.code : null;
+  } catch {
+    return null;
+  }
+}
+
 let fermetureProgrammee = false;
 
 /* ── Démarrage ───────────────────────────────────────────── */
@@ -273,6 +312,11 @@ async function init() {
   // du client dès sa première phrase. Appliquée plus tard, elle arrivait
   // après que la première ligne s'était affichée en français.
   appliquerLaLangue(langueDeDepart().code);
+  // Puis, sans bloquer, ce que le serveur sait : c'est la langue que parle
+  // aussi le bot, et elle suit le client d'un appareil à l'autre.
+  langueDuServeur()
+    .then((code) => { if (code && code !== langue) appliquerLaLangue(code); })
+    .catch(() => {});
 
   state.startProduct = produitDemande();
 

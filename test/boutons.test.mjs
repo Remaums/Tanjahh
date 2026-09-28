@@ -41,7 +41,12 @@ if (process.env.BOUTONS_SCENARIO) {
     // que Telegram aurait en réalité rejeté, ce qui est exactement le piège
     // qu'on cherche à fermer.
     for (const b of payload?.reply_markup?.inline_keyboard?.flat?.() ?? []) {
-      const u = b?.web_app?.url ?? '';
+      // Seuls les boutons Mini App sont concernés. Telegram ne demande
+      // aucune URL à un bouton de rappel, et ce simulateur en refusait —
+      // il n'a jamais eu à le montrer tant que l'accueil n'en portait pas.
+      // Depuis qu'il propose aussi la langue, il en porte un.
+      if (!b?.web_app) continue;
+      const u = b.web_app.url ?? '';
       if (!/^https:\/\/[^\s]+$/.test(u)) {
         refus.push(`${method} : URL de Mini App refusée (${JSON.stringify(u)})`);
         throw new Error('Bad Request: inline keyboard button Web App URL is invalid');

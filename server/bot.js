@@ -27,7 +27,8 @@ import { noterUtilisateur, trouverParPseudo, ficheDuRegistre } from './users.js'
 // Le dictionnaire de la boutique. Le bot parle français, mais il puise ses
 // phrases d'accueil à la même source que la Mini App : une phrase recopiée
 // dans deux fichiers est une phrase qui divergera.
-import { TEXTES } from '../webapp/js/langues.js';
+import { TEXTES, LANGUES, LANGUE_PAR_DEFAUT } from '../webapp/js/langues.js';
+import { langueDe, choisirLaLangue } from './langue.js';
 import { lienDuSecours } from './bot-secours.js';
 import {
   combien as combienAuSecours, sante as santeDesPortes,
@@ -207,39 +208,113 @@ function markdownDepuisHtml(texte) {
  * lui-même. Le faire après obligerait à retrouver `\{boutique\}` sous sa
  * forme échappée, ce qui marche jusqu'au jour où l'échappement change.
  */
-function phraseDAccueil(nom) {
-  const [avant, apres] = String(TEXTES.fr['accueil.texte']).split('{boutique}');
+function phraseDAccueil(nom, langue) {
+  const [avant, apres] = String(tr(langue, 'accueil.texte')).split('{boutique}');
   return markdownDepuisHtml(avant) + `*${escapeMarkdown(nom)}*` + markdownDepuisHtml(apres ?? '');
 }
 
-const accueillir = async (ctx) => {
-  const ligne = (emoji, clef) => `${emoji}  ${escapeMarkdown(TEXTES.fr[clef])}`;
-  await ctx.reply(
+/**
+ * Un texte de la boutique, dans la langue d'un client.
+ *
+ * Repli sur le français plutôt que sur la clef : un message à moitié traduit
+ * se lit encore, un message qui affiche « accueil.horaires » ne se lit pas.
+ */
+function tr(langue, clef) {
+  return TEXTES[langue]?.[clef] ?? TEXTES[LANGUE_PAR_DEFAUT][clef] ?? clef;
+}
+
+/**
+ * Le clavier de l'accueil : la boutique, et de quoi changer de langue.
+ *
+ * Le bouton de langue porte le mot dans la langue en cours — qui est déjà
+ * celle du téléphone quand le client n'a rien choisi. Un globe seul se
+ * comprend partout, mais ne dit pas ce qu'il fera ; le mot le dit.
+ */
+function clavierDAccueil(langue) {
+  const clavier = new InlineKeyboard();
+  if (urlUtilisable()) clavier.webApp('🛒 Ouvrir la boutique', config.webappUrl).row();
+  clavier.text(`🌐 ${tr(langue, 'profil.langue')}`, 'lang:menu');
+  return clavier;
+}
+
+/**
+ * Les huit langues, deux par rang.
+ *
+ * Deux et non une : huit rangs pousseraient le message hors de l'écran sur
+ * un téléphone, et le client perdrait de vue ce qu'il est en train de
+ * régler. Quatre rangs tiennent sous le message.
+ */
+function clavierDesLangues() {
+  const clavier = new InlineKeyboard();
+  LANGUES.forEach((l, rang) => {
+    clavier.text(`${l.drapeau} ${l.nom}`, `lang:${l.code}`);
+    if (rang % 2 === 1) clavier.row();
+  });
+  return clavier;
+}
+
+/** Le message d'accueil, monté dans une langue. */
+function texteDAccueil(langue, identifiant) {
+  const ligne = (emoji, clef) => `${emoji}  ${escapeMarkdown(tr(langue, clef))}`;
+  return (
     // La feuille ouvre la phrase plutôt que de titrer au-dessus d'elle : le
     // nom de la boutique y est déjà, et le répéter deux lignes plus haut
     // faisait dire deux fois la même chose à trois centimètres d'intervalle.
-    `🌿 ${phraseDAccueil(config.shopName)}\n\n` +
-      // Les trois choses qu'on demande à une boutique avant d'y entrer :
-      // quand, comment, et avec quoi on paie. Une par ligne — collées, on
-      // les lit comme une phrase et on n'en retient aucune.
-      `${ligne('🕒', 'accueil.horaires')}\n` +
-      `${ligne('🛵', 'accueil.service')}\n` +
-      `${ligne('💶', 'contact.especes')}\n\n` +
-      // Le panier a disparu de la boutique il y a longtemps : ce message
-      // continuait d'en promettre un à chaque nouveau client, et c'est la
-      // toute première phrase qu'il lisait.
-      '👇  ' + escapeMarkdown(
-        "Tout se passe dans l'app : catalogue en images, fiches produits, " +
-        'et ta commande déjà écrite.'
-      ) +
-      `\n\n🆔  \`${ctx.from.id}\``,
-    {
-      parse_mode: 'MarkdownV2',
-      reply_markup: shopKeyboard(),
-    }
+    `🌿 ${phraseDAccueil(config.shopName, langue)}\n\n` +
+    // Les trois choses qu'on demande à une boutique avant d'y entrer :
+    // quand, comment, et avec quoi on paie. Une par ligne — collées, on
+    // les lit comme une phrase et on n'en retient aucune.
+    `${ligne('🕒', 'accueil.horaires')}\n` +
+    `${ligne('🛵', 'accueil.service')}\n` +
+    `${ligne('💶', 'contact.especes')}\n\n` +
+    // Le panier a disparu de la boutique il y a longtemps : ce message
+    // continuait d'en promettre un à chaque nouveau client, et c'est la
+    // toute première phrase qu'il lisait.
+    `${ligne('👇', 'accueil.botApp')}\n\n` +
+    `🆔  \`${identifiant}\``
   );
+}
+
+const accueillir = async (ctx) => {
+  const { code } = await langueDe(ctx.from.id, ctx.from.language_code);
+  await ctx.reply(texteDAccueil(code, ctx.from.id), {
+    parse_mode: 'MarkdownV2',
+    reply_markup: clavierDAccueil(code),
+  });
   return proposerLeSecours(ctx);
 };
+
+/* ── Le choix de la langue ───────────────────────────────── */
+
+/**
+ * Le bouton de langue déroule les huit drapeaux, sur place.
+ *
+ * On remplace le clavier du message plutôt que d'en envoyer un second : une
+ * conversation qui empile trois messages pour un réglage donne le sentiment
+ * d'avoir fait une bêtise, et le client remonte chercher lequel est le bon.
+ */
+bot.callbackQuery('lang:menu', async (ctx) => {
+  await ctx.answerCallbackQuery().catch(() => {});
+  await ctx.editMessageReplyMarkup({ reply_markup: clavierDesLangues() }).catch(() => {});
+});
+
+bot.callbackQuery(/^lang:([a-z]{2})$/, async (ctx) => {
+  const code = await choisirLaLangue(ctx.from.id, ctx.match[1]);
+  if (!code) return ctx.answerCallbackQuery('?').catch(() => {});
+
+  const choisie = LANGUES.find((l) => l.code === code);
+  await ctx.answerCallbackQuery(`${choisie?.drapeau ?? ''} ${choisie?.nom ?? code}`).catch(() => {});
+  // Le message se réécrit dans la nouvelle langue, à sa place. Un second
+  // message d'accueil ferait croire à un second /start, et le premier
+  // resterait au-dessus dans l'ancienne langue — c'est exactement ce qu'on
+  // vient de lui demander de ne plus lire.
+  await ctx
+    .editMessageText(texteDAccueil(code, ctx.from.id), {
+      parse_mode: 'MarkdownV2',
+      reply_markup: clavierDAccueil(code),
+    })
+    .catch(() => {});
+});
 
 /**
  * La porte de secours, proposée à qui n'est pas passé par le péage.

@@ -606,6 +606,34 @@ dans ton bot.
 
 ---
 
+## La langue
+
+La boutique parle huit langues. Le bot en parle autant **pour son message
+d'accueil** — le reste de ses réponses (les refus, les confirmations, les
+messages au vendeur) est en français, et le dictionnaire ne les couvre pas.
+
+Trois sources, dans cet ordre :
+
+1. **ce que le client a choisi**, dans la boutique ou dans le bot ;
+2. **ce que dit son téléphone** (`language_code` de Telegram) ;
+3. le français.
+
+La deuxième compte plus qu'il n'y paraît : un client dont Telegram est déjà
+dans sa langue n'a rien à régler, et un réglage qu'on n'a pas besoin de
+toucher est le meilleur des réglages.
+
+### Le choix est partagé
+
+C'est le serveur qui le garde, pas le navigateur. Sans cet endroit commun,
+un client choisit l'italien dans la boutique et reçoit ses messages en
+français : il recommence, ça ne tient toujours pas, et il conclut que le
+réglage est cassé. Choisir d'un côté vaut de l'autre, et le réglage suit le
+client d'un téléphone à l'autre.
+
+Dans le bot, le bouton **🌐 Langue** sous le message d'accueil déroule les
+huit drapeaux, deux par rang. Le message se réécrit à sa place dans la
+nouvelle langue — pas de second message empilé.
+
 ## Commandes du bot
 
 | Commande | Effet |

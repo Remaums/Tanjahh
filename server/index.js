@@ -11,6 +11,7 @@ import {
 } from './bot-secours.js';
 import { creerLaVeille, resumeDuSecours } from './veille.js';
 import { decisionDEntree } from './entree.js';
+import { langueDe, choisirLaLangue } from './langue.js';
 import {
   HttpError,
   getCatalog,
@@ -432,6 +433,37 @@ async function etatDeLEntree(id) {
   const calculPasse = calculExige ? await estPasse(id) : false;
   return { ...socle, inscrit, lien, calculPasse };
 }
+
+/**
+ * La langue du client, partagée entre la boutique et le bot.
+ *
+ * Sans cet endroit commun, le client choisit l'italien dans la boutique et
+ * reçoit ses messages en français : il recommence, ça ne tient toujours pas,
+ * et il conclut que le réglage ne marche pas.
+ *
+ * La lecture rend aussi d'où vient la langue. « choisie » veut dire qu'il a
+ * tranché lui-même, et c'est ce qui permet à la boutique de ne pas lui
+ * reposer la question à chaque ouverture.
+ */
+app.get('/api/langue', verifierLIdentite, async (req, res, next) => {
+  try {
+    return res.json(await langueDe(req.telegramUser.id, req.telegramUser.language_code));
+  } catch (err) {
+    return next(err);
+  }
+});
+
+app.put('/api/langue', verifierLIdentite, async (req, res, next) => {
+  try {
+    const code = await choisirLaLangue(req.telegramUser.id, req.body?.code);
+    // Une langue qu'on ne parle pas n'est pas une panne du serveur : c'est
+    // une demande à laquelle on ne peut pas répondre, et on le dit.
+    if (!code) throw new HttpError(400, 'Cette langue n\'est pas au catalogue de la boutique.');
+    return res.json({ code, source: 'choisie' });
+  } catch (err) {
+    return next(err);
+  }
+});
 
 /**
  * La porte de secours, telle que la boutique doit la montrer.
