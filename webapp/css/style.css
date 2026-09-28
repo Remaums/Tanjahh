@@ -2527,6 +2527,16 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
 .bienvenue__info b {
   font-family: var(--display); font-weight: 700; color: var(--jaune);
 }
+/* Boutique fermée : la pastille d'horaire passe au rouge. Le texte dit déjà
+   « De retour à 13h » — la couleur ne fait que le confirmer d'un coup d'œil,
+   elle ne porte aucune information à elle seule. */
+.bienvenue__info--ferme {
+  border-color: rgb(var(--red-rgb) / .45);
+  background: rgb(var(--red-rgb) / .1);
+}
+.bienvenue__info--ferme b { color: rgb(var(--red-rgb)); }
+.bienvenue__info--ferme .bienvenue__info-icone { color: rgb(var(--red-rgb) / .7); }
+
 .bienvenue__info-icone {
   width: 13px; height: 13px; flex: none;
   color: rgb(var(--cream-rgb) / .45);

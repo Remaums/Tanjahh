@@ -2529,6 +2529,40 @@ function renderLangues() {
 /* ── L'accueil ───────────────────────────────────────────── */
 
 /**
+ * La pastille d'horaire du cadre d'accueil, d'après l'état réel.
+ *
+ * Elle annonçait « 7/7 · 13H-00H » quoi qu'il arrive. Un client qui ouvre la
+ * boutique à trois heures du matin lisait donc les horaires d'ouverture sur
+ * un cadre qui ne disait pas un mot du fait que c'était fermé — et découvrait
+ * la fermeture une fois entré, par le bandeau du catalogue.
+ *
+ * Le serveur sait tout cela : il envoie `open`, et l'heure de retour quand
+ * elle est connue. On dit la même chose que le bandeau du catalogue, au même
+ * moment, avec les mêmes mots.
+ *
+ * Fermeture à la main ou horaires coupés : le serveur ne promet aucune heure,
+ * et on n'en invente pas une.
+ */
+function ecrireLHoraire() {
+  const pastille = $('bienvenueHoraires');
+  if (!pastille) return;
+  const hote = pastille.closest('.bienvenue__info');
+  const ouvert = state.opening?.open !== false;
+
+  pastille.textContent = ouvert
+    ? t('accueil.horaires')
+    : state.opening?.retour
+      ? `${t('etat.retourA')} ${state.opening.retour}`
+      : t('etat.fermePourLInstant');
+
+  // La couleur double le texte, elle ne le remplace pas : « De retour à 13h »
+  // se lit sans distinguer le rouge du jaune.
+  if (hote) {
+    hote.classList.toggle('bienvenue__info--ferme', !ouvert);
+  }
+}
+
+/**
  * Le cadre qui suit le film : qui on est, à qui on parle, les horaires.
  *
  * Il paraît à chaque visite — c'est l'enseigne de la boutique, et une
@@ -2573,7 +2607,7 @@ function montrerLAccueil() {
   const ecrireLeCadre = () => {
     $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
     $('bienvenueTexte').textContent = t('accueil.texte');
-    $('bienvenueHoraires').textContent = t('accueil.horaires');
+    ecrireLHoraire();
     $('bienvenueService').textContent = t('accueil.service');
     $('bienvenueLegende').textContent = t('accueil.langue');
     $('bienvenueEntrer').textContent = t('accueil.entrer');
