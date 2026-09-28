@@ -31,9 +31,7 @@ export const TEXTES = {
   fr: {
     /* ── L'accueil ── */
     'accueil.bienvenue': 'Bienvenue',
-    'accueil.texte':
-      'Quatre ans dans le milieu, et la même exigence depuis le premier jour. '
-      + 'Plusieurs variétés disponibles.',
+    'accueil.texte': 'De nouvelles variétés, de nouvelles gammes. Qualité garantie.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Meet-up & Livraison',
     'accueil.langue': 'Choisis ta langue',
@@ -321,9 +319,7 @@ export const TEXTES = {
 
   en: {
     'accueil.bienvenue': 'Welcome',
-    'accueil.texte':
-      'Four years in the game, and the same standards since day one. '
-      + 'Several varieties in stock.',
+    'accueil.texte': 'New varieties, new ranges. Quality guaranteed.',
     'accueil.horaires': '7/7 · 1PM-12AM',
     'accueil.service': 'Meet-up & Delivery',
     'accueil.langue': 'Choose your language',
@@ -593,9 +589,7 @@ export const TEXTES = {
 
   es: {
     'accueil.bienvenue': 'Bienvenido',
-    'accueil.texte':
-      'Cuatro años en el oficio, y la misma exigencia desde el primer día. '
-      + 'Varias variedades disponibles.',
+    'accueil.texte': 'Nuevas variedades, nuevas gamas. Calidad garantizada.',
     'accueil.horaires': '7/7 · 13:00-00:00',
     'accueil.service': 'Meet-up y Entrega',
     'accueil.langue': 'Elige tu idioma',
