@@ -2251,6 +2251,52 @@ function remplirLaPiste(sectionId, pisteId, produits) {
 }
 
 /**
+ * La vignette d'un produit, pour les listes qui ne sont pas la grille.
+ *
+ * Trois endroits la dessinaient chacun à sa façon : la grille, la piste de
+ * suggestions, la liste des favoris. La grille a appris à montrer la vidéo
+ * d'un produit qui n'a que ça ; les deux autres posaient une `<img>`, et une
+ * image ne peut pas montrer une vidéo. Le vendeur a vu ses dessins de
+ * secours revenir dans les suggestions le lendemain de la correction.
+ *
+ * D'où cette fonction. Elle rend l'élément qui convient — `<video>` quand
+ * c'est une vidéo, `<img>` sinon — et c'est elle qu'on appelle désormais.
+ *
+ * La grille garde son propre montage : elle porte en plus une pastille
+ * « ▶ », un cœur et une classe d'état, et la refondre ici la rendrait
+ * illisible pour gagner trois lignes.
+ */
+function vignetteDuProduit(produit, classe) {
+  const video = videoDeVitrine(produit);
+
+  // Un vrai fichier GIF ne se décode pas dans un lecteur vidéo : c'est une
+  // image, et elle s'anime toute seule.
+  if (video && !video.image) {
+    const lecteur = document.createElement('video');
+    lecteur.className = classe;
+    lecteur.src = video.url;
+    if (video.poster) lecteur.poster = video.poster;
+    // Muette, sans contrôles, hors du parcours au clavier : ce n'est pas un
+    // lecteur, c'est une vignette. La carte entière reste le bouton.
+    lecteur.muted = true;
+    lecteur.playsInline = true;
+    lecteur.preload = 'metadata';
+    lecteur.setAttribute('disablepictureinpicture', '');
+    lecteur.tabIndex = -1;
+    lecteur.setAttribute('aria-hidden', 'true');
+    peindreLaPremiereImage(lecteur);
+    return lecteur;
+  }
+
+  const image = document.createElement('img');
+  image.className = classe;
+  image.src = (video?.image ? video.url : photoDeVitrine(produit)) ?? produit.image ?? '';
+  image.alt = '';
+  image.loading = 'lazy';
+  return image;
+}
+
+/**
  * La vignette d'une suggestion : plus petite qu'une carte de la grille.
  *
  * Elle ne reprend pas `productCard` : une carte de grille porte un cœur, une
@@ -2266,13 +2312,9 @@ function carteSuggeree(produit) {
 
   const vignette = document.createElement('span');
   vignette.className = 'suggestion__art';
-  const image = document.createElement('img');
-  // Photo importée d'abord, dessin ensuite : une piste de suggestions faite
-  // de dessins par défaut ne donne envie d'ouvrir aucune des fiches.
-  image.src = photoDeVitrine(produit) ?? produit.image ?? '';
-  image.alt = '';
-  image.loading = 'lazy';
-  vignette.append(image);
+  // Photo, vidéo, dessin — dans cet ordre. Une piste de suggestions faite de
+  // dessins par défaut ne donne envie d'ouvrir aucune des fiches.
+  vignette.append(vignetteDuProduit(produit, ''));
 
   const nom = document.createElement('span');
   nom.className = 'suggestion__nom';
@@ -4072,7 +4114,6 @@ function renderFavoris(favoris) {
       const epuise = isSoldOut(produit);
 
       carte.innerHTML =
-        `<img class="favori__image" src="${escapeHtml(photoDeVitrine(produit) ?? produit.image)}" alt="" loading="lazy">` +
         '<div class="favori__corps">' +
         `<span class="favori__nom">${escapeHtml(produit.name)}</span>` +
         // Les favoris étaient la dernière liste à afficher « dès 20 € ». Le
@@ -4083,7 +4124,12 @@ function renderFavoris(favoris) {
         '</div>' +
         `<button class="favori__coeur" type="button" aria-label="${escapeHtml(t('favori.retirer'))}">♥</button>`;
 
-      carte.querySelector('.favori__image').addEventListener('click', () => openProduct(produit));
+      // La vignette est posée devant le corps plutôt qu'écrite dans le
+      // gabarit : selon le produit c'est une image ou une vidéo, et un
+      // gabarit de chaîne ne sait fabriquer qu'une des deux.
+      const vignette = vignetteDuProduit(produit, 'favori__image');
+      carte.prepend(vignette);
+      vignette.addEventListener('click', () => openProduct(produit));
       carte.querySelector('.favori__corps').addEventListener('click', () => openProduct(produit));
       carte.querySelector('.favori__coeur').addEventListener('click', async (ev) => {
         ev.stopPropagation();

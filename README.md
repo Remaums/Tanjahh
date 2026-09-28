@@ -344,6 +344,16 @@ ordre :
    entièrement chargée montrait quand même le dessin. Un déplacement d'un
    vingtième de seconde lève ce drapeau, sans lancer la lecture.
 
+Cela vaut partout où un produit se montre en petit : la grille, la piste de
+suggestions au bas d'une fiche, et la liste des favoris. Les trois
+dessinaient leur vignette chacune à sa façon, et c'est ainsi que la
+correction n'a d'abord touché que la grille — le vendeur a vu ses dessins
+revenir dans les suggestions le lendemain. Elles passent désormais par la
+même fonction.
+
+Un produit qui n'a **aucun** média garde son illustration : c'est le seul
+cas où le dessin est la bonne réponse.
+
 Pour les vidéos déposées **avant** que la boutique ne pense à garder la
 vignette, l'espace admin a un bouton par média qui va la rechercher chez
 Telegram. C'est le chemin le moins coûteux : la vignette pèse quelques
