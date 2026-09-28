@@ -183,7 +183,7 @@ body {
 .find__box {
   position: relative; flex: 1; min-width: 0; display: flex; align-items: center;
 }
-.find__icon { position: absolute; left: 12px; font-size: 14px; pointer-events: none; opacity: .75; }
+.find__icon { position: absolute; inset-inline-start: 12px; font-size: 14px; pointer-events: none; opacity: .75; }
 .find__box input {
   width: 100%; font: inherit; font-size: 14px; font-weight: 600; color: var(--cream);
   background: rgb(var(--ink-rgb) / .55); border: var(--line) solid var(--line-soft);
@@ -196,7 +196,7 @@ body {
    pose la nôtre pour qu'elle soit toujours là et toujours assez grande. */
 .find__box input::-webkit-search-cancel-button { display: none; }
 .find__clear {
-  position: absolute; right: 4px; width: 28px; height: 28px; border: 0; border-radius: 50%;
+  position: absolute; inset-inline-end: 4px; width: 28px; height: 28px; border: 0; border-radius: 50%;
   background: rgb(var(--cream-rgb) / .12); color: var(--cream); font-size: 12px; line-height: 1;
 }
 .find select {
@@ -764,7 +764,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     linear-gradient(0deg, rgb(var(--void-rgb) / .5) 0%, transparent 42%);
 }
 .hero__body {
-  position: absolute; left: var(--gutter, 14px); top: 50%;
+  position: absolute; inset-inline-start: var(--gutter, 14px); top: 50%;
   transform: translateY(-50%); z-index: 1; max-width: 62%;
 }
 .hero__title {
@@ -840,7 +840,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / .1),
     0 10px 22px rgb(0 0 0 / .45);
-  overflow: hidden; text-align: left; padding: 0;
+  overflow: hidden; text-align: start; padding: 0;
   transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
 }
 /* L'appui allume le contour plutôt que d'enfoncer la carte : c'est un
@@ -978,7 +978,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: rgb(var(--panel-rgb) / .6); font-size: 11.5px;
   /* Le serveur explique parfois la panne en plusieurs lignes, chemins de
      fichiers compris : on les respecte plutôt que de tout écraser. */
-  white-space: pre-line; text-align: left; line-height: 1.5;
+  white-space: pre-line; text-align: start; line-height: 1.5;
   overflow-wrap: anywhere; opacity: .8;
 }
 
@@ -1084,9 +1084,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   list-style: none; margin: 7px 0 0; padding: 0;
   display: flex; flex-direction: column; gap: 5px;
 }
-.pdetail__points li { position: relative; padding-left: 15px; }
+.pdetail__points li { position: relative; padding-inline-start: 15px; }
 .pdetail__points li::before {
-  content: '•'; position: absolute; left: 2px; top: -1px;
+  content: '•'; position: absolute; inset-inline-start: 2px; top: -1px;
   color: var(--jaune); font-weight: 700;
 }
 .pdetail__points + .pdetail__ligne { margin-top: 9px; }
@@ -1141,14 +1141,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* ── Les caractéristiques ────────────────────────────────── */
 .points { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 7px; }
 .points li {
-  position: relative; padding-left: 17px;
+  position: relative; padding-inline-start: 17px;
   font-size: 13.5px; line-height: 1.45; font-weight: 600; color: var(--cream);
 }
 /* Le point vert, aligné sur la première ligne et non centré sur la puce :
    une caractéristique qui passe à la ligne aurait sinon sa pastille au
    milieu du vide. */
 .points li::before {
-  content: ''; position: absolute; left: 0; top: .52em;
+  content: ''; position: absolute; inset-inline-start: 0; top: .52em;
   width: 7px; height: 7px; border-radius: 1px; background: var(--neon);
   transform: rotate(45deg);
 }
@@ -1190,7 +1190,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    d'une ligne qu'on touche, pas d'un bouton d'appel à l'action. */
 .reprise {
   display: flex; align-items: center; gap: 12px; width: 100%;
-  margin: 0 0 14px; padding: 12px 14px; text-align: left;
+  margin: 0 0 14px; padding: 12px 14px; text-align: start;
   background: linear-gradient(180deg, rgb(var(--neon-rgb) / .16), rgb(var(--neon-rgb) / .06));
   border: 1px solid rgb(var(--neon-rgb) / .4); border-radius: 16px;
   color: var(--cream); font: inherit;
@@ -1311,7 +1311,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card__badge--out::before { background: rgb(var(--cream-rgb) / .35); }
 /* Sans étoile, le mot se recolle à l'arête : l'espace réservé au signe
    laisserait un décalage que rien ne justifie. */
-.card__badge:not(.card__badge--etoile) { padding-left: 10px; gap: 0; }
+.card__badge:not(.card__badge--etoile) { padding-inline-start: 10px; gap: 0; }
 
 .variant[disabled] {
   background: rgba(255, 255, 255, .03); color: rgb(var(--cream-rgb) / .38);
@@ -1339,11 +1339,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* La pastille dit « vidéo » même immobile : sur un système qui demande moins de
    mouvement, la vitrine montre la première image et rien ne bouge. */
 .card__film {
-  position: absolute; bottom: 8px; right: 8px; z-index: 2;
+  position: absolute; bottom: 8px; inset-inline-end: 8px; z-index: 2;
   display: grid; place-items: center;
   width: 24px; height: 24px; border-radius: 999px;
   background: rgb(var(--ink-rgb) / .72); color: var(--cream);
-  font-size: 10px; padding-left: 2px; pointer-events: none;
+  font-size: 10px; padding-inline-start: 2px; pointer-events: none;
 }
 .card--soldout .card__video { filter: grayscale(1); opacity: .38; }
 
@@ -1473,8 +1473,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: rgb(var(--ink-rgb) / .62); color: var(--cream);
   font-size: 20px; line-height: 1; backdrop-filter: blur(4px);
 }
-.galerie__fleche--gauche { left: 8px; }
-.galerie__fleche--droite { right: 8px; }
+.galerie__fleche--gauche { inset-inline-start: 8px; }
+.galerie__fleche--droite { inset-inline-end: 8px; }
 /* Sur un écran tactile, le doigt suffit : les flèches masqueraient l'image. */
 @media (hover: none) { .galerie__fleche { display: none; } }
 
@@ -1490,7 +1490,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* La pastille « vidéo » dit ce qui attend, avant même de lancer la lecture. */
 .galerie__type {
-  position: absolute; top: 8px; left: 8px; z-index: 2;
+  position: absolute; top: 8px; inset-inline-start: 8px; z-index: 2;
   padding: 3px 8px; border-radius: 999px;
   background: rgb(var(--ink-rgb) / .72); color: var(--cream);
   font-size: 11px; font-weight: 800; letter-spacing: .03em;
@@ -1565,7 +1565,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .avis__barre-plein { display: block; height: 100%; background: rgb(var(--gold-rgb) / .7); }
 .avis__barre-nombre {
-  width: 1.6rem; text-align: right;
+  width: 1.6rem; text-align: end;
   font-size: 11.5px; font-weight: 700; color: var(--muted);
 }
 
@@ -1575,11 +1575,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .avis__tete { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .avis__etoiles { color: var(--gold); font-size: 13px; letter-spacing: .06em; }
 .avis__qui { font-size: 13.5px; font-weight: 800; }
-.avis__quand { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-left: auto; }
+.avis__quand { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-inline-start: auto; }
 .avis__texte { margin: 6px 0 0; font-size: 13.5px; line-height: 1.5; }
 .avis__reponse {
   margin-top: 8px; padding: 9px 11px; border-radius: 12px;
-  background: rgb(var(--neon-rgb) / .07); border-left: 2px solid rgb(var(--neon-rgb) / .5);
+  background: rgb(var(--neon-rgb) / .07); border-inline-start: 2px solid rgb(var(--neon-rgb) / .5);
   font-size: 13px; line-height: 1.45;
 }
 .avis__reponse b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--neon); }
@@ -1622,7 +1622,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    « publier mon prénom » décoché par erreur n'est pas récupérable. */
 .signature { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
 .signature__choix {
-  padding: 10px 12px; text-align: left; border-radius: 13px;
+  padding: 10px 12px; text-align: start; border-radius: 13px;
   background: rgb(var(--cream-rgb) / .05); border: 1px solid var(--line-soft);
   color: var(--cream); font: inherit;
 }
@@ -1639,7 +1639,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    dans le corps de la carte, pour rester atteignable au pouce
    sans pousser le prix. */
 .card__coeur, .pdetail__coeur {
-  position: absolute; top: 8px; right: 8px; z-index: 2;
+  position: absolute; top: 8px; inset-inline-end: 8px; z-index: 2;
   width: 34px; height: 34px; padding: 0; border-radius: 50%;
   display: grid; place-items: center; cursor: pointer;
   font-size: 17px; line-height: 1;
@@ -1652,7 +1652,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: rgb(var(--red-rgb) / .16);
 }
 .card__coeur:active, .pdetail__coeur:active { transform: scale(.86); }
-.pdetail__coeur { position: absolute; top: -46px; right: 0; width: 38px; height: 38px; font-size: 19px; }
+.pdetail__coeur { position: absolute; top: -46px; inset-inline-end: 0; width: 38px; height: 38px; font-size: 19px; }
 .pdetail__body { position: relative; }
 
 /* ── Profil ───────────────────────────────────────────────── */
@@ -1671,7 +1671,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   color: var(--ink); background: var(--neon);
 }
 .profil__compte {
-  display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: var(--radius);
+  display: inline-block; margin-inline-start: 5px; padding: 0 6px; border-radius: var(--radius);
   font-size: 11px; background: rgb(var(--ink-rgb) / .22);
 }
 .profil__onglet[aria-selected="false"] .profil__compte { background: rgb(var(--cream-rgb) / .12); }
@@ -1704,7 +1704,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    qu'on rate une fois sur deux au pouce. */
 .alertes { display: flex; flex-direction: column; gap: 10px; }
 .alerte {
-  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: start;
   padding: 13px 14px; border-radius: 15px; cursor: pointer; font: inherit;
   color: var(--cream);
   background: rgb(var(--panel-rgb) / .5); border: 1px solid var(--line-soft);
@@ -1718,7 +1718,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   transition: background .16s ease;
 }
 .alerte__bouton::after {
-  content: ''; position: absolute; top: 2px; left: 2px;
+  content: ''; position: absolute; top: 2px; inset-inline-start: 2px;
   width: 21px; height: 21px; border-radius: 50%;
   background: rgb(var(--cream-rgb) / .8);
   transition: transform .16s ease, background .16s ease;
@@ -1733,7 +1733,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* La pastille du profil : elle dit qu'il y a quelque chose à y voir. */
 .iconbtn { position: relative; }
 .iconbtn__pastille {
-  position: absolute; top: -3px; right: -3px; min-width: 17px; height: 17px;
+  position: absolute; top: -3px; inset-inline-end: -3px; min-width: 17px; height: 17px;
   padding: 0 4px; border-radius: 999px;
   display: grid; place-items: center;
   font-size: 10.5px; font-weight: 800; line-height: 1;
@@ -1744,7 +1744,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    pastille « Vidéo » qui occupe le haut : les deux peuvent coexister sur la
    même vidéo, et se superposer les rendrait illisibles toutes les deux. */
 .galerie__format {
-  position: absolute; bottom: 8px; left: 8px; z-index: 2;
+  position: absolute; bottom: 8px; inset-inline-start: 8px; z-index: 2;
   padding: 3px 9px; border-radius: var(--radius);
   background: var(--neon); color: var(--ink);
   font-size: 11.5px; font-weight: 800; letter-spacing: .03em;
@@ -1823,7 +1823,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    pas sur toute sa longueur : un clignotement sur deux cent vingt pixels
    attire le regard loin du film. */
 .charge__jauge span::after {
-  content: ''; position: absolute; right: -3px; top: -2px;
+  content: ''; position: absolute; inset-inline-end: -3px; top: -2px;
   width: 7px; height: 6px; border-radius: 50%;
   background: var(--jaune);
   box-shadow: 0 0 9px 2px rgb(var(--jaune-rgb) / .9);
@@ -1945,7 +1945,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    est volontairement petite — c'est une ambiance qu'on propose, pas une
    fonction de la boutique. */
 .juke {
-  position: fixed; right: 14px; z-index: 34;
+  position: fixed; inset-inline-end: 14px; z-index: 34;
   bottom: calc(var(--tabbar-h, 78px) + 14px);
   width: 44px; height: 44px; padding: 0; border-radius: 50%;
   display: grid; place-items: center; cursor: pointer;
@@ -2014,7 +2014,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    sous le pouce, là où il vient d'appuyer. Il reste étroit — c'est un
    lecteur de fond de boutique, pas une application de musique. */
 .juke__menu {
-  position: fixed; right: 14px; z-index: 36;
+  position: fixed; inset-inline-end: 14px; z-index: 36;
   bottom: calc(var(--tabbar-h, 78px) + 66px);
   width: 214px; padding: 13px 14px 11px;
   border-radius: 16px; text-align: center;
@@ -2082,7 +2082,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
    savoir ce qu'on écoute est utile, le lire en permanence par-dessus les
    produits ne l'est pas. */
 .juke__titre {
-  position: fixed; right: 66px; z-index: 34;
+  position: fixed; inset-inline-end: 66px; z-index: 34;
   bottom: calc(var(--tabbar-h, 78px) + 25px);
   margin: 0; max-width: calc(100vw - 96px);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -2155,7 +2155,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tabbar__item { position: relative; z-index: 1; }
 
 .tabbar__pastille {
-  position: absolute; top: 5px; right: calc(50% - 20px);
+  position: absolute; top: 5px; inset-inline-end: calc(50% - 20px);
   min-width: 16px; height: 16px; padding: 0 4px;
   display: grid; place-items: center;
   font-size: 10px; font-weight: 800; line-height: 1;
@@ -2262,7 +2262,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Un filet entre deux colonnes, jamais avant la première : une bordure
    posée sur les quatre laisserait un trait pendu au bord de l'écran. */
 .chiffre + .chiffre::before {
-  content: ''; position: absolute; left: 0; top: 2px; bottom: 2px;
+  content: ''; position: absolute; inset-inline-start: 0; top: 2px; bottom: 2px;
   width: 1px; background: var(--line-soft);
 }
 .chiffre__valeur {
@@ -2343,7 +2343,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .suite__piste {
   display: flex; gap: 10px; overflow-x: auto;
   margin: 0 -14px; padding: 2px 14px 6px;
-  scroll-snap-type: x mandatory; scroll-padding-left: 14px;
+  scroll-snap-type: x mandatory; scroll-padding-inline-start: 14px;
   scrollbar-width: none;
 }
 .suite__piste::-webkit-scrollbar { display: none; }
@@ -2351,7 +2351,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .suggestion {
   flex: none; width: 124px; scroll-snap-align: start;
   display: flex; flex-direction: column; gap: 5px;
-  padding: 0; text-align: left;
+  padding: 0; text-align: start;
   background: none; border: 0; color: var(--cream);
 }
 .suggestion__art {
@@ -2611,4 +2611,73 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
 }
 .profil__langue-aide {
   margin: 8px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--muted);
+}
+
+/* ── Le sens de lecture ──────────────────────────────────────
+
+   L'arabe se lit de droite à gauche. La quasi-totalité de cette feuille
+   est déjà écrite en propriétés logiques — `inset-inline-start` plutôt
+   que `left`, `text-align: start` plutôt que `left` — et se retourne donc
+   toute seule quand `<html dir="rtl">` est posé.
+
+   Ce qui suit est la part que les propriétés logiques ne savent pas
+   exprimer : une ombre interne, un `translateX` chiffré, un chevron qui
+   pointe. Rien d'autre ne devrait venir s'ajouter ici — une nouvelle
+   règle directionnelle s'écrit en logique du premier coup. */
+
+/* La pastille de la carte est collée au coin haut de la photo, avec son
+   arête jaune côté bord et un seul coin arrondi. `box-shadow: inset` et
+   les quatre rayons nommés n'ont pas d'équivalent logique : on les
+   redessine en miroir. */
+[dir='rtl'] .card__badge {
+  left: auto; right: 0;
+  padding: 5px 11px 5px 10px;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: calc(var(--radius) - 1px);
+  border-bottom-left-radius: 9px;
+  box-shadow: inset -3px 0 0 var(--jaune);
+}
+[dir='rtl'] .card__badge--out { box-shadow: inset -3px 0 0 rgb(var(--cream-rgb) / .35); }
+
+/* L'interrupteur des alertes : le bouton part du bord et glisse de 19 px
+   vers l'autre. Le départ suit le sens de lecture, la course doit suivre
+   avec — sinon le rond sort de son rail. */
+[dir='rtl'] .alerte[aria-checked='true'] .alerte__bouton::after { transform: translateX(-19px); }
+
+/* Le chevron de la carte dit « ça continue par là » : retourné, il
+   montrerait la sortie. */
+[dir='rtl'] .card__fleche { transform: scaleX(-1); }
+[dir='rtl'] .card:active .card__fleche { transform: scaleX(-1) translateX(2px); }
+
+/* Ce que le vendeur a écrit reste dans sa langue.
+
+   Les noms de produits, leurs descriptions et les catégories ne sont pas
+   traduits — c'est une décision prise ailleurs, et elle est bonne : personne
+   ne gagne à lire « Plasma Static » en arabe. Mais un nom latin posé dans
+   une page arabe emmène sa ponctuation du mauvais côté : « Purple Runtz —
+   2 g » finit par afficher le tiret à droite du gramme.
+
+   `unicode-bidi: isolate` dit au navigateur de traiter le bloc comme une
+   petite île : il trouve son sens de lecture tout seul, et ne déteint pas
+   sur la phrase arabe qui l'entoure. */
+[dir='rtl'] .card__name, [dir='rtl'] .pdetail__name, [dir='rtl'] .pdetail__desc,
+[dir='rtl'] .favori__nom, [dir='rtl'] .notation__nom, [dir='rtl'] .suggestion__nom,
+[dir='rtl'] .rayon__nom, [dir='rtl'] .variant__prix, [dir='rtl'] .order__ref,
+[dir='rtl'] .order__items li, [dir='rtl'] .card__badge, [dir='rtl'] .juke__titre {
+  unicode-bidi: isolate;
+}
+
+/* Aucun interlettrage en arabe.
+
+   Les lettres arabes se soudent l'une à l'autre : les espacer ne les
+   aère pas, il les décroche, et un mot s'écrit alors en lettres
+   détachées que personne n'écrit ainsi. Quarante et une règles de cette
+   feuille posent un `letter-spacing` — c'est le prix du lettrage
+   d'enseigne, et il ne vaut que pour l'alphabet latin. Le `!important`
+   est assumé : c'est une correction typographique qui doit passer devant
+   toutes ces règles, et il n'y a pas d'autre moyen de le dire une fois
+   pour toutes. */
+[dir='rtl'], [dir='rtl'] *, [dir='rtl'] *::before, [dir='rtl'] *::after {
+  letter-spacing: normal !important;
 }

@@ -24,7 +24,15 @@
 export const LANGUES = [
   { code: 'fr', nom: 'Français', drapeau: '🇫🇷', locale: 'fr-FR' },
   { code: 'en', nom: 'English', drapeau: '🇬🇧', locale: 'en-GB' },
+  { code: 'de', nom: 'Deutsch', drapeau: '🇩🇪', locale: 'de-DE' },
   { code: 'es', nom: 'Español', drapeau: '🇪🇸', locale: 'es-ES' },
+  { code: 'it', nom: 'Italiano', drapeau: '🇮🇹', locale: 'it-IT' },
+  { code: 'nl', nom: 'Nederlands', drapeau: '🇳🇱', locale: 'nl-NL' },
+  { code: 'pt', nom: 'Português', drapeau: '🇵🇹', locale: 'pt-PT' },
+  // Le drapeau marocain plutôt qu'un autre : une langue n'est pas un pays, et
+  // aucun drapeau ne représente l'arabe. Celui-ci est le plus proche de la
+  // clientèle de la boutique — c'est un pis-aller, pas une affirmation.
+  { code: 'ar', nom: 'العربية', drapeau: '🇲🇦', locale: 'ar-MA', sens: 'rtl' },
 ];
 
 export const TEXTES = {
@@ -864,6 +872,1252 @@ export const TEXTES = {
     'ouverture.3': 'Encendiendo los neones…',
     'ouverture.4': 'Sacando la mercancía…',
     'ouverture.5': 'Listo.',
+  },
+
+  it: {
+    'accueil.bienvenue': 'Benvenuto',
+    'accueil.texte':
+      '{boutique} ti porta nuove varietà e nuove gamme, rinnovate tutto l\'anno. Qualità garantita ' +
+      'su ogni prodotto del catalogo.',
+    'accueil.horaires': '7/7 · 13-24',
+    'accueil.service': 'Incontro e consegna',
+    'accueil.langue': 'Scegli la tua lingua',
+    'accueil.entrer': 'Entra nel negozio',
+
+    'porte.entree': 'Ingresso',
+    'porte.titre': 'Un calcolo, e si apre',
+    'porte.texte':
+      'Torna nella chat del bot: ti pone una piccola addizione. Rispondi, poi torna qui — il ' +
+      'negozio si apre da solo.',
+    'porte.fine':
+      'Viene chiesto una sola volta, per evitare i falsi account. Non ti viene chiesta ' +
+      'nessun\'altra informazione.',
+    'porte.ouvrir': 'Apri la chat',
+    'porte.reessayer': 'Ho risposto — riprova',
+
+    'age.titre': 'Stop!',
+    'age.texte':
+      'Questo negozio è riservato ai maggiorenni. Confermi di avere <strong>18&nbsp;anni o ' +
+      'più</strong>&nbsp;?',
+    'age.oui': 'Sì, ho 18 anni',
+    'age.non': 'No',
+
+    'tuiles.entete': 'Verifica',
+    'tuiles.consigne': 'Tocca le 3 foglie',
+    'tuiles.texte': 'Un attimo, il tempo di verificare che non sei un robot.',
+    'tuiles.valider': 'Conferma',
+
+    'verif.entete': 'Accesso controllato',
+    'verif.titre': 'Verifica richiesta',
+    'verif.fine':
+      'Il negozio non conserva il tuo documento: resta nella chat di Telegram, e puoi cancellarlo ' +
+      'una volta fatta la verifica.',
+    'verif.ouvrir': 'Apri la chat',
+    'verif.attendre': 'Guardare il negozio nel frattempo',
+
+    'hero.horaires': 'Aperto 7/7 · 13 – 24',
+    'hero.service': 'Incontro e consegna',
+
+    'tri.defaut': 'Ordine: predefinito',
+    'tri.nouveautes': 'Prima le novità',
+    'tri.prixCroissant': 'Prezzo crescente',
+    'tri.prixDecroissant': 'Prezzo decrescente',
+    'tri.alphabetique': 'Ordine alfabetico',
+
+    'reprise.titre': 'La stessa cosa',
+    'catalogue.videTotal': 'Il catalogo è vuoto per il momento.',
+
+    'avis.titre': 'Recensioni',
+    'avis.voirTous': 'Vedi tutte le recensioni',
+    'avis.commentCetait': 'Com\'è andata?',
+    'avis.tonAvis': 'La tua recensione',
+    'avis.unMot': 'Due parole, se vuoi',
+    'avis.facultatif': 'facoltativo',
+    'avis.signe': 'Con il mio nome',
+    'avis.signeAide': 'Una recensione firmata ispira più fiducia.',
+    'avis.anonyme': 'Anonimo',
+    'avis.anonymeAide': 'La tua recensione appare senza nome.',
+    'avis.plusTard': 'Più tardi',
+    'avis.envoyer': 'Invia',
+
+    'catalogue.rienNeCorrespond': 'Nessun risultato per « {mot} ».',
+    'catalogue.videCategorie': 'Niente in questa categoria per il momento.',
+    'produit.epuiseMinuscule': 'esaurito',
+    'produit.prevenu': '🔔 Ti avviseremo',
+
+    'etat.fermeDans': 'chiude tra {duree}',
+    'etat.ouvreDans': 'apre tra {duree}',
+    'etat.minutes': '{n} min',
+
+    'onglet.catalogue': 'Catalogo',
+    'onglet.categories': 'Categorie',
+    'onglet.contact': 'Contatto',
+    'onglet.profil': 'Profilo',
+
+    'catalogue.rechercher': 'Cerca un prodotto',
+    'catalogue.epuise': 'ESAURITO',
+    'catalogue.retour': 'Torna al catalogo',
+
+    'produit.format': 'Scegli il formato',
+    'produit.commander': 'Ordina',
+    'produit.question': 'Una domanda',
+    'produit.questionCourt': 'Domanda',
+    'produit.prevenir': '🔔 Avvisami quando torna',
+    'produit.memeCategorie': 'Stessa categoria',
+    'produit.aimerAussi': 'Ti piacerà anche',
+
+    'contact.titre': 'Una domanda?',
+    'contact.texte':
+      'Un dubbio su un prodotto, un ordine che tarda, una richiesta particolare: scrivici, ' +
+      'rispondiamo in chat.',
+    'contact.ouvrir': 'Apri la chat',
+    'contact.nousEcrire': 'Scrivici',
+
+    'profil.titre': 'Il mio profilo',
+    'profil.commandes': 'Ordini',
+    'profil.favoris': 'Preferiti',
+    'profil.produits': 'Prodotti',
+    'profil.alertes': 'Avvisi',
+    'profil.langue': 'Lingua',
+    'profil.langueAide': 'I testi del negozio. I prodotti restano nella lingua del venditore.',
+    'profil.alertesIntro':
+      'Quello che il negozio può inviarti in questa chat. Spegni e riaccendi quando vuoi.',
+    'profil.stop':
+      '⚠️ Hai inviato <b>/stop</b> al bot: non riceverai nulla finché non scrivi <b>/annonces</b> ' +
+      'per riaprire la porta.',
+
+    'etat.ouverte': 'Negozio aperto',
+    'etat.fermee': 'Negozio chiuso',
+    'etat.dispo': 'Disponibile ora',
+    'etat.retourA': 'Torniamo alle',
+    'etat.fermePourLInstant': 'Chiuso per ora',
+
+    'msg.chargement': 'Caricamento…',
+    'msg.injoignable': 'Negozio momentaneamente irraggiungibile',
+    'msg.injoignableTexte':
+      'Non è stato possibile caricare il catalogo. Non è che il negozio sia vuoto: il server non ' +
+      'risponde come dovrebbe.',
+    'msg.reessayer': 'Riprova',
+    'msg.catalogueIndispo': 'Catalogo non disponibile, riprova tra un attimo.',
+    'msg.pieceEnAttente': 'Potrai ordinare una volta convalidato il documento.',
+    'msg.calculEnAttente': 'Non ancora — rispondi al calcolo in chat.',
+    'msg.articleParti': 'Questo articolo non è più a catalogo. Ecco il resto del negozio.',
+    'msg.vendeurAbsent': 'L\'account del venditore non è ancora configurato.',
+    'msg.verifIndispo': 'Verifica non disponibile. Riprova tra un attimo.',
+    'msg.reglageRefuse': 'Impostazione non salvata, riprova.',
+
+    'alerte.inscrit': 'Ti scriviamo appena torna.',
+    'alerte.impossible': 'Iscrizione impossibile per ora.',
+
+    'rayon.unProduit': '1 prodotto',
+    'rayon.produits': '{n} prodotti',
+
+    'contact.vendeurAbsent':
+      'L\'account del venditore non è ancora indicato: torna un po\' più tardi.',
+    'contact.tuEcrisA': 'Scrivi a @{nom}. Rispondiamo appena siamo disponibili.',
+    'contact.onPrend': 'Prendiamo ordini.',
+    'contact.onRouvre': 'Riapriamo presto.',
+    'contact.retrait': 'Ritiro di persona',
+    'contact.retraitDetail': 'Appuntamento concordato in chat.',
+    'contact.livraison': 'Consegna',
+    'contact.livraisonDetail': 'Indirizzo richiesto al momento dell\'ordine.',
+    'contact.especes': 'Pagamento in contanti',
+    'contact.especesDetail': 'Alla consegna, niente in anticipo.',
+
+    'favori.mettre': 'Aggiungi ai preferiti',
+    'favori.retirer': 'Togli dai preferiti',
+    'favori.epuiseAlerte': 'Esaurito — attiva l\'avviso di ritorno',
+    'favoris.desactives': 'I preferiti non sono attivi in questo negozio.',
+    'favoris.vide': 'Tocca il ♥ su un prodotto per tenerlo qui.',
+
+    'commandes.desactivees': 'Lo storico degli ordini non è attivo in questo negozio.',
+    'commandes.vide': 'Non hai ancora fatto ordini.',
+    'commandes.depuisTelegram': 'Apri il negozio da Telegram per ritrovare i tuoi ordini.',
+    'commandes.profilIndispo': 'Profilo non disponibile per il momento.',
+    'commandes.reprendre': '🔁 Ripeti questo ordine',
+    'profil.client': 'Cliente {boutique}',
+
+    'avis.compte': 'Recensioni ({n})',
+    'avis.voirLesN': 'Vedi le {n} recensioni',
+    'avis.uneEtoile': '{n} stella',
+    'avis.desEtoiles': '{n} stelle',
+    'avis.toucheUneEtoile': 'Tocca almeno una stella.',
+    'avis.merci': 'Grazie per la tua recensione!',
+    'avis.envoi': 'Invio…',
+    'avis.refuse': 'Recensione rifiutata.',
+    'avis.tonAvisSur': 'La tua recensione su {quoi}',
+    'avis.reponseBoutique': 'Risposta del negozio',
+
+    'juke.ouvrir': 'Apri il lettore musicale',
+
+    'media.video': '▶ Video',
+
+    'legal.mention':
+      'Prodotti riservati ai maggiorenni. Verifica la legge in vigore dove ti trovi prima di ' +
+      'ordinare: la disponibilità di questi prodotti dipende dalla tua giurisdizione.',
+    'titre.page': 'Negozio',
+    'etat.compteBloque': 'Questo account non può ordinare. Scrivici in chat se è un errore.',
+    'etat.fermeeMessage': 'Il negozio è chiuso per il momento.',
+    'etat.ouvertCourt': 'Aperto',
+    'etat.fermeCourt': 'Chiuso',
+    'verif.texteAucune':
+      'Per ordinare qui serve convalidare un documento d\'identità. Inviane una foto nella chat ' +
+      'del bot: il venditore la guarda e ti risponde.',
+    'verif.texteEnCours':
+      'Il tuo documento è in verifica. Riceverai la risposta nella chat del bot.',
+    'verif.texteRefusee': 'La verifica è stata rifiutata. Scrivici in chat se pensi sia un errore.',
+    'verif.titreEnCours': 'In verifica',
+    'verif.titreRefusee': 'Verifica rifiutata',
+    'captcha.rate': 'Sbagliato. Riprova.',
+
+    'produit.memeCategorieAvec': 'Stessa categoria · {cat}',
+
+    'msg.bonjourCommander': 'Ciao! Vorrei ordinare da {boutique} ⚡',
+    'msg.bonjourQuestion': 'Ciao! Una domanda su {boutique} ⚡',
+    'msg.bonjourRecommander': 'Ciao! Vorrei riordinare la stessa cosa da {boutique} ⚡',
+    'msg.article': 'Articolo',
+
+    'retour.simple': 'Indietro',
+    'retour.catalogue': 'Torna al catalogo',
+    'retour.categories': 'Torna alle categorie',
+    'retour.profil': 'Torna al profilo',
+
+    'liste.etAutre': '{liste} e altro {n}',
+    'liste.etAutres': '{liste} e altri {n}',
+
+    'avis.ajouteUnMot': 'Aggiungi due parole',
+    'avis.tuAsNote': 'Hai valutato {quoi}',
+    'avis.dejaNote': 'Hai già valutato {quoi}. Aggiungi due parole, se vuoi.',
+    'avis.commandeRef': 'Ordine {ref} — {quoi}',
+    'avis.avecPrenom': 'Come « {prenom} »',
+
+    'aria.effacer': 'Cancella la ricerca',
+    'aria.trier': 'Ordina i prodotti',
+    'aria.fermer': 'Chiudi',
+    'aria.fiche': 'Scheda prodotto',
+    'aria.navigation': 'Navigazione',
+    'aria.medias': 'Media',
+    'aria.mediaPrec': 'Media precedente',
+    'aria.mediaSuiv': 'Media successivo',
+    'aria.question': 'Fai una domanda su questo prodotto',
+    'aria.signer': 'Firma la tua recensione',
+
+    'juke.menu': 'Lettore musicale',
+    'juke.lecture': 'Riproduci',
+    'juke.pause': 'Pausa',
+    'juke.precedent': 'Brano precedente',
+    'juke.suivant': 'Brano successivo',
+
+    'avis.noteVie':
+      'In entrambi i casi, né il tuo nome Telegram, né il tuo numero, né il tuo indirizzo vengono ' +
+      'pubblicati. Il venditore, però, vede sempre quale ordine è stato valutato.',
+
+    'alertes.nouveautes': 'Nuovi prodotti',
+    'alertes.nouveautesAide': 'Un messaggio quando arriva un articolo a catalogo.',
+    'alertes.promos': 'Offerte e codici',
+    'alertes.promosAide': 'Un messaggio quando parte uno sconto o un codice.',
+
+    'ouverture.1': 'Apertura del negozio…',
+    'ouverture.2': 'Colleghiamo la corrente…',
+    'ouverture.3': 'Accendiamo i neon…',
+    'ouverture.4': 'Tiriamo fuori la merce…',
+    'ouverture.5': 'Pronto.',
+  },
+
+  nl: {
+    'accueil.bienvenue': 'Welkom',
+    'accueil.texte':
+      '{boutique} brengt je nieuwe soorten en nieuwe reeksen, het hele jaar door vernieuwd. ' +
+      'Gegarandeerde kwaliteit op elk product in de catalogus.',
+    'accueil.horaires': '7/7 · 13-24 u',
+    'accueil.service': 'Afspraak & levering',
+    'accueil.langue': 'Kies je taal',
+    'accueil.entrer': 'Naar de winkel',
+
+    'porte.entree': 'Ingang',
+    'porte.titre': 'Eén sommetje en het is open',
+    'porte.texte':
+      'Ga terug naar het gesprek met de bot: daar krijg je een kleine optelsom. Beantwoord die en ' +
+      'kom terug — de winkel gaat vanzelf open.',
+    'porte.fine':
+      'Dit wordt maar één keer gevraagd, om nepaccounts te vermijden. Verder wordt je niets ' +
+      'gevraagd.',
+    'porte.ouvrir': 'Gesprek openen',
+    'porte.reessayer': 'Geantwoord — opnieuw proberen',
+
+    'age.titre': 'Stop!',
+    'age.texte':
+      'Deze winkel is alleen voor meerderjarigen. Bevestig je dat je <strong>18&nbsp;jaar of ' +
+      'ouder</strong> bent&nbsp;?',
+    'age.oui': 'Ja, ik ben 18',
+    'age.non': 'Nee',
+
+    'tuiles.entete': 'Controle',
+    'tuiles.consigne': 'Tik de 3 blaadjes aan',
+    'tuiles.texte': 'Even kijken of je geen robot bent.',
+    'tuiles.valider': 'Bevestigen',
+
+    'verif.entete': 'Gecontroleerde toegang',
+    'verif.titre': 'Controle vereist',
+    'verif.fine':
+      'De winkel bewaart je document niet: het blijft in het Telegram-gesprek, en je kunt het na ' +
+      'de controle verwijderen.',
+    'verif.ouvrir': 'Gesprek openen',
+    'verif.attendre': 'Ondertussen rondkijken',
+
+    'hero.horaires': 'Open 7/7 · 13 – 24 u',
+    'hero.service': 'Afspraak & levering',
+
+    'tri.defaut': 'Sortering: standaard',
+    'tri.nouveautes': 'Nieuw eerst',
+    'tri.prixCroissant': 'Prijs oplopend',
+    'tri.prixDecroissant': 'Prijs aflopend',
+    'tri.alphabetique': 'Alfabetisch',
+
+    'reprise.titre': 'Hetzelfde weer',
+    'catalogue.videTotal': 'De catalogus is voorlopig leeg.',
+
+    'avis.titre': 'Beoordelingen',
+    'avis.voirTous': 'Alle beoordelingen bekijken',
+    'avis.commentCetait': 'Hoe was het?',
+    'avis.tonAvis': 'Jouw beoordeling',
+    'avis.unMot': 'Een woordje, als je wilt',
+    'avis.facultatif': 'optioneel',
+    'avis.signe': 'Met mijn voornaam',
+    'avis.signeAide': 'Een ondertekende beoordeling wekt meer vertrouwen.',
+    'avis.anonyme': 'Anoniem',
+    'avis.anonymeAide': 'Je beoordeling verschijnt zonder naam.',
+    'avis.plusTard': 'Later',
+    'avis.envoyer': 'Versturen',
+
+    'catalogue.rienNeCorrespond': 'Niets komt overeen met « {mot} ».',
+    'catalogue.videCategorie': 'Voorlopig niets in deze categorie.',
+    'produit.epuiseMinuscule': 'uitverkocht',
+    'produit.prevenu': '🔔 Je krijgt bericht',
+
+    'etat.fermeDans': 'sluit over {duree}',
+    'etat.ouvreDans': 'opent over {duree}',
+    'etat.minutes': '{n} min',
+
+    'onglet.catalogue': 'Catalogus',
+    'onglet.categories': 'Categorieën',
+    'onglet.contact': 'Contact',
+    'onglet.profil': 'Profiel',
+
+    'catalogue.rechercher': 'Een product zoeken',
+    'catalogue.epuise': 'UITVERKOCHT',
+    'catalogue.retour': 'Terug naar de catalogus',
+
+    'produit.format': 'Kies je formaat',
+    'produit.commander': 'Bestellen',
+    'produit.question': 'Een vraag',
+    'produit.questionCourt': 'Vraag',
+    'produit.prevenir': '🔔 Waarschuw me',
+    'produit.memeCategorie': 'Zelfde categorie',
+    'produit.aimerAussi': 'Dit vind je ook leuk',
+
+    'contact.titre': 'Een vraag?',
+    'contact.texte':
+      'Twijfel over een product, een bestelling die op zich laat wachten, een bijzondere vraag: ' +
+      'schrijf ons, we antwoorden in het gesprek.',
+    'contact.ouvrir': 'Gesprek openen',
+    'contact.nousEcrire': 'Schrijf ons',
+
+    'profil.titre': 'Mijn profiel',
+    'profil.commandes': 'Bestellingen',
+    'profil.favoris': 'Favorieten',
+    'profil.produits': 'Producten',
+    'profil.alertes': 'Meldingen',
+    'profil.langue': 'Taal',
+    'profil.langueAide':
+      'De teksten van de winkel. De producten blijven in de taal van de verkoper.',
+    'profil.alertesIntro':
+      'Wat de winkel je in dit gesprek mag sturen. Je zet het uit en weer aan wanneer je wilt.',
+    'profil.stop':
+      '⚠️ Je hebt <b>/stop</b> naar de bot gestuurd: je ontvangt niets meer tot je ' +
+      '<b>/annonces</b> schrijft om de deur weer te openen.',
+
+    'etat.ouverte': 'Winkel open',
+    'etat.fermee': 'Winkel gesloten',
+    'etat.dispo': 'Nu beschikbaar',
+    'etat.retourA': 'Terug om',
+    'etat.fermePourLInstant': 'Nu gesloten',
+
+    'msg.chargement': 'Laden…',
+    'msg.injoignable': 'Winkel tijdelijk onbereikbaar',
+    'msg.injoignableTexte':
+      'De catalogus kon niet worden geladen. Het is niet zo dat de winkel leeg is: de server ' +
+      'antwoordt niet zoals het hoort.',
+    'msg.reessayer': 'Opnieuw proberen',
+    'msg.catalogueIndispo': 'Catalogus niet beschikbaar, probeer het zo nog eens.',
+    'msg.pieceEnAttente': 'Je kunt bestellen zodra je document is goedgekeurd.',
+    'msg.calculEnAttente': 'Nog niet — beantwoord de som in het gesprek.',
+    'msg.articleParti':
+      'Dit artikel staat niet meer in de catalogus. Hier is de rest van de winkel.',
+    'msg.vendeurAbsent': 'Het verkopersaccount is nog niet ingesteld.',
+    'msg.verifIndispo': 'Controle niet beschikbaar. Probeer het zo nog eens.',
+    'msg.reglageRefuse': 'Instelling niet opgeslagen, probeer opnieuw.',
+
+    'alerte.inscrit': 'We schrijven je zodra het terug is.',
+    'alerte.impossible': 'Inschrijven lukt nu niet.',
+
+    'rayon.unProduit': '1 product',
+    'rayon.produits': '{n} producten',
+
+    'contact.vendeurAbsent': 'Het verkopersaccount is nog niet ingevuld: kom wat later terug.',
+    'contact.tuEcrisA': 'Je schrijft naar @{nom}. We antwoorden zodra we er zijn.',
+    'contact.onPrend': 'We nemen bestellingen aan.',
+    'contact.onRouvre': 'We openen binnenkort weer.',
+    'contact.retrait': 'Ophalen ter plaatse',
+    'contact.retraitDetail': 'Afspraak wordt in het gesprek gemaakt.',
+    'contact.livraison': 'Levering',
+    'contact.livraisonDetail': 'Adres wordt bij de bestelling gevraagd.',
+    'contact.especes': 'Contante betaling',
+    'contact.especesDetail': 'Bij overhandiging, niets vooraf.',
+
+    'favori.mettre': 'Aan favorieten toevoegen',
+    'favori.retirer': 'Uit favorieten halen',
+    'favori.epuiseAlerte': 'Uitverkocht — zet de melding aan',
+    'favoris.desactives': 'Favorieten staan niet aan in deze winkel.',
+    'favoris.vide': 'Tik het ♥ op een product aan om het hier te bewaren.',
+
+    'commandes.desactivees': 'De bestelgeschiedenis staat niet aan in deze winkel.',
+    'commandes.vide': 'Je hebt nog niets besteld.',
+    'commandes.depuisTelegram': 'Open de winkel via Telegram om je bestellingen terug te vinden.',
+    'commandes.profilIndispo': 'Profiel nu niet beschikbaar.',
+    'commandes.reprendre': '🔁 Deze bestelling herhalen',
+    'profil.client': 'Klant van {boutique}',
+
+    'avis.compte': 'Beoordelingen ({n})',
+    'avis.voirLesN': 'Alle {n} beoordelingen bekijken',
+    'avis.uneEtoile': '{n} ster',
+    'avis.desEtoiles': '{n} sterren',
+    'avis.toucheUneEtoile': 'Tik minstens één ster aan.',
+    'avis.merci': 'Bedankt voor je beoordeling!',
+    'avis.envoi': 'Versturen…',
+    'avis.refuse': 'Beoordeling geweigerd.',
+    'avis.tonAvisSur': 'Jouw beoordeling van {quoi}',
+    'avis.reponseBoutique': 'Antwoord van de winkel',
+
+    'juke.ouvrir': 'Muziekspeler openen',
+
+    'media.video': '▶ Video',
+
+    'legal.mention':
+      'Producten alleen voor meerderjarigen. Controleer de wetgeving die bij jou geldt voordat je ' +
+      'bestelt: of deze producten beschikbaar zijn, hangt af van jouw rechtsgebied.',
+    'titre.page': 'Winkel',
+    'etat.compteBloque':
+      'Dit account kan niet bestellen. Schrijf ons in het gesprek als dit een vergissing is.',
+    'etat.fermeeMessage': 'De winkel is op dit moment gesloten.',
+    'etat.ouvertCourt': 'Open',
+    'etat.fermeCourt': 'Gesloten',
+    'verif.texteAucune':
+      'Om hier te bestellen moet een identiteitsbewijs worden goedgekeurd. Stuur er een foto van ' +
+      'in het gesprek met de bot: de verkoper bekijkt het en antwoordt je.',
+    'verif.texteEnCours':
+      'Je document wordt gecontroleerd. Je krijgt het antwoord in het gesprek met de bot.',
+    'verif.texteRefusee':
+      'De controle is geweigerd. Schrijf ons in het gesprek als je denkt dat dit een vergissing ' +
+      'is.',
+    'verif.titreEnCours': 'Wordt gecontroleerd',
+    'verif.titreRefusee': 'Controle geweigerd',
+    'captcha.rate': 'Mis. Probeer het nog eens.',
+
+    'produit.memeCategorieAvec': 'Zelfde categorie · {cat}',
+
+    'msg.bonjourCommander': 'Hallo! Ik wil graag bestellen bij {boutique} ⚡',
+    'msg.bonjourQuestion': 'Hallo! Een vraag over {boutique} ⚡',
+    'msg.bonjourRecommander': 'Hallo! Ik wil graag hetzelfde opnieuw bestellen bij {boutique} ⚡',
+    'msg.article': 'Artikel',
+
+    'retour.simple': 'Terug',
+    'retour.catalogue': 'Terug naar de catalogus',
+    'retour.categories': 'Terug naar de categorieën',
+    'retour.profil': 'Terug naar het profiel',
+
+    'liste.etAutre': '{liste} en {n} andere',
+    'liste.etAutres': '{liste} en {n} andere',
+
+    'avis.ajouteUnMot': 'Een woordje toevoegen',
+    'avis.tuAsNote': 'Je hebt {quoi} beoordeeld',
+    'avis.dejaNote': 'Je hebt {quoi} al beoordeeld. Voeg een woordje toe, als je wilt.',
+    'avis.commandeRef': 'Bestelling {ref} — {quoi}',
+    'avis.avecPrenom': 'Als « {prenom} »',
+
+    'aria.effacer': 'Zoekopdracht wissen',
+    'aria.trier': 'Producten sorteren',
+    'aria.fermer': 'Sluiten',
+    'aria.fiche': 'Productpagina',
+    'aria.navigation': 'Navigatie',
+    'aria.medias': 'Media',
+    'aria.mediaPrec': 'Vorige media',
+    'aria.mediaSuiv': 'Volgende media',
+    'aria.question': 'Een vraag stellen over dit product',
+    'aria.signer': 'Je beoordeling ondertekenen',
+
+    'juke.menu': 'Muziekspeler',
+    'juke.lecture': 'Afspelen',
+    'juke.pause': 'Pauze',
+    'juke.precedent': 'Vorig nummer',
+    'juke.suivant': 'Volgend nummer',
+
+    'avis.noteVie':
+      'In beide gevallen worden noch je Telegram-naam, noch je nummer, noch je adres ' +
+      'gepubliceerd. De verkoper ziet wel altijd welke bestelling is beoordeeld.',
+
+    'alertes.nouveautes': 'Nieuwe producten',
+    'alertes.nouveautesAide': 'Een bericht wanneer er een artikel in de catalogus komt.',
+    'alertes.promos': 'Acties en codes',
+    'alertes.promosAide': 'Een bericht wanneer een korting of code begint.',
+
+    'ouverture.1': 'De winkel gaat open…',
+    'ouverture.2': 'We zetten de stroom aan…',
+    'ouverture.3': 'We doen de neonlampen aan…',
+    'ouverture.4': 'We halen de waar tevoorschijn…',
+    'ouverture.5': 'Klaar.',
+  },
+
+  pt: {
+    'accueil.bienvenue': 'Bem-vindo',
+    'accueil.texte':
+      '{boutique} traz-te novas variedades e novas gamas, renovadas todo o ano. Qualidade ' +
+      'garantida em cada produto do catálogo.',
+    'accueil.horaires': '7/7 · 13H-00H',
+    'accueil.service': 'Encontro e entrega',
+    'accueil.langue': 'Escolhe a tua língua',
+    'accueil.entrer': 'Entrar na loja',
+
+    'porte.entree': 'Entrada',
+    'porte.titre': 'Uma conta, e está aberto',
+    'porte.texte':
+      'Volta à conversa do bot: ele põe-te uma pequena soma. Responde e volta — a loja abre ' +
+      'sozinha.',
+    'porte.fine':
+      'É pedido uma só vez, para evitar contas falsas. Não te é pedida mais nenhuma informação.',
+    'porte.ouvrir': 'Abrir a conversa',
+    'porte.reessayer': 'Já respondi — tentar de novo',
+
+    'age.titre': 'Alto!',
+    'age.texte':
+      'Esta loja é reservada a maiores de idade. Confirmas ter <strong>18&nbsp;anos ou ' +
+      'mais</strong>&nbsp;?',
+    'age.oui': 'Sim, tenho 18 anos',
+    'age.non': 'Não',
+
+    'tuiles.entete': 'Verificação',
+    'tuiles.consigne': 'Toca nas 3 folhas',
+    'tuiles.texte': 'Um segundo, para verificar que não és um robô.',
+    'tuiles.valider': 'Confirmar',
+
+    'verif.entete': 'Acesso controlado',
+    'verif.titre': 'Verificação necessária',
+    'verif.fine':
+      'A loja não guarda o teu documento: fica na conversa do Telegram, e podes apagá-lo depois ' +
+      'da verificação.',
+    'verif.ouvrir': 'Abrir a conversa',
+    'verif.attendre': 'Ver a loja entretanto',
+
+    'hero.horaires': 'Aberto 7/7 · 13h – 00h',
+    'hero.service': 'Encontro e entrega',
+
+    'tri.defaut': 'Ordem: predefinida',
+    'tri.nouveautes': 'Novidades primeiro',
+    'tri.prixCroissant': 'Preço crescente',
+    'tri.prixDecroissant': 'Preço decrescente',
+    'tri.alphabetique': 'Ordem alfabética',
+
+    'reprise.titre': 'O mesmo',
+    'catalogue.videTotal': 'O catálogo está vazio de momento.',
+
+    'avis.titre': 'Avaliações',
+    'avis.voirTous': 'Ver todas as avaliações',
+    'avis.commentCetait': 'Como foi?',
+    'avis.tonAvis': 'A tua avaliação',
+    'avis.unMot': 'Uma palavra, se quiseres',
+    'avis.facultatif': 'opcional',
+    'avis.signe': 'Com o meu nome',
+    'avis.signeAide': 'Uma avaliação assinada inspira mais confiança.',
+    'avis.anonyme': 'Anónimo',
+    'avis.anonymeAide': 'A tua avaliação aparece sem nome.',
+    'avis.plusTard': 'Mais tarde',
+    'avis.envoyer': 'Enviar',
+
+    'catalogue.rienNeCorrespond': 'Nada corresponde a « {mot} ».',
+    'catalogue.videCategorie': 'Nada nesta categoria de momento.',
+    'produit.epuiseMinuscule': 'esgotado',
+    'produit.prevenu': '🔔 Serás avisado',
+
+    'etat.fermeDans': 'fecha em {duree}',
+    'etat.ouvreDans': 'abre em {duree}',
+    'etat.minutes': '{n} min',
+
+    'onglet.catalogue': 'Catálogo',
+    'onglet.categories': 'Categorias',
+    'onglet.contact': 'Contacto',
+    'onglet.profil': 'Perfil',
+
+    'catalogue.rechercher': 'Procurar um produto',
+    'catalogue.epuise': 'ESGOTADO',
+    'catalogue.retour': 'Voltar ao catálogo',
+
+    'produit.format': 'Escolhe o formato',
+    'produit.commander': 'Encomendar',
+    'produit.question': 'Uma pergunta',
+    'produit.questionCourt': 'Pergunta',
+    'produit.prevenir': '🔔 Avisa-me quando voltar',
+    'produit.memeCategorie': 'Mesma categoria',
+    'produit.aimerAussi': 'Também vais gostar',
+
+    'contact.titre': 'Uma pergunta?',
+    'contact.texte':
+      'Uma dúvida sobre um produto, uma encomenda que demora, um pedido especial: escreve-nos, ' +
+      'respondemos na conversa.',
+    'contact.ouvrir': 'Abrir a conversa',
+    'contact.nousEcrire': 'Escreve-nos',
+
+    'profil.titre': 'O meu perfil',
+    'profil.commandes': 'Encomendas',
+    'profil.favoris': 'Favoritos',
+    'profil.produits': 'Produtos',
+    'profil.alertes': 'Avisos',
+    'profil.langue': 'Língua',
+    'profil.langueAide': 'Os textos da loja. Os produtos mantêm a língua do vendedor.',
+    'profil.alertesIntro':
+      'O que a loja te pode enviar nesta conversa. Desligas e ligas quando quiseres.',
+    'profil.stop':
+      '⚠️ Enviaste <b>/stop</b> ao bot: não receberás nada enquanto não escreveres ' +
+      '<b>/annonces</b> para reabrir a porta.',
+
+    'etat.ouverte': 'Loja aberta',
+    'etat.fermee': 'Loja fechada',
+    'etat.dispo': 'Disponível agora',
+    'etat.retourA': 'De volta às',
+    'etat.fermePourLInstant': 'Fechado por agora',
+
+    'msg.chargement': 'A carregar…',
+    'msg.injoignable': 'Loja momentaneamente inacessível',
+    'msg.injoignableTexte':
+      'Não foi possível carregar o catálogo. Não é que a loja esteja vazia: o servidor não ' +
+      'responde como deve.',
+    'msg.reessayer': 'Tentar de novo',
+    'msg.catalogueIndispo': 'Catálogo indisponível, tenta daqui a pouco.',
+    'msg.pieceEnAttente': 'Poderás encomendar assim que o teu documento for validado.',
+    'msg.calculEnAttente': 'Ainda não — responde à conta na conversa.',
+    'msg.articleParti': 'Este artigo já não está no catálogo. Aqui fica o resto da loja.',
+    'msg.vendeurAbsent': 'A conta do vendedor ainda não está configurada.',
+    'msg.verifIndispo': 'Verificação indisponível. Tenta daqui a pouco.',
+    'msg.reglageRefuse': 'Definição não guardada, tenta de novo.',
+
+    'alerte.inscrit': 'Escrevemos-te assim que voltar.',
+    'alerte.impossible': 'Inscrição impossível de momento.',
+
+    'rayon.unProduit': '1 produto',
+    'rayon.produits': '{n} produtos',
+
+    'contact.vendeurAbsent':
+      'A conta do vendedor ainda não está indicada: volta um pouco mais tarde.',
+    'contact.tuEcrisA': 'Escreves a @{nom}. Respondemos assim que estivermos disponíveis.',
+    'contact.onPrend': 'Estamos a aceitar encomendas.',
+    'contact.onRouvre': 'Reabrimos em breve.',
+    'contact.retrait': 'Levantamento em mão',
+    'contact.retraitDetail': 'Encontro combinado na conversa.',
+    'contact.livraison': 'Entrega',
+    'contact.livraisonDetail': 'Morada pedida no momento da encomenda.',
+    'contact.especes': 'Pagamento em dinheiro',
+    'contact.especesDetail': 'Na entrega, nada adiantado.',
+
+    'favori.mettre': 'Adicionar aos favoritos',
+    'favori.retirer': 'Remover dos favoritos',
+    'favori.epuiseAlerte': 'Esgotado — ativa o aviso de regresso',
+    'favoris.desactives': 'Os favoritos não estão ativos nesta loja.',
+    'favoris.vide': 'Toca no ♥ num produto para o guardar aqui.',
+
+    'commandes.desactivees': 'O histórico de encomendas não está ativo nesta loja.',
+    'commandes.vide': 'Ainda não fizeste nenhuma encomenda.',
+    'commandes.depuisTelegram': 'Abre a loja pelo Telegram para veres as tuas encomendas.',
+    'commandes.profilIndispo': 'Perfil indisponível de momento.',
+    'commandes.reprendre': '🔁 Repetir esta encomenda',
+    'profil.client': 'Cliente {boutique}',
+
+    'avis.compte': 'Avaliações ({n})',
+    'avis.voirLesN': 'Ver as {n} avaliações',
+    'avis.uneEtoile': '{n} estrela',
+    'avis.desEtoiles': '{n} estrelas',
+    'avis.toucheUneEtoile': 'Toca em pelo menos uma estrela.',
+    'avis.merci': 'Obrigado pela tua avaliação!',
+    'avis.envoi': 'A enviar…',
+    'avis.refuse': 'Avaliação recusada.',
+    'avis.tonAvisSur': 'A tua avaliação de {quoi}',
+    'avis.reponseBoutique': 'Resposta da loja',
+
+    'juke.ouvrir': 'Abrir o leitor de música',
+
+    'media.video': '▶ Vídeo',
+
+    'legal.mention':
+      'Produtos reservados a maiores de idade. Verifica a legislação em vigor onde estás antes de ' +
+      'encomendar: a disponibilidade destes produtos depende da tua jurisdição.',
+    'titre.page': 'Loja',
+    'etat.compteBloque': 'Esta conta não pode encomendar. Escreve-nos na conversa se for um erro.',
+    'etat.fermeeMessage': 'A loja está fechada de momento.',
+    'etat.ouvertCourt': 'Aberto',
+    'etat.fermeCourt': 'Fechado',
+    'verif.texteAucune':
+      'Para encomendar aqui é preciso validar um documento de identidade. Envia uma foto na ' +
+      'conversa do bot: o vendedor vê e responde-te.',
+    'verif.texteEnCours':
+      'O teu documento está em verificação. Receberás a resposta na conversa do bot.',
+    'verif.texteRefusee':
+      'A verificação foi recusada. Escreve-nos na conversa se achas que é um erro.',
+    'verif.titreEnCours': 'Em verificação',
+    'verif.titreRefusee': 'Verificação recusada',
+    'captcha.rate': 'Falhaste. Tenta outra vez.',
+
+    'produit.memeCategorieAvec': 'Mesma categoria · {cat}',
+
+    'msg.bonjourCommander': 'Olá! Queria encomendar na {boutique} ⚡',
+    'msg.bonjourQuestion': 'Olá! Uma pergunta sobre a {boutique} ⚡',
+    'msg.bonjourRecommander': 'Olá! Queria repetir a mesma encomenda na {boutique} ⚡',
+    'msg.article': 'Artigo',
+
+    'retour.simple': 'Voltar',
+    'retour.catalogue': 'Voltar ao catálogo',
+    'retour.categories': 'Voltar às categorias',
+    'retour.profil': 'Voltar ao perfil',
+
+    'liste.etAutre': '{liste} e mais {n}',
+    'liste.etAutres': '{liste} e mais {n}',
+
+    'avis.ajouteUnMot': 'Acrescenta uma palavra',
+    'avis.tuAsNote': 'Avaliaste {quoi}',
+    'avis.dejaNote': 'Já avaliaste {quoi}. Acrescenta uma palavra, se quiseres.',
+    'avis.commandeRef': 'Encomenda {ref} — {quoi}',
+    'avis.avecPrenom': 'Como « {prenom} »',
+
+    'aria.effacer': 'Limpar a pesquisa',
+    'aria.trier': 'Ordenar os produtos',
+    'aria.fermer': 'Fechar',
+    'aria.fiche': 'Ficha do produto',
+    'aria.navigation': 'Navegação',
+    'aria.medias': 'Multimédia',
+    'aria.mediaPrec': 'Multimédia anterior',
+    'aria.mediaSuiv': 'Multimédia seguinte',
+    'aria.question': 'Fazer uma pergunta sobre este produto',
+    'aria.signer': 'Assinar a tua avaliação',
+
+    'juke.menu': 'Leitor de música',
+    'juke.lecture': 'Reproduzir',
+    'juke.pause': 'Pausa',
+    'juke.precedent': 'Faixa anterior',
+    'juke.suivant': 'Faixa seguinte',
+
+    'avis.noteVie':
+      'Em ambos os casos, nem o teu nome no Telegram, nem o teu número, nem a tua morada são ' +
+      'publicados. O vendedor, esse, vê sempre que encomenda foi avaliada.',
+
+    'alertes.nouveautes': 'Produtos novos',
+    'alertes.nouveautesAide': 'Uma mensagem quando chega um artigo ao catálogo.',
+    'alertes.promos': 'Promoções e códigos',
+    'alertes.promosAide': 'Uma mensagem quando começa um desconto ou um código.',
+
+    'ouverture.1': 'A abrir a loja…',
+    'ouverture.2': 'A ligar a corrente…',
+    'ouverture.3': 'A acender os néons…',
+    'ouverture.4': 'A tirar a mercadoria…',
+    'ouverture.5': 'Pronto.',
+  },
+
+  de: {
+    'accueil.bienvenue': 'Willkommen',
+    'accueil.texte':
+      '{boutique} bringt dir neue Sorten und neue Reihen, das ganze Jahr über erneuert. ' +
+      'Garantierte Qualität bei jedem Produkt im Katalog.',
+    'accueil.horaires': '7/7 · 13–24 Uhr',
+    'accueil.service': 'Treffen & Lieferung',
+    'accueil.langue': 'Wähle deine Sprache',
+    'accueil.entrer': 'Zum Shop',
+
+    'porte.entree': 'Eingang',
+    'porte.titre': 'Eine Rechnung, und es ist offen',
+    'porte.texte':
+      'Geh zurück in den Bot-Chat: Dort bekommst du eine kleine Additionsaufgabe. Beantworte sie ' +
+      'und komm zurück — der Shop öffnet von selbst.',
+    'porte.fine':
+      'Wird nur einmal gefragt, um Fake-Konten zu vermeiden. Weitere Angaben brauchst du nicht zu ' +
+      'machen.',
+    'porte.ouvrir': 'Chat öffnen',
+    'porte.reessayer': 'Beantwortet — nochmal versuchen',
+
+    'age.titre': 'Stopp!',
+    'age.texte':
+      'Dieser Shop ist nur für Volljährige. Bestätigst du, <strong>18&nbsp;Jahre oder ' +
+      'älter</strong> zu sein&nbsp;?',
+    'age.oui': 'Ja, ich bin 18',
+    'age.non': 'Nein',
+
+    'tuiles.entete': 'Prüfung',
+    'tuiles.consigne': 'Tippe die 3 Blätter an',
+    'tuiles.texte': 'Einen Moment, wir prüfen nur kurz, dass du kein Roboter bist.',
+    'tuiles.valider': 'Bestätigen',
+
+    'verif.entete': 'Kontrollierter Zugang',
+    'verif.titre': 'Prüfung erforderlich',
+    'verif.fine':
+      'Der Shop speichert dein Dokument nicht: Es bleibt im Telegram-Chat, und du kannst es nach ' +
+      'der Prüfung löschen.',
+    'verif.ouvrir': 'Chat öffnen',
+    'verif.attendre': 'Solange im Shop stöbern',
+
+    'hero.horaires': 'Offen 7/7 · 13 – 24 Uhr',
+    'hero.service': 'Treffen & Lieferung',
+
+    'tri.defaut': 'Sortierung: Standard',
+    'tri.nouveautes': 'Neuheiten zuerst',
+    'tri.prixCroissant': 'Preis aufsteigend',
+    'tri.prixDecroissant': 'Preis absteigend',
+    'tri.alphabetique': 'Alphabetisch',
+
+    'reprise.titre': 'Dasselbe nochmal',
+    'catalogue.videTotal': 'Der Katalog ist im Moment leer.',
+
+    'avis.titre': 'Bewertungen',
+    'avis.voirTous': 'Alle Bewertungen ansehen',
+    'avis.commentCetait': 'Wie war es?',
+    'avis.tonAvis': 'Deine Bewertung',
+    'avis.unMot': 'Ein Wort, wenn du magst',
+    'avis.facultatif': 'optional',
+    'avis.signe': 'Mit meinem Vornamen',
+    'avis.signeAide': 'Eine unterschriebene Bewertung wirkt glaubwürdiger.',
+    'avis.anonyme': 'Anonym',
+    'avis.anonymeAide': 'Deine Bewertung erscheint ohne Namen.',
+    'avis.plusTard': 'Später',
+    'avis.envoyer': 'Senden',
+
+    'catalogue.rienNeCorrespond': 'Nichts passt zu « {mot} ».',
+    'catalogue.videCategorie': 'In dieser Kategorie ist gerade nichts.',
+    'produit.epuiseMinuscule': 'ausverkauft',
+    'produit.prevenu': '🔔 Du wirst benachrichtigt',
+
+    'etat.fermeDans': 'schließt in {duree}',
+    'etat.ouvreDans': 'öffnet in {duree}',
+    'etat.minutes': '{n} Min',
+
+    'onglet.catalogue': 'Katalog',
+    'onglet.categories': 'Kategorien',
+    'onglet.contact': 'Kontakt',
+    'onglet.profil': 'Profil',
+
+    'catalogue.rechercher': 'Produkt suchen',
+    'catalogue.epuise': 'AUSVERKAUFT',
+    'catalogue.retour': 'Zurück zum Katalog',
+
+    'produit.format': 'Wähle dein Format',
+    'produit.commander': 'Bestellen',
+    'produit.question': 'Eine Frage',
+    'produit.questionCourt': 'Frage',
+    'produit.prevenir': '🔔 Benachrichtige mich',
+    'produit.memeCategorie': 'Gleiche Kategorie',
+    'produit.aimerAussi': 'Das gefällt dir auch',
+
+    'contact.titre': 'Eine Frage?',
+    'contact.texte':
+      'Zweifel an einem Produkt, eine Bestellung, die dauert, ein besonderer Wunsch: Schreib uns, ' +
+      'wir antworten im Chat.',
+    'contact.ouvrir': 'Chat öffnen',
+    'contact.nousEcrire': 'Schreib uns',
+
+    'profil.titre': 'Mein Profil',
+    'profil.commandes': 'Bestellungen',
+    'profil.favoris': 'Favoriten',
+    'profil.produits': 'Produkte',
+    'profil.alertes': 'Hinweise',
+    'profil.langue': 'Sprache',
+    'profil.langueAide': 'Die Texte des Shops. Die Produkte bleiben in der Sprache des Verkäufers.',
+    'profil.alertesIntro':
+      'Was der Shop dir in diesem Chat schicken darf. Du schaltest es aus und wieder ein, wann du ' +
+      'willst.',
+    'profil.stop':
+      '⚠️ Du hast dem Bot <b>/stop</b> geschickt: Es erreicht dich nichts mehr, bis du ' +
+      '<b>/annonces</b> schreibst, um die Tür wieder zu öffnen.',
+
+    'etat.ouverte': 'Shop offen',
+    'etat.fermee': 'Shop geschlossen',
+    'etat.dispo': 'Jetzt verfügbar',
+    'etat.retourA': 'Zurück um',
+    'etat.fermePourLInstant': 'Gerade geschlossen',
+
+    'msg.chargement': 'Lädt…',
+    'msg.injoignable': 'Shop momentan nicht erreichbar',
+    'msg.injoignableTexte':
+      'Der Katalog konnte nicht geladen werden. Es ist nicht so, dass der Shop leer wäre: Der ' +
+      'Server antwortet nicht richtig.',
+    'msg.reessayer': 'Nochmal versuchen',
+    'msg.catalogueIndispo': 'Katalog nicht verfügbar, versuch es gleich nochmal.',
+    'msg.pieceEnAttente': 'Du kannst bestellen, sobald dein Ausweis geprüft ist.',
+    'msg.calculEnAttente': 'Noch nicht — beantworte die Rechnung im Chat.',
+    'msg.articleParti': 'Dieser Artikel ist nicht mehr im Katalog. Hier ist der Rest des Shops.',
+    'msg.vendeurAbsent': 'Das Verkäuferkonto ist noch nicht eingerichtet.',
+    'msg.verifIndispo': 'Prüfung nicht verfügbar. Versuch es gleich nochmal.',
+    'msg.reglageRefuse': 'Einstellung nicht gespeichert, versuch es nochmal.',
+
+    'alerte.inscrit': 'Wir schreiben dir, sobald es zurück ist.',
+    'alerte.impossible': 'Eintragung gerade nicht möglich.',
+
+    'rayon.unProduit': '1 Produkt',
+    'rayon.produits': '{n} Produkte',
+
+    'contact.vendeurAbsent':
+      'Das Verkäuferkonto ist noch nicht eingetragen: Komm etwas später wieder.',
+    'contact.tuEcrisA': 'Du schreibst an @{nom}. Wir antworten, sobald wir da sind.',
+    'contact.onPrend': 'Wir nehmen Bestellungen an.',
+    'contact.onRouvre': 'Wir öffnen bald wieder.',
+    'contact.retrait': 'Abholung vor Ort',
+    'contact.retraitDetail': 'Treffpunkt wird im Chat vereinbart.',
+    'contact.livraison': 'Lieferung',
+    'contact.livraisonDetail': 'Adresse wird bei der Bestellung erfragt.',
+    'contact.especes': 'Barzahlung',
+    'contact.especesDetail': 'Bei der Übergabe, nichts im Voraus.',
+
+    'favori.mettre': 'Zu Favoriten hinzufügen',
+    'favori.retirer': 'Aus Favoriten entfernen',
+    'favori.epuiseAlerte': 'Ausverkauft — Benachrichtigung aktivieren',
+    'favoris.desactives': 'Favoriten sind in diesem Shop nicht aktiv.',
+    'favoris.vide': 'Tippe das ♥ auf einem Produkt an, um es hier zu behalten.',
+
+    'commandes.desactivees': 'Der Bestellverlauf ist in diesem Shop nicht aktiv.',
+    'commandes.vide': 'Du hast noch nichts bestellt.',
+    'commandes.depuisTelegram': 'Öffne den Shop über Telegram, um deine Bestellungen zu sehen.',
+    'commandes.profilIndispo': 'Profil momentan nicht verfügbar.',
+    'commandes.reprendre': '🔁 Diese Bestellung wiederholen',
+    'profil.client': 'Kunde von {boutique}',
+
+    'avis.compte': 'Bewertungen ({n})',
+    'avis.voirLesN': 'Alle {n} Bewertungen ansehen',
+    'avis.uneEtoile': '{n} Stern',
+    'avis.desEtoiles': '{n} Sterne',
+    'avis.toucheUneEtoile': 'Tippe mindestens einen Stern an.',
+    'avis.merci': 'Danke für deine Bewertung!',
+    'avis.envoi': 'Wird gesendet…',
+    'avis.refuse': 'Bewertung abgelehnt.',
+    'avis.tonAvisSur': 'Deine Bewertung zu {quoi}',
+    'avis.reponseBoutique': 'Antwort des Shops',
+
+    'juke.ouvrir': 'Musikplayer öffnen',
+
+    'media.video': '▶ Video',
+
+    'legal.mention':
+      'Produkte nur für Volljährige. Prüfe die bei dir geltenden Gesetze vor jeder Bestellung: Ob ' +
+      'diese Produkte verfügbar sind, hängt von deiner Rechtsordnung ab.',
+    'titre.page': 'Shop',
+    'etat.compteBloque':
+      'Dieses Konto kann nicht bestellen. Schreib uns im Chat, falls das ein Fehler ist.',
+    'etat.fermeeMessage': 'Der Shop ist gerade geschlossen.',
+    'etat.ouvertCourt': 'Offen',
+    'etat.fermeCourt': 'Geschlossen',
+    'verif.texteAucune':
+      'Um hier zu bestellen, muss ein Ausweis geprüft werden. Schick ein Foto davon in den ' +
+      'Bot-Chat: Der Verkäufer sieht es sich an und antwortet dir.',
+    'verif.texteEnCours': 'Dein Ausweis wird geprüft. Die Antwort bekommst du im Bot-Chat.',
+    'verif.texteRefusee':
+      'Die Prüfung wurde abgelehnt. Schreib uns im Chat, wenn du meinst, das sei ein Fehler.',
+    'verif.titreEnCours': 'Wird geprüft',
+    'verif.titreRefusee': 'Prüfung abgelehnt',
+    'captcha.rate': 'Daneben. Versuch es nochmal.',
+
+    'produit.memeCategorieAvec': 'Gleiche Kategorie · {cat}',
+
+    'msg.bonjourCommander': 'Hallo! Ich würde gern bei {boutique} bestellen ⚡',
+    'msg.bonjourQuestion': 'Hallo! Eine Frage zu {boutique} ⚡',
+    'msg.bonjourRecommander': 'Hallo! Ich würde gern dasselbe nochmal bei {boutique} bestellen ⚡',
+    'msg.article': 'Artikel',
+
+    'retour.simple': 'Zurück',
+    'retour.catalogue': 'Zurück zum Katalog',
+    'retour.categories': 'Zurück zu den Kategorien',
+    'retour.profil': 'Zurück zum Profil',
+
+    'liste.etAutre': '{liste} und {n} weiteres',
+    'liste.etAutres': '{liste} und {n} weitere',
+
+    'avis.ajouteUnMot': 'Ein Wort hinzufügen',
+    'avis.tuAsNote': 'Du hast {quoi} bewertet',
+    'avis.dejaNote': 'Du hast {quoi} schon bewertet. Füge ein Wort hinzu, wenn du magst.',
+    'avis.commandeRef': 'Bestellung {ref} — {quoi}',
+    'avis.avecPrenom': 'Als « {prenom} »',
+
+    'aria.effacer': 'Suche löschen',
+    'aria.trier': 'Produkte sortieren',
+    'aria.fermer': 'Schließen',
+    'aria.fiche': 'Produktseite',
+    'aria.navigation': 'Navigation',
+    'aria.medias': 'Medien',
+    'aria.mediaPrec': 'Vorheriges Medium',
+    'aria.mediaSuiv': 'Nächstes Medium',
+    'aria.question': 'Eine Frage zu diesem Produkt stellen',
+    'aria.signer': 'Deine Bewertung unterschreiben',
+
+    'juke.menu': 'Musikplayer',
+    'juke.lecture': 'Abspielen',
+    'juke.pause': 'Pause',
+    'juke.precedent': 'Vorheriger Titel',
+    'juke.suivant': 'Nächster Titel',
+
+    'avis.noteVie':
+      'In beiden Fällen werden weder dein Telegram-Name noch deine Nummer noch deine Adresse ' +
+      'veröffentlicht. Der Verkäufer sieht allerdings immer, welche Bestellung bewertet wurde.',
+
+    'alertes.nouveautes': 'Neue Produkte',
+    'alertes.nouveautesAide': 'Eine Nachricht, wenn ein Artikel in den Katalog kommt.',
+    'alertes.promos': 'Angebote und Codes',
+    'alertes.promosAide': 'Eine Nachricht, wenn ein Rabatt oder ein Code startet.',
+
+    'ouverture.1': 'Der Shop öffnet…',
+    'ouverture.2': 'Wir schalten den Strom ein…',
+    'ouverture.3': 'Wir machen die Neonlichter an…',
+    'ouverture.4': 'Wir holen die Ware raus…',
+    'ouverture.5': 'Bereit.',
+  },
+
+  ar: {
+    'accueil.bienvenue': 'مرحباً',
+    'accueil.texte':
+      '{boutique} تقدّم لك أصنافاً جديدة وتشكيلات جديدة، تتجدّد طوال السنة. جودة مضمونة في كل ' +
+      'منتج من الكتالوج.',
+    'accueil.horaires': '7/7 · 13:00-00:00',
+    'accueil.service': 'لقاء وتوصيل',
+    'accueil.langue': 'اختر لغتك',
+    'accueil.entrer': 'ادخل المتجر',
+
+    'porte.entree': 'الدخول',
+    'porte.titre': 'عملية حسابية واحدة، ويُفتح',
+    'porte.texte':
+      'عد إلى محادثة البوت: سيطرح عليك عملية جمع بسيطة. أجب عنها ثم عد إلى هنا — سيُفتح المتجر ' +
+      'وحده.',
+    'porte.fine':
+      'يُطلب هذا مرة واحدة فقط، لتفادي الحسابات الوهمية. ولا يُطلب منك أي معلومات أخرى.',
+    'porte.ouvrir': 'فتح المحادثة',
+    'porte.reessayer': 'أجبت — أعد المحاولة',
+
+    'age.titre': 'قف!',
+    'age.texte':
+      'هذا المتجر مخصّص للبالغين. هل تؤكّد أن عمرك <strong>18&nbsp;سنة أو أكثر</strong>&nbsp;؟',
+    'age.oui': 'نعم، عمري 18 سنة',
+    'age.non': 'لا',
+
+    'tuiles.entete': 'تحقّق',
+    'tuiles.consigne': 'اضغط على الأوراق الثلاث',
+    'tuiles.texte': 'لحظة واحدة، للتأكّد أنك لست روبوتاً.',
+    'tuiles.valider': 'تأكيد',
+
+    'verif.entete': 'دخول مراقَب',
+    'verif.titre': 'التحقّق مطلوب',
+    'verif.fine':
+      'المتجر لا يحفظ وثيقتك: تبقى في محادثة تيليغرام، ويمكنك حذفها بعد انتهاء التحقّق.',
+    'verif.ouvrir': 'فتح المحادثة',
+    'verif.attendre': 'تصفّح المتجر في الأثناء',
+
+    'hero.horaires': 'مفتوح 7/7 · 13:00 – 00:00',
+    'hero.service': 'لقاء وتوصيل',
+
+    'tri.defaut': 'الترتيب: افتراضي',
+    'tri.nouveautes': 'الجديد أولاً',
+    'tri.prixCroissant': 'السعر تصاعدياً',
+    'tri.prixDecroissant': 'السعر تنازلياً',
+    'tri.alphabetique': 'ترتيب أبجدي',
+
+    'reprise.titre': 'الشيء نفسه',
+    'catalogue.videTotal': 'الكتالوج فارغ في الوقت الحالي.',
+
+    'avis.titre': 'التقييمات',
+    'avis.voirTous': 'عرض كل التقييمات',
+    'avis.commentCetait': 'كيف كانت التجربة؟',
+    'avis.tonAvis': 'تقييمك',
+    'avis.unMot': 'كلمة، إن أردت',
+    'avis.facultatif': 'اختياري',
+    'avis.signe': 'باسمي',
+    'avis.signeAide': 'التقييم الموقَّع يبعث على الثقة أكثر.',
+    'avis.anonyme': 'مجهول',
+    'avis.anonymeAide': 'يظهر تقييمك بدون اسم.',
+    'avis.plusTard': 'لاحقاً',
+    'avis.envoyer': 'إرسال',
+
+    'catalogue.rienNeCorrespond': 'لا نتائج لـ « {mot} ».',
+    'catalogue.videCategorie': 'لا شيء في هذه الفئة حالياً.',
+    'produit.epuiseMinuscule': 'نفد',
+    'produit.prevenu': '🔔 سنُعلِمك',
+
+    'etat.fermeDans': 'يُغلق خلال {duree}',
+    'etat.ouvreDans': 'يفتح خلال {duree}',
+    'etat.minutes': '{n} د',
+
+    'onglet.catalogue': 'الكتالوج',
+    'onglet.categories': 'الفئات',
+    'onglet.contact': 'تواصل',
+    'onglet.profil': 'حسابي',
+
+    'catalogue.rechercher': 'ابحث عن منتج',
+    'catalogue.epuise': 'نفد',
+    'catalogue.retour': 'العودة إلى الكتالوج',
+
+    'produit.format': 'اختر الحجم',
+    'produit.commander': 'اطلب',
+    'produit.question': 'سؤال',
+    'produit.questionCourt': 'سؤال',
+    'produit.prevenir': '🔔 أعلِمني عند التوفّر',
+    'produit.memeCategorie': 'الفئة نفسها',
+    'produit.aimerAussi': 'سيعجبك أيضاً',
+
+    'contact.titre': 'عندك سؤال؟',
+    'contact.texte': 'شكّ في منتج، طلب تأخّر، طلب خاص: اكتب لنا، نردّ عليك في المحادثة.',
+    'contact.ouvrir': 'فتح المحادثة',
+    'contact.nousEcrire': 'اكتب لنا',
+
+    'profil.titre': 'حسابي',
+    'profil.commandes': 'الطلبات',
+    'profil.favoris': 'المفضّلة',
+    'profil.produits': 'المنتجات',
+    'profil.alertes': 'التنبيهات',
+    'profil.langue': 'اللغة',
+    'profil.langueAide': 'نصوص المتجر. أمّا المنتجات فتبقى بلغة البائع.',
+    'profil.alertesIntro': 'ما يمكن للمتجر أن يرسله إليك في هذه المحادثة. توقفه وتعيده متى شئت.',
+    'profil.stop':
+      '⚠️ أرسلت <b>/stop</b> إلى البوت: لن يصلك شيء حتى تكتب <b>/annonces</b> لإعادة فتح الباب.',
+
+    'etat.ouverte': 'المتجر مفتوح',
+    'etat.fermee': 'المتجر مغلق',
+    'etat.dispo': 'متاح الآن',
+    'etat.retourA': 'نعود على الساعة',
+    'etat.fermePourLInstant': 'مغلق حالياً',
+
+    'msg.chargement': 'جارٍ التحميل…',
+    'msg.injoignable': 'المتجر غير متاح مؤقتاً',
+    'msg.injoignableTexte':
+      'تعذّر تحميل الكتالوج. ليس لأن المتجر فارغ: الخادم لا يستجيب كما ينبغي.',
+    'msg.reessayer': 'أعد المحاولة',
+    'msg.catalogueIndispo': 'الكتالوج غير متاح، أعد المحاولة بعد لحظات.',
+    'msg.pieceEnAttente': 'يمكنك الطلب بمجرّد قبول وثيقتك.',
+    'msg.calculEnAttente': 'ليس بعد — أجب عن العملية الحسابية في المحادثة.',
+    'msg.articleParti': 'لم يعد هذا المنتج في الكتالوج. إليك بقية المتجر.',
+    'msg.vendeurAbsent': 'حساب البائع لم يُضبط بعد.',
+    'msg.verifIndispo': 'التحقّق غير متاح. أعد المحاولة بعد لحظات.',
+    'msg.reglageRefuse': 'لم يُحفظ الإعداد، أعد المحاولة.',
+
+    'alerte.inscrit': 'سنكتب لك فور عودته.',
+    'alerte.impossible': 'التسجيل غير ممكن حالياً.',
+
+    'rayon.unProduit': 'منتج واحد',
+    'rayon.produits': '{n} منتجات',
+
+    'contact.vendeurAbsent': 'حساب البائع لم يُدرَج بعد: عد بعد قليل.',
+    'contact.tuEcrisA': 'أنت تكتب إلى @{nom}. نردّ بمجرّد أن نكون متاحين.',
+    'contact.onPrend': 'نستقبل الطلبات.',
+    'contact.onRouvre': 'سنفتح قريباً.',
+    'contact.retrait': 'الاستلام باليد',
+    'contact.retraitDetail': 'يُتّفق على الموعد في المحادثة.',
+    'contact.livraison': 'التوصيل',
+    'contact.livraisonDetail': 'يُطلب العنوان عند الطلب.',
+    'contact.especes': 'الدفع نقداً',
+    'contact.especesDetail': 'عند التسليم، لا شيء مقدّماً.',
+
+    'favori.mettre': 'إضافة إلى المفضّلة',
+    'favori.retirer': 'إزالة من المفضّلة',
+    'favori.epuiseAlerte': 'نفد — فعّل تنبيه العودة',
+    'favoris.desactives': 'المفضّلة غير مفعّلة في هذا المتجر.',
+    'favoris.vide': 'اضغط على ♥ في أي منتج لتحتفظ به هنا.',
+
+    'commandes.desactivees': 'سجلّ الطلبات غير مفعّل في هذا المتجر.',
+    'commandes.vide': 'لم تقم بأي طلب بعد.',
+    'commandes.depuisTelegram': 'افتح المتجر من تيليغرام لتجد طلباتك.',
+    'commandes.profilIndispo': 'الحساب غير متاح حالياً.',
+    'commandes.reprendre': '🔁 أعد هذا الطلب',
+    'profil.client': 'زبون {boutique}',
+
+    'avis.compte': 'التقييمات ({n})',
+    'avis.voirLesN': 'عرض التقييمات {n}',
+    'avis.uneEtoile': 'نجمة {n}',
+    'avis.desEtoiles': '{n} نجوم',
+    'avis.toucheUneEtoile': 'اضغط على نجمة واحدة على الأقل.',
+    'avis.merci': 'شكراً على تقييمك!',
+    'avis.envoi': 'جارٍ الإرسال…',
+    'avis.refuse': 'رُفض التقييم.',
+    'avis.tonAvisSur': 'تقييمك لـ {quoi}',
+    'avis.reponseBoutique': 'ردّ المتجر',
+
+    'juke.ouvrir': 'فتح مشغّل الموسيقى',
+
+    'media.video': '▶ فيديو',
+
+    'legal.mention':
+      'منتجات مخصّصة للبالغين. تحقّق من القانون المعمول به عندك قبل أي طلب: توفّر هذه المنتجات ' +
+      'يتوقّف على ولايتك القضائية.',
+    'titre.page': 'المتجر',
+    'etat.compteBloque': 'لا يمكن لهذا الحساب أن يطلب. اكتب لنا في المحادثة إن كان ذلك خطأً.',
+    'etat.fermeeMessage': 'المتجر مغلق في الوقت الحالي.',
+    'etat.ouvertCourt': 'مفتوح',
+    'etat.fermeCourt': 'مغلق',
+    'verif.texteAucune':
+      'للطلب من هنا، يجب قبول وثيقة هوية. أرسل صورة منها في محادثة البوت: يطّلع عليها البائع ' +
+      'ويردّ عليك.',
+    'verif.texteEnCours': 'وثيقتك قيد التحقّق. ستصلك الإجابة في محادثة البوت.',
+    'verif.texteRefusee': 'رُفض التحقّق. اكتب لنا في المحادثة إن كنت ترى أن ذلك خطأ.',
+    'verif.titreEnCours': 'قيد التحقّق',
+    'verif.titreRefusee': 'رُفض التحقّق',
+    'captcha.rate': 'خطأ. حاول مرة أخرى.',
+
+    'produit.memeCategorieAvec': 'الفئة نفسها · {cat}',
+
+    'msg.bonjourCommander': 'مرحباً! أودّ الطلب من {boutique} ⚡',
+    'msg.bonjourQuestion': 'مرحباً! عندي سؤال عن {boutique} ⚡',
+    'msg.bonjourRecommander': 'مرحباً! أودّ إعادة الطلب نفسه من {boutique} ⚡',
+    'msg.article': 'منتج',
+
+    'retour.simple': 'رجوع',
+    'retour.catalogue': 'العودة إلى الكتالوج',
+    'retour.categories': 'العودة إلى الفئات',
+    'retour.profil': 'العودة إلى الحساب',
+
+    'liste.etAutre': '{liste} و{n} آخر',
+    'liste.etAutres': '{liste} و{n} أخرى',
+
+    'avis.ajouteUnMot': 'أضف كلمة',
+    'avis.tuAsNote': 'قيّمت {quoi}',
+    'avis.dejaNote': 'سبق أن قيّمت {quoi}. أضف كلمة، إن أردت.',
+    'avis.commandeRef': 'الطلب {ref} — {quoi}',
+    'avis.avecPrenom': 'باسم « {prenom} »',
+
+    'aria.effacer': 'مسح البحث',
+    'aria.trier': 'ترتيب المنتجات',
+    'aria.fermer': 'إغلاق',
+    'aria.fiche': 'صفحة المنتج',
+    'aria.navigation': 'التنقّل',
+    'aria.medias': 'الوسائط',
+    'aria.mediaPrec': 'الوسيط السابق',
+    'aria.mediaSuiv': 'الوسيط التالي',
+    'aria.question': 'اطرح سؤالاً عن هذا المنتج',
+    'aria.signer': 'وقّع تقييمك',
+
+    'juke.menu': 'مشغّل الموسيقى',
+    'juke.lecture': 'تشغيل',
+    'juke.pause': 'إيقاف مؤقت',
+    'juke.precedent': 'المقطع السابق',
+    'juke.suivant': 'المقطع التالي',
+
+    'avis.noteVie':
+      'في الحالتين، لا يُنشر اسمك على تيليغرام ولا رقمك ولا عنوانك. أمّا البائع فيرى دائماً أي ' +
+      'طلب جرى تقييمه.',
+
+    'alertes.nouveautes': 'منتجات جديدة',
+    'alertes.nouveautesAide': 'رسالة عند وصول منتج إلى الكتالوج.',
+    'alertes.promos': 'العروض والرموز',
+    'alertes.promosAide': 'رسالة عند بدء تخفيض أو رمز ترويجي.',
+
+    'ouverture.1': 'جارٍ فتح المتجر…',
+    'ouverture.2': 'نوصّل التيار…',
+    'ouverture.3': 'نُشعل النيون…',
+    'ouverture.4': 'نُخرج البضاعة…',
+    'ouverture.5': 'جاهز.',
   },
 };
 

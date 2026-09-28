@@ -130,10 +130,36 @@ function t(clef, valeurs) {
   let texte = TEXTES[langue]?.[clef] ?? TEXTES[LANGUE_PAR_DEFAUT][clef] ?? clef;
   if (valeurs) {
     for (const [nom, valeur] of Object.entries(valeurs)) {
-      texte = texte.split(`{${nom}}`).join(String(valeur));
+      texte = texte.split(`{${nom}}`).join(isoler(valeur));
     }
   }
   return texte;
+}
+
+/**
+ * Ce qu'on glisse dans une phrase traduite ne vient jamais du dictionnaire :
+ * c'est un pseudo, un nom de boutique, un nom de produit — du texte écrit
+ * ailleurs, dans une autre écriture que celle de la phrase qui l'accueille.
+ *
+ * En arabe, « Bienvenue @amine » s'affichait « amine@ مرحباً » : l'arobase
+ * n'appartient à aucune des deux écritures, le navigateur la rattache donc
+ * à la phrase plutôt qu'au pseudo, et elle passe de l'autre côté du nom.
+ *
+ * U+2068 et U+2069 sont deux caractères invisibles qui disent « ce qui suit
+ * forme un bloc, trouve son sens tout seul, et ne déteint pas sur le reste ».
+ * C'est exactement ce dont un pseudo latin dans une phrase arabe a besoin.
+ * Hors écriture droite-à-gauche ils ne changeraient rien, mais ils
+ * apparaîtraient dans les messages qu'on prépare pour Telegram : on ne les
+ * pose donc que là où ils servent.
+ */
+function isoler(valeur) {
+  const texte = String(valeur);
+  return rtl() ? `\u2068${texte}\u2069` : texte;
+}
+
+/** La langue en cours se lit-elle de droite à gauche ? */
+function rtl() {
+  return LANGUES.find((l) => l.code === langue)?.sens === 'rtl';
 }
 
 /** Le code de date de la langue en cours (« fr-FR », « en-GB »…). */
@@ -152,6 +178,11 @@ function locale() {
 function appliquerLaLangue(code, { retenir = false } = {}) {
   if (TEXTES[code]) langue = code;
   document.documentElement.lang = langue;
+  // L'arabe se lit de droite à gauche. C'est `dir` qui retourne la page, pas
+  // la feuille de style : elle est écrite en propriétés logiques, et sans cet
+  // attribut « start » veut dire « gauche » partout. Reposé à chaque
+  // application, parce qu'on peut revenir de l'arabe au français.
+  document.documentElement.dir = rtl() ? 'rtl' : 'ltr';
   // On n'enregistre que sur un choix. Écrire à chaque application faisait
   // croire, dès la première ligne de l'écran d'ouverture, que le client avait
   // déjà choisi : le cadre d'accueil ne s'affichait plus jamais, et la
@@ -2644,7 +2675,9 @@ function montrerLAccueil() {
   // Un seul endroit qui écrit le cadre : il est réécrit à chaque drapeau
   // touché, et deux listes à tenir à jour en deviendraient une qui oublie.
   const ecrireLeCadre = () => {
-    $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
+    $('bienvenueSalut').textContent = nom
+      ? `${t('accueil.bienvenue')} ${isoler(nom)}`
+      : t('accueil.bienvenue');
     $('bienvenueTexte').textContent = t('accueil.texte', { boutique: state.shop?.shopName ?? '' }).trim();
     ecrireLHoraire();
     $('bienvenueService').textContent = t('accueil.service');
