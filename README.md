@@ -128,6 +128,23 @@ clients s'en servent, il faut que la boutique tourne en permanence quelque part 
 voir **[docs/vps.md](docs/vps.md)**, qui va du VPS vide au bouton dans Telegram, et
 `bash deploy/installer.sh` qui en exécute les étapes mécaniques.
 
+### Les deux boutons qui ouvrent la boutique
+
+| Où | Libellé | Couleur |
+|---|---|---|
+| Sous les messages du bot | `🛒 Ouvrir la boutique` | **rouge** (`style: "danger"`) |
+| En bas à gauche du chat | le nom de la boutique + `⚡` | celle de Telegram, non réglable |
+
+Le rouge est arrivé avec la **version 9.4 de l'API de Telegram**, en février
+2026 : trois styles seulement — `danger` (rouge), `success` (vert),
+`primary` (bleu). Avant cela, un emoji dans le libellé était tout ce qu'on
+pouvait faire. Un style inventé fait refuser le message entier, comme une
+mauvaise URL de Mini App.
+
+Le libellé du bouton de menu vient des réglages et suit donc un changement
+de nom. Il est borné à 64 caractères : au-delà Telegram refuse l'appel, et
+le menu retomberait sur « Menu » sans que rien ne le dise.
+
 ### 5. Le bouton en bas à gauche du chat
 
 **Rien à faire :** au démarrage, le bot pose lui-même le bouton de menu (en bas

@@ -488,6 +488,13 @@ for (const [label, texte] of [
   await configurerMenu();
   check('Le bouton de menu ouvre la boutique', vu?.type === 'web_app', vu?.type);
   check('Sur la vraie URL', vu?.web_app?.url === 'https://boutique.example.com', vu?.web_app?.url);
+  // Le libellé porte l'enseigne, pas le mot « Boutique » : c'est ce que le
+  // client cherche des yeux en bas de l'écran. Repris des réglages, donc il
+  // suit un changement de nom — et borné, parce qu'un libellé trop long
+  // ferait refuser l'appel et le menu retomberait sur « Menu » en silence.
+  check("Il porte le nom de la boutique", vu?.text?.startsWith(config.shopName), vu?.text);
+  check('Et il tient dans ce que Telegram accepte', (vu?.text?.length ?? 99) <= 64,
+    `${vu?.text?.length} caractères`);
 
   config.webappUrl = '';
   await configurerMenu();

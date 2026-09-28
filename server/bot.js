@@ -63,7 +63,9 @@ const urlUtilisable = () => /^https:\/\/[^\s]+$/.test(config.webappUrl);
 // l'endroit unique où le clavier se fabrique, plutôt que dispersé sur chaque
 // appel — il en manquait justement sur les commandes les plus utilisées.
 const shopKeyboard = () =>
-  urlUtilisable() ? new InlineKeyboard().webApp('🛒 Ouvrir la boutique', config.webappUrl) : undefined;
+  urlUtilisable()
+    ? new InlineKeyboard().webApp('🛒 Ouvrir la boutique', config.webappUrl).danger()
+    : undefined;
 
 const adminKeyboard = () =>
   urlUtilisable()
@@ -83,6 +85,9 @@ const adminKeyboard = () =>
  * vendeur. Sans URL HTTPS valide, on repose le menu par défaut plutôt que de
  * laisser un lanceur cassé — Telegram refuserait de l'ouvrir.
  */
+/** Ce que Telegram accepte comme libellé de bouton de menu. */
+const MENU_MAX = 64;
+
 export async function configurerMenu() {
   if (!urlUtilisable()) {
     await bot.api.setChatMenuButton({ menu_button: { type: 'default' } });
@@ -91,7 +96,14 @@ export async function configurerMenu() {
   await bot.api.setChatMenuButton({
     menu_button: {
       type: 'web_app',
-      text: '🛒 Boutique',
+      // Le nom de la boutique plutôt que le mot « Boutique » : c'est
+      // l'enseigne, et c'est elle que le client cherche des yeux en bas de
+      // l'écran. Repris des réglages, donc il suit un changement de nom.
+      //
+      // Telegram borne ce libellé ; on le raccourcit plutôt que de le lui
+      // faire refuser, auquel cas le menu retomberait sur « Menu » sans que
+      // rien ne le dise.
+      text: `${config.shopName} ⚡`.slice(0, MENU_MAX),
       web_app: { url: config.webappUrl },
     },
   });
@@ -232,7 +244,10 @@ function tr(langue, clef) {
  */
 function clavierDAccueil(langue) {
   const clavier = new InlineKeyboard();
-  if (urlUtilisable()) clavier.webApp('🛒 Ouvrir la boutique', config.webappUrl).row();
+  // `.danger()` est le rouge de Telegram, arrivé avec la version 9.4 de son
+  // API en février 2026. C'est la seule façon de colorer un bouton : avant,
+  // un emoji rouge dans le libellé était tout ce qu'on pouvait faire.
+  if (urlUtilisable()) clavier.webApp('🛒 Ouvrir la boutique', config.webappUrl).danger().row();
   clavier.text(`🌐 ${tr(langue, 'profil.langue')}`, 'lang:menu');
   return clavier;
 }

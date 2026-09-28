@@ -45,6 +45,14 @@ if (process.env.BOUTONS_SCENARIO) {
       // aucune URL à un bouton de rappel, et ce simulateur en refusait —
       // il n'a jamais eu à le montrer tant que l'accueil n'en portait pas.
       // Depuis qu'il propose aussi la langue, il en porte un.
+      // Le style est borné par Telegram : « danger », « success » ou
+      // « primary ». Une valeur inventée fait refuser le message entier,
+      // exactement comme une mauvaise URL — c'est le même piège, sur un
+      // champ arrivé plus tard.
+      if (b?.style && !['danger', 'success', 'primary'].includes(b.style)) {
+        refus.push(`${method} : style de bouton refusé (${JSON.stringify(b.style)})`);
+        throw new Error('Bad Request: BUTTON_STYLE_INVALID');
+      }
       if (!b?.web_app) continue;
       const u = b.web_app.url ?? '';
       if (!/^https:\/\/[^\s]+$/.test(u)) {
@@ -98,6 +106,12 @@ if (process.env.BOUTONS_SCENARIO) {
       texte,
       dit: envois.map((e) => e.payload?.text ?? '').join(' | '),
       boutons: envois.some((e) => e.payload?.reply_markup),
+      // Le style de chaque bouton Mini App, pour que le chef puisse vérifier
+      // la couleur sans qu'on lui renvoie tout le clavier.
+      stylesMiniApp: envois
+        .flatMap((e) => e.payload?.reply_markup?.inline_keyboard?.flat?.() ?? [])
+        .filter((b) => b?.web_app)
+        .map((b) => b.style ?? null),
       refus: [...refus],
     });
   }
@@ -181,6 +195,13 @@ async function avecUrl(webappUrl, commandes, admins = { ADMIN_IDS: '424242' }) {
 
   check('Avec une URL HTTPS, /start porte son bouton',
     r[0].boutons && r[0].refus.length === 0, `boutons ${r[0].boutons}`);
+
+  // Le vendeur a demandé un bouton rouge. C'est `style: "danger"`, arrivé
+  // avec la version 9.4 de l'API de Telegram — avant, un emoji dans le
+  // libellé était tout ce qu'on pouvait faire, et cette épreuve fige le fait
+  // qu'on ne soit pas revenu à ce pis-aller.
+  check('Et il est rouge', r[0].stylesMiniApp?.[0] === 'danger',
+    JSON.stringify(r[0].stylesMiniApp));
   check("/admin ouvre l'espace admin pour l'admin",
     r[1].boutons && r[1].refus.length === 0, r[1].dit.slice(0, 45));
   check("Un client n'obtient pas l'espace admin",
