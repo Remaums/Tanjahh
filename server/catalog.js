@@ -241,6 +241,51 @@ export async function removeProductMedia(id, position) {
   });
 }
 
+/**
+ * Range le catalogue dans l'ordre voulu par le vendeur.
+ *
+ * C'est cet ordre-là que voit le client : le tri « par défaut » de la
+ * boutique suit le tableau, en repoussant seulement les articles épuisés en
+ * fin de liste. Mettre un produit en avant, c'est donc le remonter ici.
+ *
+ * On exige la liste ENTIÈRE, et on vérifie que c'est une permutation exacte
+ * de ce qui existe : ni ajout, ni perte, ni doublon. Accepter une liste
+ * partielle paraît plus commode — « monte celui-ci » — mais deux vendeurs
+ * qui réordonnent en même temps, ou un écran resté ouvert sur un catalogue
+ * d'avant-hier, feraient alors disparaître les produits que leur liste ne
+ * nomme pas. Une permutation ne peut rien perdre.
+ *
+ * Le refus nomme ce qui cloche : un identifiant inconnu et un identifiant
+ * manquant ne se corrigent pas de la même façon.
+ */
+export async function reordonnerProduits(ids) {
+  if (!Array.isArray(ids)) throw new HttpError(400, "L'ordre attendu est une liste d'identifiants.");
+
+  return store.update((data) => {
+    const voulus = ids.map(String);
+    const connus = new Set(data.products.map((p) => p.id));
+
+    if (new Set(voulus).size !== voulus.length) {
+      throw new HttpError(400, 'Un même produit est nommé deux fois dans cet ordre.');
+    }
+    const inconnus = voulus.filter((id) => !connus.has(id));
+    if (inconnus.length) {
+      throw new HttpError(400, `Produit inconnu dans cet ordre : ${inconnus.join(', ')}.`);
+    }
+    if (voulus.length !== data.products.length) {
+      const manquants = [...connus].filter((id) => !voulus.includes(id));
+      throw new HttpError(
+        400,
+        `Il manque ${manquants.length} produit(s) dans cet ordre : ${manquants.slice(0, 5).join(', ')}.`
+      );
+    }
+
+    const parId = new Map(data.products.map((p) => [p.id, p]));
+    data.products = voulus.map((id) => parId.get(id));
+    return data.products.map((p) => p.id);
+  });
+}
+
 export async function deleteProduct(id) {
   return store.update((data) => {
     const index = data.products.findIndex((p) => p.id === id);

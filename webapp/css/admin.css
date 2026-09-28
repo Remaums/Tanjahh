@@ -229,6 +229,34 @@ body.admin {
 .a-product__meta { font-size: 12.5px; font-weight: 700; color: var(--muted); display: block; }
 .a-product--hidden { opacity: .5; }
 
+/* ── Le classement ───────────────────────────────────────────
+   En mode classement, la ligne cesse d'être un bouton qui ouvre la fiche :
+   elle devient une poignée. Ouvrir une fiche par mégarde en rangeant son
+   catalogue, c'est perdre sa place dans la liste à chaque fois. */
+.a-classement { margin-bottom: 9px; }
+/* `stretch` et non `center` : la colonne de flèches prend exactement la
+   hauteur de la ligne. Avec une hauteur fixe elle la dépassait de vingt
+   pixels, et la liste prenait un rythme vertical irrégulier — on voyait les
+   flèches avant de voir les produits. */
+.a-rang { display: flex; align-items: stretch; gap: 8px; margin-bottom: 9px; }
+.a-rang .a-product { margin-bottom: 0; flex: 1; min-width: 0; }
+.a-rang__fleches { display: flex; flex-direction: column; gap: 4px; flex: none; }
+.a-rang__btn {
+  width: 38px; flex: 1; min-height: 26px; border-radius: 9px;
+  color: var(--cream); background: rgba(255, 255, 255, .07);
+  border: 1px solid var(--line-soft);
+  font-size: 14px; font-weight: 800; line-height: 1;
+  display: grid; place-items: center;
+}
+.a-rang__btn:disabled { opacity: .3; }
+/* Le premier de la liste est celui que le client voit en premier : on le
+   dit, sinon le vendeur range sans savoir ce qu'il range. */
+.a-rang--tete .a-product { border-color: rgb(var(--neon-rgb) / .5); }
+.a-rang__tete {
+  font-size: 10.5px; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--neon); display: block;
+}
+
 /* ── Boutons ─────────────────────────────────────────────── */
 .a-btn {
   color: var(--cream); background: rgba(255, 255, 255, .07);

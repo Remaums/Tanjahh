@@ -143,6 +143,17 @@
   <!-- ══ Produits ══ -->
   <section class="a-panel" id="panel-products" hidden>
     <button class="a-btn a-btn--primary a-btn--block" id="newProductBtn" type="button">+ Nouveau produit</button>
+    <!-- Le classement est un mode, pas une colonne de flèches posée en
+         permanence : on ne range son catalogue qu'une fois de temps en
+         temps, et trois boutons de plus sur chaque ligne encombreraient
+         l'écran qu'on ouvre vingt fois par jour pour corriger un stock. -->
+    <div class="a-classement">
+      <button class="a-btn a-btn--ghost a-btn--block" id="classerToggle" type="button">↕ Classer les produits</button>
+      <p class="a-hint" id="classerAide" hidden>
+        L'ordre ci-dessous est celui de la boutique. Le premier est le plus en
+        avant. Les articles épuisés passent en fin de liste quoi qu'il arrive.
+      </p>
+    </div>
     <div id="productsList"></div>
   </section>
 

@@ -135,6 +135,7 @@ function bindHandlers() {
   $('doRestore').addEventListener('click', restaurer);
   $('fPromoType').addEventListener('change', syncPromoValueLabel);
   $('newProductBtn').addEventListener('click', () => openEditor(null));
+  $('classerToggle').addEventListener('click', basculerLeClassement);
 
   $('fHasVariants').addEventListener('change', syncPricingMode);
   $('fImage').addEventListener('change', syncImageField);
@@ -1507,6 +1508,60 @@ function applyStockToState(productId, variantId, quantity) {
 
 /* ── Produits ────────────────────────────────────────────── */
 
+/**
+ * Le mode classement : vrai quand le vendeur range son catalogue.
+ *
+ * Un mode et non une colonne posée en permanence — on ne range son catalogue
+ * qu'une fois de temps en temps, et trois boutons de plus sur chaque ligne
+ * encombreraient l'écran qu'on ouvre vingt fois par jour pour un stock.
+ */
+let enClassement = false;
+
+function basculerLeClassement() {
+  enClassement = !enClassement;
+  $('classerToggle').textContent = enClassement ? '✓ Terminer le classement' : '↕ Classer les produits';
+  $('classerToggle').classList.toggle('a-btn--primary', enClassement);
+  $('classerToggle').classList.toggle('a-btn--ghost', !enClassement);
+  $('classerAide').hidden = !enClassement;
+  renderProducts();
+}
+
+/**
+ * Déplace un produit et enregistre l'ordre entier.
+ *
+ * L'ordre part en entier, pas « monte celui-ci » : deux écrans d'admin
+ * ouverts en même temps, ou un écran resté sur un catalogue d'avant-hier,
+ * et une liste partielle ferait disparaître les produits qu'elle ne nomme
+ * pas. Le serveur refuse d'ailleurs tout ce qui n'est pas une permutation.
+ *
+ * L'affichage bouge d'abord : ranger vingt produits en attendant le réseau à
+ * chaque flèche est un supplice, et le serveur refuse proprement — on remet
+ * alors la liste telle qu'il la connaît.
+ */
+async function deplacerProduit(id, vers) {
+  const avant = state.products.map((p) => p.id);
+  const depuis = avant.indexOf(id);
+  if (depuis === -1) return;
+
+  const arrivee = vers === 'tete' ? 0 : vers === 'haut' ? depuis - 1 : depuis + 1;
+  if (arrivee < 0 || arrivee >= avant.length || arrivee === depuis) return;
+
+  const produits = [...state.products];
+  produits.splice(arrivee, 0, produits.splice(depuis, 1)[0]);
+  state.products = produits;
+  renderProducts();
+  haptic('light');
+
+  try {
+    await api('/products/ordre', { method: 'PUT', body: { ordre: produits.map((p) => p.id) } });
+  } catch (err) {
+    toast(err.message);
+    // Le serveur a refusé : on ne garde pas un écran qui montre un ordre
+    // que la boutique n'a pas.
+    await refreshAll();
+  }
+}
+
 function renderProducts() {
   const container = $('productsList');
   if (!state.products.length) {
@@ -1515,7 +1570,7 @@ function renderProducts() {
   }
 
   container.replaceChildren(
-    ...state.products.map((product) => {
+    ...state.products.map((product, rang) => {
       const total = product.variants?.length
         ? product.variants.reduce((sum, v) => sum + v.stock, 0)
         : product.stock ?? 0;
@@ -1526,12 +1581,44 @@ function renderProducts() {
       btn.innerHTML = `
         <span class="a-product__art"><img src="${product.image}" alt=""></span>
         <span class="a-product__info">
+          ${enClassement && rang === 0 ? '<span class="a-rang__tete">En avant</span>' : ''}
           <span class="a-product__name">${escapeHtml(product.name)}</span>
           <span class="a-product__meta">${formatPrice(product.price)} · ${total} en stock${product.visible === false ? ' · masqué' : ''}</span>
         </span>
-        <span aria-hidden="true">›</span>`;
-      btn.addEventListener('click', () => openEditor(product));
-      return btn;
+        ${enClassement ? '' : '<span aria-hidden="true">›</span>'}`;
+
+      if (!enClassement) {
+        btn.addEventListener('click', () => openEditor(product));
+        return btn;
+      }
+
+      // En classement, la ligne n'ouvre plus la fiche : ouvrir une fiche par
+      // mégarde en rangeant, c'est perdre sa place dans la liste à chaque fois.
+      btn.disabled = true;
+
+      const ligne = document.createElement('div');
+      ligne.className = `a-rang ${rang === 0 ? 'a-rang--tete' : ''}`.trim();
+      const fleches = document.createElement('span');
+      fleches.className = 'a-rang__fleches';
+
+      for (const [libelle, vers, titre, inactif] of [
+        ['⤒', 'tete', 'Mettre en avant', rang === 0],
+        ['↑', 'haut', 'Monter', rang === 0],
+        ['↓', 'bas', 'Descendre', rang === state.products.length - 1],
+      ]) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'a-rang__btn';
+        b.textContent = libelle;
+        b.title = titre;
+        b.setAttribute('aria-label', `${titre} — ${product.name}`);
+        b.disabled = inactif;
+        b.addEventListener('click', () => deplacerProduit(product.id, vers));
+        fleches.append(b);
+      }
+
+      ligne.append(btn, fleches);
+      return ligne;
     })
   );
 }

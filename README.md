@@ -245,6 +245,36 @@ redémarre. Une entrée ressemble à ça :
 > systématiquement **recalculés côté serveur** : un client ne peut pas se commander
 > un produit à 0 €.
 
+### Mettre un produit en avant
+
+La boutique présente le catalogue **dans l'ordre du panneau admin** — seuls
+les articles épuisés passent en fin de liste. Choisir ce que le client voit
+en premier, c'est donc remonter le produit dans cette liste.
+
+Dans l'onglet **Produits**, le bouton **↕ Classer les produits** ouvre le
+mode classement (**✓ Terminer le classement** pour en sortir). Chaque ligne reçoit alors trois flèches :
+
+| | |
+|---|---|
+| **⤒** | en tête — le produit passe devant tous les autres |
+| **↑** | d'un rang vers le haut |
+| **↓** | d'un rang vers le bas |
+
+Le produit en tête porte la mention **En avant**. Rien à valider : chaque
+geste part aussitôt au serveur, et si celui-ci refuse, la liste revient
+toute seule à ce qu'elle était — on ne reste jamais devant un ordre qui
+n'existe que sur l'écran.
+
+Le classement tient dans l'ordre du catalogue, pas dans une note posée sur
+le produit : enregistrer une fiche, changer un prix ou un stock ne déplace
+donc rien.
+
+> Le serveur exige la liste **entière** du catalogue, et vérifie que c'est
+> une permutation exacte : ni doublon, ni identifiant inconnu, ni produit
+> manquant. Ce n'est pas de la pédanterie — avec deux onglets d'admin
+> ouverts, ou un écran resté sur le catalogue d'avant-hier, une liste
+> partielle ferait disparaître les produits qu'elle ne nomme pas.
+
 ### Dupliquer une fiche
 
 Vingt variétés qui ne diffèrent que par le nom et la photo, c'est vingt fois

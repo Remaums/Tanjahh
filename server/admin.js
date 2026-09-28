@@ -16,7 +16,7 @@ import {
   deleteProduct,
   setStock,
   saveCategories,
-  restoreStock, duplicateProduct,
+  restoreStock, duplicateProduct, reordonnerProduits,
 } from './catalog.js';
 import {
   STATUSES, listOrders, allOrders, getOrder, setStatus, stats, purgerCommandes,
@@ -530,6 +530,24 @@ adminRouter.post(
   route(async (req, res) => {
     const copie = await duplicateProduct(req.params.id, req.body ?? {});
     res.status(201).json(copie);
+  })
+);
+
+/**
+ * L'ordre du catalogue, tel que le client le verra.
+ *
+ * `PUT` et non `PATCH` : on remplace l'ordre entier, on ne le retouche pas.
+ * C'est ce qui rend l'opération sûre — voir `reordonnerProduits`.
+ *
+ * Placée avant `/products/:id` n'aurait rien changé ici : les méthodes
+ * diffèrent. Mais le chemin est choisi pour ne jamais ressembler à un
+ * identifiant, au cas où une route `PUT /products/:id` naîtrait un jour.
+ */
+adminRouter.put(
+  '/products/ordre',
+  route(async (req, res) => {
+    const ordre = await reordonnerProduits(req.body?.ordre);
+    res.json({ ordre });
   })
 );
 
