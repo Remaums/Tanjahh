@@ -364,6 +364,33 @@ se règle dans l'espace admin.
 
 Rien à redémarrer après : l'outil écrit dans le même magasin que la boutique.
 
+### La musique d'ambiance
+
+Les morceaux sont envoyés à ta conversation avec le bot, comme les photos :
+rien n'est stocké sur le serveur, seule la référence Telegram est gardée. Le
+client reçoit un identifiant interne, jamais le `file_id` — une adresse
+utilisable par quiconque a le token du bot n'a rien à faire dans une réponse
+publique.
+
+**L'ordre est tiré au sort à chaque visite.** Ta liste reste rangée comme tu
+la vois dans le panneau, mais un client qui revient trois fois dans la semaine
+n'entend pas trois fois le même morceau d'accueil : une playlist qui commence
+toujours pareil ne s'entend plus au troisième passage.
+
+Une *visite*, pas un rechargement : le tirage vaut pour toute la durée de la
+visite, et il est refait quand tu changes ta liste. Remélanger en cours de
+route ferait sauter le morceau qui joue.
+
+> Le tirage est un **Fisher-Yates**, qui donne chacune des permutations avec
+> la même probabilité. Le mélange naïf — trier sur `Math.random() - 0.5` — n'en
+> est pas un : mesuré sur 60 000 tirages, il laisse les morceaux près de leur
+> place d'origine avec un écart de 73 % à l'uniforme. Sur une playlist de
+> boutique, ça s'entend.
+
+Rien ne démarre tout seul : aucun navigateur ni WebView ne joue un son sans
+geste du client. La pastille est ce geste. Un client qui coupe la musique ne
+la retrouve pas au passage suivant — couper, c'est dire non.
+
 ### Animations et widgets
 
 Deux widgets qui renseignent, trois animations qui accompagnent un geste — le

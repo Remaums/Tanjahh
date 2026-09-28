@@ -2667,12 +2667,54 @@ const JUKE_CLEF = 'tanja.musique';
 const juke = {
   liste: [],
   index: 0,
+  /* L'empreinte de la playlist du vendeur au moment où on l'a mélangée. Elle
+     sert à ne PAS remélanger pour rien : `monterLeJuke` est rappelé à chaque
+     rechargement du catalogue, et remélanger là ferait changer de morceau en
+     pleine écoute — `index` désignerait soudain autre chose. */
+  empreinte: null,
   /* Le client a-t-il demandé la musique ? Distinct de « ça joue » : un
      morceau qui se charge n'est pas encore un morceau qui joue, et la
      pastille doit montrer l'intention dès l'appui. */
   voulue: false,
   minuteurTitre: null,
 };
+
+/**
+ * La playlist du client : celle du vendeur, dans un ordre tiré au sort.
+ *
+ * Le vendeur range ses morceaux dans l'ordre qui lui plaît, et cet ordre
+ * reste le sien dans le panneau. Mais un client qui revient trois fois dans
+ * la semaine entendait trois fois le même morceau d'accueil : une playlist
+ * qui commence toujours pareil ne s'entend plus au troisième passage. On
+ * tire donc un ordre par visite.
+ *
+ * Une visite, pas un rechargement. Le catalogue se recharge à chaque
+ * changement d'état de la boutique — une ouverture, un stock, un avis — et
+ * `monterLeJuke` repasse ici à chaque fois. Remélanger alors ferait sauter
+ * le morceau en cours, puisque `index` pointerait sur un autre titre. D'où
+ * l'empreinte : tant que le vendeur n'a pas touché à sa liste, on rend la
+ * permutation déjà tirée. Qu'il ajoute ou retire un morceau, et on retire.
+ *
+ * Le tirage est un Fisher-Yates, qui donne chacune des permutations avec la
+ * même probabilité. Le « mélange » naïf — trier sur `Math.random() - 0.5` —
+ * n'en est pas un : le résultat dépend de l'algorithme de tri, et les
+ * premiers de la liste y restent devant bien plus souvent qu'ils ne
+ * devraient. Sur une playlist de boutique, ça s'entend.
+ */
+function melangerLaPlaylist(titres) {
+  // Ce qui identifie une liste : ses morceaux ET leur ordre. Le vendeur qui
+  // réordonne sa playlist demande bien un nouveau tirage.
+  const empreinte = titres.map((m) => m.url ?? m.titre ?? '').join('\u0000');
+  if (juke.empreinte === empreinte && juke.liste.length === titres.length) return juke.liste;
+  juke.empreinte = empreinte;
+
+  const melange = [...titres];
+  for (let i = melange.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [melange[i], melange[j]] = [melange[j], melange[i]];
+  }
+  return melange;
+}
 
 /**
  * Monte le lecteur, si le vendeur a une playlist et l'a allumée.
@@ -2686,7 +2728,7 @@ function monterLeJuke() {
   const son = $('jukeSon');
   if (!bouton || !son) return;
 
-  juke.liste = state.musique?.titres ?? [];
+  juke.liste = melangerLaPlaylist(state.musique?.titres ?? []);
   // Sans morceau, pas de pastille — même interrupteur allumé. Un bouton qui
   // ne joue rien est pire qu'un bouton absent.
   if (!juke.liste.length) {
@@ -2950,8 +2992,10 @@ function lancerLaMusiqueALArrivee() {
   // ce garde-fou, chaque rechargement relancerait la playlist au premier
   // morceau, par-dessus celui qui joue.
   juke.demarrageTente = true;
-  // « La première du registre » : on repart du haut de la liste, quel que
-  // soit l'endroit où le client en était avant un rechargement.
+  // Le haut de la liste — qui n'est plus le premier morceau du vendeur mais
+  // celui que le tirage de cette visite a mis devant. Repartir de zéro reste
+  // juste : on veut le début de la playlist du client, pas l'endroit où il
+  // en était avant un rechargement.
   juke.index = 0;
 
   let choixPasse = null;
