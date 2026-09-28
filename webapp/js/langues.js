@@ -44,7 +44,7 @@ export const TEXTES = {
     // garderaient l'ancien sans que personne pense à venir les corriger.
     'accueil.texte':
       '{boutique} est là pour vous faire découvrir <strong>de nouvelles variétés</strong> ainsi ' +
-      'que de nouvelles gammes, renouvelées toute l\'année. <strong>Qualité garantie</strong> sur ' +
+      'que des nouvelles gammes, renouvelées toute l\'année. <strong>Qualité garantie</strong> sur ' +
       'chaque produit du catalogue.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Meet-up & Livraison',
