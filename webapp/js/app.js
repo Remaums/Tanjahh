@@ -1883,6 +1883,37 @@ function videoDeVitrine(product) {
 }
 
 /**
+ * Fait peindre à la vignette vidéo sa propre première image.
+ *
+ * Le défaut qu'elle corrige, et il est subtil : l'attribut `poster` ne
+ * disparaît PAS quand la vidéo est chargée. Tant que la lecture n'a jamais
+ * commencé, le navigateur garde le poster affiché — vérifié, une vidéo
+ * entièrement décodée (`readyState` à 4) montrait toujours le dessin de
+ * secours. La carte annonçait donc une vidéo et affichait un dessin.
+ *
+ * Un déplacement, même d'un vingtième de seconde, lève ce drapeau : le
+ * navigateur remplace le poster par l'image réelle. C'est le seul geste qui
+ * y parvienne sans lancer la lecture — et lancer la lecture d'une douzaine
+ * de vidéos dans une grille de catalogue est hors de question.
+ *
+ * Le poster reste posé : il tient la place pendant le chargement, et c'est
+ * bien mieux qu'un rectangle noir. Il cède dès qu'il y a mieux à montrer.
+ */
+function peindreLaPremiereImage(video) {
+  if (!video) return;
+  const avancer = () => {
+    // 0.05 s et non 0 : remettre `currentTime` à la valeur qu'il a déjà
+    // n'est pas un déplacement, et le navigateur garderait son poster.
+    try { video.currentTime = 0.05; } catch { /* source illisible */ }
+  };
+  // `loadeddata` plutôt que `loadedmetadata` : à la seconde, la durée est
+  // connue mais aucune image ne l'est, et le déplacement n'aurait rien à
+  // peindre. L'écoute se retire d'elle-même — la grille se repeint souvent.
+  if (video.readyState >= 2) avancer();
+  else video.addEventListener('loadeddata', avancer, { once: true });
+}
+
+/**
  * L'image à montrer en attendant que la vidéo arrive.
  *
  * Une vidéo de plusieurs mégaoctets met le temps qu'il faut, et sans `poster`
@@ -1981,6 +2012,9 @@ function productCard(product) {
       <span class="card__short">${escapeHtml(product.short)}</span>
       ${note ? `<span class="card__note">${etoiles(note.moyenne)} <small>${note.nombre}</small></span>` : ''}
     </div>`;
+
+  // La vignette vidéo doit montrer la vidéo, pas le dessin de secours.
+  peindreLaPremiereImage(card.querySelector('.card__video'));
 
   // Le cœur est posé sur l'illustration, pas dans le corps : il doit rester
   // atteignable au pouce sans ouvrir la fiche, et ne pas pousser le prix.
@@ -2285,6 +2319,9 @@ function renderGalerie(product) {
       // que demande quelqu'un qui a coupé les animations.
       if (anime()) boucle.autoplay = true;
       case_.append(boucle);
+      // En mode sobre le GIF ne part pas : sans lecture, le poster reste, et
+      // c'est le dessin de secours qu'on regarde. Le déplacement le lève.
+      peindreLaPremiereImage(boucle);
 
       const pastille = document.createElement('span');
       pastille.className = 'galerie__type';
@@ -2320,6 +2357,9 @@ function renderGalerie(product) {
       });
 
       case_.append(video);
+      // La fiche montre la vidéo elle-même, pas l'illustration de secours :
+      // le même défaut que sur la grille, et la même levée.
+      peindreLaPremiereImage(video);
 
       const pastille = document.createElement('span');
       pastille.className = 'galerie__type';
