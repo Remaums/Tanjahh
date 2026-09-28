@@ -95,6 +95,13 @@ const jouer = async (update) => {
 };
 const dit = (e) => e.map((x) => x.payload?.text ?? x.payload?.caption ?? '').join(' | ');
 
+// L'accueil se reconnaît à sa marque, pas à un mot de sa phrase : « 🌿 * »
+// n'est envoyé que par lui dans tout le bot, et il survit à une réécriture
+// du texte. Ancrées sur un mot du message, ces épreuves tombaient dès que le
+// vendeur faisait retoucher son accueil — ce qu'il vient justement de faire.
+const accueilli = (texte) => /🌿 \*/.test(String(texte));
+
+
 /* ── Ce qui est ouvert à tous ────────────────────────────── */
 
 await saveSettings({ features: { orderHistory: true, photos: true, verification: false } });
@@ -102,6 +109,45 @@ await saveSettings({ features: { orderHistory: true, photos: true, verification:
 for (const cmd of ['/start', '/boutique']) {
   const e = await jouer(message(CLIENT, cmd));
   check(`${cmd} répond`, e.length > 0, dit(e).slice(0, 40));
+}
+
+/* ── Le message d'accueil, tel que Telegram le recevra ──── */
+
+// Trois façons de casser ce message sans que rien ne le dise :
+//
+//  - un caractère réservé non échappé, et Telegram refuse le message ENTIER.
+//    /start ne répond alors plus rien du tout, et le journal est muet ;
+//  - les balises HTML du dictionnaire parties telles quelles : la Mini App
+//    les interprète, Telegram les affiche. Le client lit « <strong> » ;
+//  - la phrase recopiée au lieu d'être reprise, et les deux divergent.
+{
+  const e = await jouer(message(CLIENT, '/start'));
+  const envoi = e.find((x) => x.payload?.text && accueilli(x.payload.text));
+  const texte = envoi?.payload?.text ?? '';
+
+  check("L'accueil part bien", Boolean(envoi), dit(e).slice(0, 40));
+  check('En MarkdownV2', envoi?.payload?.parse_mode === 'MarkdownV2', envoi?.payload?.parse_mode);
+
+  // Hors des passages en code, tout caractère réservé doit porter sa barre.
+  const horsCode = texte.replace(/`[^`]*`/g, '');
+  const nus = [...horsCode.matchAll(/(^|[^\\])([_\[\]()~>#+\-=|{}.!])/g)].map((m) => m[2]);
+  check('Aucun caractère réservé laissé nu',
+    nus.length === 0, nus.length ? [...new Set(nus)].join(' ') : 'aucun');
+
+  check("Aucune balise HTML n'a fui du dictionnaire",
+    !/<\/?[a-z]+>/i.test(texte), (texte.match(/<\/?[a-z]+>/i) ?? [''])[0]);
+  check('Le gras est bien du gras Telegram', /\*[^*]+\*/.test(texte));
+
+  // Reprise et non recopiée : la phrase du cadre d'accueil de la Mini App,
+  // ses balises devenues des astérisques, doit se retrouver ici mot pour mot.
+  const { TEXTES } = await import('../webapp/js/langues.js');
+  const attendu = String(TEXTES.fr['accueil.texte'])
+    .replace(/<\/?strong>/g, '')
+    .split('{boutique}')[1]
+    .trim();
+  const lu = texte.replace(/\\(.)/g, '$1').replace(/\*/g, '');
+  check("C'est la phrase du cadre d'accueil, pas une copie",
+    lu.includes(attendu), attendu.slice(0, 50));
 }
 
 /* ── Ce qu'un client ne doit PAS pouvoir lire ────────────── */
@@ -241,7 +287,7 @@ await saveSettings({ features: { photos: true } });
 
   e = await jouer(message(INCONNU, '/start'));
   check('Un inconnu tombe sur un calcul', /Combien font/.test(dit(e)), dit(e).slice(0, 60));
-  check("Et pas sur l'accueil", !/Bienvenue/.test(dit(e)));
+  check("Et pas sur l'accueil", !accueilli(dit(e)));
   let choix = boutons(e).map((d) => Number(d.split(':')[1]));
   check('Six réponses sont proposées', choix.length === 6, choix.join(' '));
 
@@ -304,11 +350,11 @@ await saveSettings({ features: { photos: true } });
   const bonne = dernier[2] === '+' ? Number(dernier[1]) + Number(dernier[3]) : Number(dernier[1]) - Number(dernier[3]);
 
   e = await jouer(message(INCONNU, String(bonne)));
-  check('Une réponse écrite ouvre aussi la porte', /Bienvenue/.test(dit(e)), dit(e).slice(0, 45));
+  check('Une réponse écrite ouvre aussi la porte', accueilli(dit(e)), dit(e).slice(0, 45));
   check('Et la porte reste ouverte', (await estPasse(INCONNU.id)) === true);
 
   e = await jouer(message(INCONNU, '/start'));
-  check("On ne redemande jamais deux fois", !/Combien font/.test(dit(e)) && /Bienvenue/.test(dit(e)));
+  check("On ne redemande jamais deux fois", !/Combien font/.test(dit(e)) && accueilli(dit(e)));
 
   // Le vendeur n'a pas à se justifier auprès de sa propre boutique.
   e = await jouer(message(ADMIN, '/start'));
@@ -325,7 +371,7 @@ await saveSettings({ features: { photos: true } });
   });
   e = await jouer(message(ANCIEN, '/start'));
   check("Un client qui a déjà commandé entre sans rien prouver",
-    !/Combien font/.test(dit(e)) && /Bienvenue/.test(dit(e)), dit(e).slice(0, 40));
+    !/Combien font/.test(dit(e)) && accueilli(dit(e)), dit(e).slice(0, 40));
 
   // `/admin` reste ouvert : c'est par lui qu'un vendeur qui vient d'installer
   // sa boutique découvre son identifiant Telegram. Lui opposer un calcul le

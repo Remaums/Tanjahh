@@ -24,6 +24,10 @@ import { estAdmin, listerAdmins, ajouterAdmin, retirerAdmin } from './admins.js'
 import { creerCadence, attenteEnClair } from './cadence.js';
 import { noterPassage, visitesDesClients, FENETRE_MS, MEMOIRE_MS } from './presence.js';
 import { noterUtilisateur, trouverParPseudo, ficheDuRegistre } from './users.js';
+// Le dictionnaire de la boutique. Le bot parle français, mais il puise ses
+// phrases d'accueil à la même source que la Mini App : une phrase recopiée
+// dans deux fichiers est une phrase qui divergera.
+import { TEXTES } from '../webapp/js/langues.js';
 import { lienDuSecours } from './bot-secours.js';
 import {
   combien as combienAuSecours, sante as santeDesPortes,
@@ -172,15 +176,63 @@ const isAdmin = (id) => estAdmin(id);
  * un lien noyé dans un mot d'accueil ne se touche pas, et celui-là est le
  * seul geste qu'on demande.
  */
+/**
+ * Un texte du dictionnaire de la boutique, rendu en MarkdownV2.
+ *
+ * Les phrases d'accueil portent du gras en HTML — c'est la Mini App qui les
+ * affiche d'abord. Telegram, lui, ne connaît que ses astérisques. On découpe
+ * donc sur les balises et on échappe chaque morceau séparément : échapper
+ * d'abord transformerait les chevrons en `\>` et le gras serait perdu.
+ *
+ * Le découpage alterne — avant, gras, entre, gras, après — ce qui met les
+ * passages en gras aux rangs impairs. Cela ne tient que sur des balises
+ * appariées, et elles le sont : ce dictionnaire est le nôtre.
+ */
+function markdownDepuisHtml(texte) {
+  return String(texte)
+    .split(/<strong>|<\/strong>/)
+    .map((bout, rang) => (rang % 2 ? `*${escapeMarkdown(bout)}*` : escapeMarkdown(bout)))
+    .join('');
+}
+
+/**
+ * La phrase d'accueil, reprise du dictionnaire de la boutique.
+ *
+ * Importée plutôt que recopiée : c'est le même texte que le cadre d'accueil
+ * de la Mini App, et deux copies finissent toujours par diverger — le
+ * vendeur retouche la vitrine, le bot garde l'ancienne phrase pendant des
+ * mois sans que personne s'en aperçoive.
+ *
+ * Le nom de la boutique est posé AVANT l'échappement, en le mettant en gras
+ * lui-même. Le faire après obligerait à retrouver `\{boutique\}` sous sa
+ * forme échappée, ce qui marche jusqu'au jour où l'échappement change.
+ */
+function phraseDAccueil(nom) {
+  const [avant, apres] = String(TEXTES.fr['accueil.texte']).split('{boutique}');
+  return markdownDepuisHtml(avant) + `*${escapeMarkdown(nom)}*` + markdownDepuisHtml(apres ?? '');
+}
+
 const accueillir = async (ctx) => {
+  const ligne = (emoji, clef) => `${emoji}  ${escapeMarkdown(TEXTES.fr[clef])}`;
   await ctx.reply(
-    `🌿 *${escapeMarkdown(config.shopName)}*\n\n` +
+    // La feuille ouvre la phrase plutôt que de titrer au-dessus d'elle : le
+    // nom de la boutique y est déjà, et le répéter deux lignes plus haut
+    // faisait dire deux fois la même chose à trois centimètres d'intervalle.
+    `🌿 ${phraseDAccueil(config.shopName)}\n\n` +
+      // Les trois choses qu'on demande à une boutique avant d'y entrer :
+      // quand, comment, et avec quoi on paie. Une par ligne — collées, on
+      // les lit comme une phrase et on n'en retient aucune.
+      `${ligne('🕒', 'accueil.horaires')}\n` +
+      `${ligne('🛵', 'accueil.service')}\n` +
+      `${ligne('💶', 'contact.especes')}\n\n` +
       // Le panier a disparu de la boutique il y a longtemps : ce message
       // continuait d'en promettre un à chaque nouveau client, et c'est la
-      // toute première phrase qu'il lit.
-      "Bienvenue dans la boutique\\. Tout se passe dans l'app : catalogue en images, " +
-      'fiches produits, et un bouton qui ouvre ta commande ici même, déjà écrite\\.' +
-      `\n\nTon ID Telegram : \`${ctx.from.id}\``,
+      // toute première phrase qu'il lisait.
+      '👇  ' + escapeMarkdown(
+        "Tout se passe dans l'app : catalogue en images, fiches produits, " +
+        'et ta commande déjà écrite.'
+      ) +
+      `\n\n🆔  \`${ctx.from.id}\``,
     {
       parse_mode: 'MarkdownV2',
       reply_markup: shopKeyboard(),

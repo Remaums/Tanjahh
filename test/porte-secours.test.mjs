@@ -181,6 +181,10 @@ const calcul = (m) => m.touches.some((d) => /^cap:/.test(d));
 // écrites séparément, c'est celle du cas négatif qui finit par ne rien
 // reconnaître et par déclarer le péage éteint alors qu'il tient toujours.
 const parleDuSecours = (m) => /second bot|bot de secours/i.test(m.texte);
+// L'accueil se reconnaît à sa marque, pas à un mot de sa phrase : « 🌿 * »
+// n'est envoyé que par lui dans tout le bot, et il survit à une réécriture
+// du texte — celle que le vendeur vient justement de demander.
+const accueilli = (m) => /🌿 \*/.test(m.texte);
 
 console.log('\n── Le premier /start ───────────────────────────────');
 
@@ -218,10 +222,10 @@ check('/secours répond, même non inscrit',
 check('Le vendeur entre sans être retenu', vu.patron.some((m) => m.boutique),
   vu.patron.map((m) => m.texte.slice(0, 30)).join(' | '));
 check("L'accueil ne parle plus du bot de secours",
-  !parleDuSecours(vu.patron.find((m) => /Bienvenue/.test(m.texte)) ?? { texte: '' }),
-  (vu.patron.find((m) => /Bienvenue/.test(m.texte))?.texte ?? '').slice(0, 70));
+  !parleDuSecours(vu.patron.find(accueilli) ?? { texte: '' }),
+  (vu.patron.find(accueilli)?.texte ?? '').slice(0, 70));
 check('La proposition est un message séparé, après',
-  vu.patron.findIndex(parleDuSecours) > vu.patron.findIndex((m) => /Bienvenue/.test(m.texte)),
+  vu.patron.findIndex(parleDuSecours) > vu.patron.findIndex(accueilli),
   vu.patron.map((m) => m.texte.slice(0, 22)).join(' | '));
 check('Et elle porte les boutons, pas un lien nu',
   vu.patron.some((m) => parleDuSecours(m) && m.touches.includes('sec:fait') && m.liens.length > 0),
@@ -251,10 +255,10 @@ check('Il est accepté', vu.apresCalcul.some((m) => /Merci/i.test(m.texte)),
 check('Et la boutique s ouvre enfin', vu.apresCalcul.some((m) => m.boutique));
 // L'ordre demandé par le vendeur : bot de secours, calcul, PUIS bienvenue.
 // L'accueil est le dernier message du parcours, pas le premier.
-check("Le mot de bienvenue n arrive qu ici, à la fin",
-  vu.apresCalcul.some((m) => /Bienvenue/.test(m.texte)) &&
-    !vu.premier.some((m) => /Bienvenue/.test(m.texte)) &&
-    !vu.apresInscription.some((m) => /Bienvenue/.test(m.texte)),
+check("L'accueil n arrive qu ici, à la fin",
+  vu.apresCalcul.some(accueilli) &&
+    !vu.premier.some(accueilli) &&
+    !vu.apresInscription.some(accueilli),
   vu.apresCalcul.map((m) => m.texte.slice(0, 26)).join(' | '));
 check("Et il ne redemande pas le bot de secours, déjà fait",
   !vu.apresCalcul.some(parleDuSecours),
