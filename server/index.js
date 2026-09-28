@@ -10,6 +10,7 @@ import {
   lienDuSecours, botSecours, prevenirLesInscrits, configurerLesCommandesDuSecours,
 } from './bot-secours.js';
 import { creerLaVeille, resumeDuSecours } from './veille.js';
+import { decisionDEntree } from './entree.js';
 import {
   HttpError,
   getCatalog,
@@ -261,8 +262,13 @@ app.get('/api/catalog', async (req, res, next) => {
         captcha: settings.captcha.enabled,
         verification: settings.verification.enabled,
         // L'épreuve du chat : la Mini App doit savoir qu'elle peut être
-        // refusée avant d'afficher quoi que ce soit.
-        porte: settings.features.botCaptcha,
+        // refusée avant d'afficher quoi que ce soit. Deux marches derrière
+        // un seul drapeau — le bot de secours, puis le calcul — parce que
+        // c'est un seul voile qui les porte, et qu'il ne sait pas encore
+        // laquelle des deux attend ce client-là.
+        porte:
+          settings.features.botCaptcha ||
+          (secoursConfigure() && settings.features.porteSecours),
       },
       // La Mini App masque ce qui est éteint ; le serveur, lui, refuse.
       features: settings.features,
@@ -346,21 +352,25 @@ function verifierLIdentite(req, res, next) {
  */
 async function exigerLaPorte(req, res, next) {
   try {
-    const id = req.telegramUser?.id;
-    if (!(await getSettings()).features.botCaptcha) return next();
-    if (await estAdmin(id)) return next();
-    if (await estPasse(id)) return next();
-
-    // Un client d'avant l'épreuve ne repasse pas devant la porte : elle a été
-    // posée après lui, et il a déjà payé de sa personne.
-    if ((await listOrders({ userId: id, limit: 1 })).length) {
-      await ouvrirLaPorte(id);
-      return next();
-    }
+    // La même décision que `/api/porte`, prise par la même fonction. Deux
+    // copies écrites séparément divergent, et le jour où elles divergent
+    // c'est l'écran qui dit « entre » pendant que l'API répond 403.
+    //
+    // Le refus ici, et pas seulement dans la conversation, n'est pas de la
+    // ceinture et des bretelles : le bouton de menu en bas à gauche du chat
+    // ouvre la Mini App pour tout le monde — Telegram ne sait pas le montrer
+    // aux uns et le cacher aux autres. Sans ce contrôle, le péage garderait
+    // la conversation et pas la boutique.
+    const verdict = decisionDEntree(await etatDeLEntree(req.telegramUser?.id));
+    if (verdict.ouverte) return next();
 
     return res.status(403).json({
-      error: 'Réponds au petit calcul dans la conversation du bot pour entrer.',
+      error: verdict.etape === 'secours'
+        ? 'Écris au bot de secours de la boutique pour entrer.'
+        : 'Réponds au petit calcul dans la conversation du bot pour entrer.',
       porte: 'fermee',
+      etape: verdict.etape,
+      ...(verdict.lien ? { lien: verdict.lien } : {}),
     });
   } catch (err) {
     return next(err);
@@ -384,18 +394,44 @@ const authenticate = [verifierLIdentite, exigerLaPorte];
  */
 app.get('/api/porte', verifierLIdentite, async (req, res, next) => {
   try {
-    const id = req.telegramUser?.id;
-    const requise = (await getSettings()).features.botCaptcha;
-    if (!requise) return res.json({ requise: false, ouverte: true });
-    const ouverte =
-      (await estAdmin(id)) ||
-      (await estPasse(id)) ||
-      (await listOrders({ userId: id, limit: 1 })).length > 0;
-    return res.json({ requise: true, ouverte: Boolean(ouverte) });
+    const etat = await etatDeLEntree(req.telegramUser?.id);
+    return res.json(decisionDEntree(etat));
   } catch (err) {
     return next(err);
   }
 });
+
+/**
+ * Réunit ce qu'il faut savoir d'un client pour décider s'il entre.
+ *
+ * Les lectures sont ordonnées du moins cher au plus cher, et coupées dès que
+ * la réponse ne dépend plus de la suite : demander le lien du bot de secours
+ * à quelqu'un qui a déjà commandé ne sert à rien, et c'est le genre d'appel
+ * qui finit par coûter un aller-retour réseau sur chaque requête.
+ */
+async function etatDeLEntree(id) {
+  const features = (await getSettings()).features;
+  const calculExige = Boolean(features.botCaptcha);
+  const secoursExige = secoursConfigure() && Boolean(features.porteSecours);
+  const socle = { calculExige, secoursExige, admin: false, client: false, inscrit: false, calculPasse: false };
+  if (!calculExige && !secoursExige) return socle;
+
+  if (await estAdmin(id)) return { ...socle, admin: true };
+
+  const client = (await listOrders({ userId: id, limit: 1 })).length > 0;
+  if (client) {
+    // Un ancien client garde sa porte ouverte pour de bon : sans cette note,
+    // le calcul lui serait redemandé à chaque visite par le bot, qui ne lit
+    // pas ses commandes aussi souvent que la boutique.
+    if (calculExige) await ouvrirLaPorte(id);
+    return { ...socle, client: true };
+  }
+
+  const inscrit = secoursExige ? await estInscritAuSecours(id) : false;
+  const lien = secoursExige && !inscrit ? await lienDuSecours().catch(() => '') : '';
+  const calculPasse = calculExige ? await estPasse(id) : false;
+  return { ...socle, inscrit, lien, calculPasse };
+}
 
 /**
  * La porte de secours, telle que la boutique doit la montrer.

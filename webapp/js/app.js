@@ -808,7 +808,7 @@ function bindStaticHandlers() {
   // Fermer la Mini App ramène le client dans la conversation du bot, là où il
   // envoie sa pièce : pas besoin de connaître le nom du bot.
   $('verifAction').addEventListener('click', () => (tg ? tg.close() : window.history.back()));
-  $('porteAction').addEventListener('click', () => (tg ? tg.close() : window.history.back()));
+  $('porteAction').addEventListener('click', sortirDeLaPorte);
   $('porteRetry').addEventListener('click', () => reprendreSiLaPorteEstOuverte({ dire: true }));
   $('suggestionAvis').addEventListener('click', () => ouvrirLAvis(state.avisADonner[0]));
   $('avisEnvoyer').addEventListener('click', envoyerLAvis);
@@ -1356,11 +1356,58 @@ let sondeDeLaPorte = null;
 /** @returns {boolean} vrai si le voile reste affiché. */
 async function gatePorte() {
   if (!state.gates.porte || !tg?.initData) return false;
-  if (await porteOuverte()) return false;
+  const etat = await lireLaPorte();
+  if (etat.ouverte) return false;
 
+  peindreLaPorte(etat);
   $('porte').hidden = false;
   lancerLaSonde();
   return true;
+}
+
+/**
+ * Ce que le voile raconte : la marche qui attend, et elle seule.
+ *
+ * Deux marches, un seul écran. Le serveur dit laquelle attend ; on remplace
+ * les clefs de traduction des quatre textes et on repeint. Passer par
+ * `data-t` plutôt que par `textContent` n'est pas une coquetterie : c'est ce
+ * qui fait que changer de langue devant le voile — ce qui arrive, la liste
+ * est sur l'écran d'accueil juste avant — retraduit la bonne marche et non
+ * celle d'avant.
+ */
+function peindreLaPorte(etat) {
+  const secours = etat.etape === 'secours';
+  state.porteEtape = etat.etape ?? 'calcul';
+  state.porteLien = etat.lien ?? '';
+
+  const clefs = secours
+    ? ['porte.entree', 'secours.porteTitre', 'secours.porteTexte', 'secours.porteFine',
+       'secours.porteOuvrir', 'secours.porteReessayer']
+    : ['porte.entree', 'porte.titre', 'porte.texte', 'porte.fine',
+       'porte.ouvrir', 'porte.reessayer'];
+  const cibles = ['porteEntree', 'porteTitre', 'porteTexte', 'porteFine',
+    'porteAction', 'porteRetry'];
+  cibles.forEach((id, rang) => {
+    const el = $(id);
+    if (!el) return;
+    el.dataset.t = clefs[rang];
+    el.textContent = t(clefs[rang]);
+  });
+}
+
+/**
+ * Le bouton du voile mène là où il faut aller.
+ *
+ * Pour le calcul, c'est la conversation du bot principal : la fermer suffit,
+ * Telegram y ramène. Pour le bot de secours, c'est une AUTRE conversation —
+ * fermer la boutique n'y mène pas, il faut l'ouvrir explicitement.
+ */
+function sortirDeLaPorte() {
+  if (state.porteEtape === 'secours' && state.porteLien) {
+    if (tg?.openTelegramLink) return tg.openTelegramLink(state.porteLien);
+    return window.open(state.porteLien, '_blank', 'noopener');
+  }
+  return tg ? tg.close() : window.history.back();
 }
 
 /**
@@ -1371,17 +1418,17 @@ async function gatePorte() {
  * donnerait qu'une boutique où rien ne marche. On garde l'écran, avec de quoi
  * réessayer.
  */
-async function porteOuverte() {
+async function lireLaPorte() {
   try {
     const res = await fetch('/api/porte', {
       headers: { 'X-Telegram-Init-Data': tg?.initData ?? '' },
     });
-    if (!res.ok) return false;
+    if (!res.ok) return { ouverte: false };
     const etat = await res.json();
-    return etat.requise === false || etat.ouverte === true;
+    return { ...etat, ouverte: etat.requise === false || etat.ouverte === true };
   } catch (err) {
     console.error(err);
-    return false;
+    return { ouverte: false };
   }
 }
 
@@ -1421,8 +1468,13 @@ function auRetourDeLaConversation() {
  */
 async function reprendreSiLaPorteEstOuverte({ dire = false } = {}) {
   if ($('porte').hidden) return true;
-  if (!(await porteOuverte())) {
-    if (dire) toast(t('msg.calculEnAttente'));
+  const etat = await lireLaPorte();
+  if (!etat.ouverte) {
+    // La marche a pu changer pendant qu'il était parti : il revient du bot de
+    // secours, et c'est le calcul qui l'attend maintenant. Sans ce repeignage,
+    // l'écran lui redemanderait ce qu'il vient de faire.
+    peindreLaPorte(etat);
+    if (dire) toast(t(etat.etape === 'secours' ? 'msg.secoursEnAttente' : 'msg.calculEnAttente'));
     return false;
   }
   arreterLaSonde();

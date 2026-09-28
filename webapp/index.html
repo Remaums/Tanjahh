@@ -132,16 +132,21 @@
   </div>
 </div>
 
-<!-- ══ La porte du bot : le calcul se fait dans la conversation ══ -->
+<!-- ══ La porte du bot ══
+     Deux marches derrière un seul voile : écrire au bot de secours, puis
+     répondre au calcul. Les `data-t` ci-dessous sont ceux de la seconde ;
+     le script les remplace par ceux de la première quand c'est elle qui
+     attend. Un seul écran plutôt que deux, parce que c'est une seule porte
+     — et parce qu'un second voile aurait sa propre traduction à tenir. -->
 <div class="gate" id="porte" hidden>
   <div class="gate__card">
-    <p class="gate__eyebrow" data-t="porte.entree">Entrée</p>
-    <h2 class="gate__title goldtext" data-t="porte.titre">Un calcul, et c'est ouvert</h2>
-    <p class="gate__text" data-t="porte.texte">
+    <p class="gate__eyebrow" id="porteEntree" data-t="porte.entree">Entrée</p>
+    <h2 class="gate__title goldtext" id="porteTitre" data-t="porte.titre">Un calcul, et c'est ouvert</h2>
+    <p class="gate__text" id="porteTexte" data-t="porte.texte">
       Retourne dans la conversation du bot : il t'y pose une petite addition.
       Réponds-y, puis reviens — la boutique s'ouvre toute seule.
     </p>
-    <p class="gate__fine" data-t="porte.fine">
+    <p class="gate__fine" id="porteFine" data-t="porte.fine">
       C'est demandé une seule fois, pour éviter les faux comptes. Aucune
       information supplémentaire ne t'est demandée.
     </p>

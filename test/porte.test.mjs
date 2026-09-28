@@ -17,7 +17,9 @@
  *   le vendeur, le client d'avant l'épreuve, et une boutique qui l'a éteinte ;
  * - `/api/porte` répond même porte fermée : c'est ce qui permet au voile de se
  *   lever tout seul quand le calcul vient d'être fait ;
- * - et il ne dit rien de plus qu'ouvert ou fermé.
+ * - et il ne dit rien de plus que ce dont le voile a besoin pour se peindre :
+ *   ouvert ou fermé, la marche qui attend, et l'adresse publique du bot de
+ *   secours. Ni le calcul, ni sa réponse, ni rien d'un autre client.
  *
  * Prérequis : serveur démarré avec ADMIN_IDS contenant 424242.
  * Usage :  BOT_TOKEN=… node test/porte.test.mjs
@@ -87,8 +89,19 @@ r = await fetch(`${BASE}/api/porte`, { headers: h(dehors.initData) });
 let etat = await r.json();
 check('/api/porte répond porte fermée', r.status === 200, `HTTP ${r.status}`);
 check('… et la dit fermée', etat.requise === true && etat.ouverte === false, JSON.stringify(etat));
-check('… sans rien dire de plus',
-  Object.keys(etat).sort().join(',') === 'ouverte,requise', Object.keys(etat).join(','));
+// Une liste blanche plutôt qu'une égalité exacte : la porte a gagné une
+// seconde marche, et `etape` sert à peindre le bon écran. Ce qui compte
+// n'est pas le nombre de clefs, c'est qu'aucune ne renseigne — le lien du
+// bot de secours est déjà donné par le bot à qui le demande, et l'étape est
+// l'information que le client détient déjà, puisque c'est lui qui ne l'a
+// pas franchie.
+{
+  const permises = new Set(['requise', 'ouverte', 'etape', 'lien']);
+  const surplus = Object.keys(etat).filter((k) => !permises.has(k));
+  check('… sans rien dire de plus', surplus.length === 0, surplus.join(',') || Object.keys(etat).join(','));
+  check("… et rien du calcul lui-même",
+    !/epreuve|choix|reponse|answer|hash/i.test(JSON.stringify(etat)), JSON.stringify(etat));
+}
 
 r = await fetch(`${BASE}/api/porte`);
 check('/api/porte exige une signature', r.status === 401, `HTTP ${r.status}`);

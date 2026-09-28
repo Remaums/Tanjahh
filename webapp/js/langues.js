@@ -336,6 +336,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Enregistrer la porte de secours',
     'secours.fait': 'Porte de secours enregistrée',
     'secours.faitAide': 'Tu es joignable là-bas. Rien d\'autre à faire.',
+
+    'secours.porteTitre': 'Un message, et c\'est ouvert',
+    'secours.porteTexte':
+      'Cette boutique a un second bot, au cas où celui-ci disparaîtrait. Envoie-lui /start, puis ' +
+      'reviens — la boutique s\'ouvre toute seule.',
+    'secours.porteFine':
+      'C\'est demandé une seule fois. Sans ce message, Telegram ne nous laissera jamais te donner ' +
+      'la nouvelle adresse le jour où cette conversation s\'arrêtera.',
+    'secours.porteOuvrir': 'Ouvrir le bot de secours',
+    'secours.porteReessayer': 'J\'ai écrit — réessayer',
+    'msg.secoursEnAttente': 'Pas encore — envoie /start au bot de secours.',
   },
 
   en: {
@@ -616,6 +627,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Save the backup door',
     'secours.fait': 'Backup door saved',
     'secours.faitAide': 'You are reachable there. Nothing else to do.',
+
+    'secours.porteTitre': 'One message, and you are in',
+    'secours.porteTexte':
+      'This shop has a second bot, in case this one disappears. Send it /start, then come back — ' +
+      'the shop opens by itself.',
+    'secours.porteFine':
+      'Asked once only. Without that message, Telegram will never let us give you the new address ' +
+      'the day this conversation stops.',
+    'secours.porteOuvrir': 'Open the backup bot',
+    'secours.porteReessayer': 'I wrote to it — try again',
+    'msg.secoursEnAttente': 'Not yet — send /start to the backup bot.',
   },
 
   es: {
@@ -896,6 +918,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Guardar la puerta de emergencia',
     'secours.fait': 'Puerta de emergencia guardada',
     'secours.faitAide': 'Se te puede escribir allí. Nada más que hacer.',
+
+    'secours.porteTitre': 'Un mensaje, y ya estás dentro',
+    'secours.porteTexte':
+      'Esta tienda tiene un segundo bot, por si este desapareciera. Envíale /start y vuelve — la ' +
+      'tienda se abre sola.',
+    'secours.porteFine':
+      'Se pide una sola vez. Sin ese mensaje, Telegram nunca nos dejará darte la nueva dirección ' +
+      'el día que esta conversación se detenga.',
+    'secours.porteOuvrir': 'Abrir el bot de emergencia',
+    'secours.porteReessayer': 'Ya le escribí — reintentar',
+    'msg.secoursEnAttente': 'Todavía no — envía /start al bot de emergencia.',
   },
 
   it: {
@@ -1154,6 +1187,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Salva la porta di riserva',
     'secours.fait': 'Porta di riserva salvata',
     'secours.faitAide': 'Sei raggiungibile lì. Non serve altro.',
+
+    'secours.porteTitre': 'Un messaggio, e sei dentro',
+    'secours.porteTexte':
+      'Questo negozio ha un secondo bot, nel caso questo sparisse. Mandagli /start, poi torna — ' +
+      'il negozio si apre da solo.',
+    'secours.porteFine':
+      'Si chiede una volta sola. Senza quel messaggio, Telegram non ci lascerà mai darti il nuovo ' +
+      'indirizzo il giorno in cui questa conversazione si fermerà.',
+    'secours.porteOuvrir': 'Apri il bot di riserva',
+    'secours.porteReessayer': 'Gli ho scritto — riprova',
+    'msg.secoursEnAttente': 'Non ancora — manda /start al bot di riserva.',
   },
 
   nl: {
@@ -1416,6 +1460,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Reservedeur opslaan',
     'secours.fait': 'Reservedeur opgeslagen',
     'secours.faitAide': 'Je bent daar bereikbaar. Verder niets te doen.',
+
+    'secours.porteTitre': 'Eén bericht, en je bent binnen',
+    'secours.porteTexte':
+      'Deze winkel heeft een tweede bot, voor het geval deze verdwijnt. Stuur hem /start en kom ' +
+      'terug — de winkel gaat vanzelf open.',
+    'secours.porteFine':
+      'Wordt maar één keer gevraagd. Zonder dat bericht laat Telegram ons nooit het nieuwe adres ' +
+      'sturen op de dag dat dit gesprek stopt.',
+    'secours.porteOuvrir': 'Reservebot openen',
+    'secours.porteReessayer': 'Geschreven — opnieuw proberen',
+    'msg.secoursEnAttente': 'Nog niet — stuur /start naar de reservebot.',
   },
 
   pt: {
@@ -1674,6 +1729,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Guardar a porta de emergência',
     'secours.fait': 'Porta de emergência guardada',
     'secours.faitAide': 'Podemos contactar-te aí. Nada mais a fazer.',
+
+    'secours.porteTitre': 'Uma mensagem, e já estás dentro',
+    'secours.porteTexte':
+      'Esta loja tem um segundo bot, caso este desapareça. Envia-lhe /start e volta — a loja abre ' +
+      'sozinha.',
+    'secours.porteFine':
+      'Pede-se uma só vez. Sem essa mensagem, o Telegram nunca nos deixará dar-te o novo endereço ' +
+      'no dia em que esta conversa parar.',
+    'secours.porteOuvrir': 'Abrir o bot de emergência',
+    'secours.porteReessayer': 'Já lhe escrevi — tentar de novo',
+    'msg.secoursEnAttente': 'Ainda não — envia /start ao bot de emergência.',
   },
 
   de: {
@@ -1934,6 +2000,17 @@ export const TEXTES = {
     'secours.ouvrir': 'Ersatzzugang sichern',
     'secours.fait': 'Ersatzzugang gesichert',
     'secours.faitAide': 'Du bist dort erreichbar. Sonst nichts zu tun.',
+
+    'secours.porteTitre': 'Eine Nachricht, und du bist drin',
+    'secours.porteTexte':
+      'Dieser Shop hat einen zweiten Bot, falls dieser verschwindet. Schick ihm /start und komm ' +
+      'zurück — der Shop öffnet sich von selbst.',
+    'secours.porteFine':
+      'Nur einmal gefragt. Ohne diese Nachricht lässt Telegram uns nie die neue Adresse schicken, ' +
+      'wenn diese Unterhaltung endet.',
+    'secours.porteOuvrir': 'Ersatz-Bot öffnen',
+    'secours.porteReessayer': 'Geschrieben — erneut versuchen',
+    'msg.secoursEnAttente': 'Noch nicht — schick /start an den Ersatz-Bot.',
   },
 
   ar: {
@@ -2182,6 +2259,17 @@ export const TEXTES = {
     'secours.ouvrir': 'احفظ باب الطوارئ',
     'secours.fait': 'تم حفظ باب الطوارئ',
     'secours.faitAide': 'يمكننا الوصول إليك هناك. لا شيء آخر.',
+
+    'secours.porteTitre': 'رسالة واحدة، ويُفتح المتجر',
+    'secours.porteTexte':
+      'لهذا المتجر بوت ثانٍ، تحسّباً لاختفاء هذا. أرسل له /start ثم عُد — يفتح المتجر من تلقاء ' +
+      'نفسه.',
+    'secours.porteFine':
+      'يُطلب مرّة واحدة فقط. من دون هذه الرسالة لن يسمح لنا تيليجرام أبداً بإرسال العنوان الجديد ' +
+      'إليك يوم تتوقّف هذه المحادثة.',
+    'secours.porteOuvrir': 'افتح بوت الطوارئ',
+    'secours.porteReessayer': 'راسلته — أعد المحاولة',
+    'msg.secoursEnAttente': 'ليس بعد — أرسل /start إلى بوت الطوارئ.',
   },
 };
 

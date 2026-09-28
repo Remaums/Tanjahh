@@ -639,6 +639,28 @@ L'interrupteur **« Enregistrer le bot de secours en entrant »**, dans l'espace
 admin, l'éteint sans toucher au reste : le second bot continue de tourner, la
 carte reste dans le profil, seul le péage disparaît.
 
+Le refus ne vit pas que dans la conversation. Le bouton de menu, en bas à
+gauche du chat, ouvre la Mini App pour **tout le monde** — Telegram ne sait
+pas le montrer aux uns et le cacher aux autres. C'est donc le serveur qui
+ferme : `/api/porte` dit quelle marche attend, et tout appel signé est refusé
+en 403 tant qu'elle n'est pas franchie. La boutique affiche alors son voile
+d'entrée, avec le bouton qui ouvre la conversation du second bot.
+
+> **Une conséquence à connaître avant d'allumer l'interrupteur.** Un client
+> qui a déjà commandé n'est pas concerné : il entre comme avant. Mais
+> quelqu'un qui avait seulement passé le calcul, sans jamais commander, se
+> verra demander le bot de secours à sa prochaine visite. C'est voulu — c'est
+> la seule façon de le rendre joignable — mais c'est un geste de plus pour des
+> gens déjà venus.
+
+> **Et pour les épreuves automatiques.** La suite tourne contre une boutique
+> de développement **sans** second jeton : ses clients d'épreuve sont des
+> identifiants inventés, que le bot de secours n'a jamais vus, et la boutique
+> les refuserait à juste titre. La décision d'entrée elle-même est éprouvée à
+> part, sans serveur, par `test/entree-voile.test.mjs` — et c'est la même
+> fonction qui sert à l'écran et au garde-fou, précisément pour qu'ils ne
+> puissent pas diverger.
+
 ### Comment les clients l'apprennent
 
 Trois endroits, parce qu'aucun ne suffit seul :
