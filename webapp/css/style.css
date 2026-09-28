@@ -2542,6 +2542,27 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
   color: rgb(var(--cream-rgb) / .45);
 }
 
+/* Le choix de la langue, en liste native.
+   Habillée comme la liste de tri du catalogue, pour que la boutique n'ait
+   pas deux manières de poser une liste. `appearance: none` retire le décor
+   du système sur le champ fermé ; le menu qu'il ouvre, lui, reste celui du
+   téléphone — c'est tout l'intérêt, et aucun style de la page ne l'atteint. */
+.langue-liste {
+  width: 100%; font: inherit; font-size: 14px; font-weight: 700;
+  color: var(--cream); background: rgb(var(--ink-rgb) / .55);
+  border: var(--line) solid var(--line-soft); border-radius: var(--radius);
+  padding: 11px 34px 11px 13px; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  /* Le chevron, dessiné dans le fond : un élément par-dessus intercepterait
+     l'appui, et un `pointer-events: none` de plus pour le rattraper. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23ecece9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='.7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 17px;
+}
+.langue-liste:focus { outline: none; border-color: var(--neon); box-shadow: var(--glow-neon); }
+.langue-liste option { background: var(--night-2); color: var(--cream); }
+
 /* Le choix de la langue. Trois boutons côte à côte plutôt qu'une liste
    déroulante : à trois entrées, une liste demande deux gestes là où des
    boutons en demandent un, et cache les options jusqu'au premier. */

@@ -2507,23 +2507,62 @@ function monterLeJuke() {
  * c'est le genre d'écart qu'on ne remarque qu'une fois une langue ajoutée
  * d'un côté seulement.
  */
+/**
+ * Le choix de la langue, en liste native.
+ *
+ * C'était une rangée de drapeaux, un bouton par langue. À trois elle tenait ;
+ * à neuf elle poussait la carte du cadre d'accueil plus large que l'écran —
+ * mesuré à 330 px sur un téléphone de 320 — et le texte se retrouvait coupé
+ * des deux côtés. Une grille qui passe à la ligne réglait la largeur mais
+ * prenait 244 px de haut, ce qui faisait sortir le bouton d'entrée de
+ * l'écran : un cadre plus haut que l'écran cache ce qui sert à en sortir.
+ *
+ * Une liste native tient sur une ligne quel que soit le nombre de langues.
+ * Elle a un autre mérite, moins visible : sur iPhone c'est le système qui
+ * l'ouvre, en molette, celle que le client connaît déjà de tous ses autres
+ * réglages. Et le nom de chaque langue est écrit — un drapeau désigne un
+ * pays, pas une langue, et qui ne reconnaît pas 🇲🇦 pour l'arabe resterait
+ * sans rien à lire.
+ *
+ * Les noms ne sont pas traduits : « Deutsch » s'écrit « Deutsch » dans
+ * toutes les langues de la boutique. La liste n'a donc pas à être refaite
+ * quand on change de langue — seule sa valeur suit.
+ */
+function monterLaListeDeLangues(hote, apresChoix) {
+  const liste = document.createElement('select');
+  liste.className = 'langue-liste';
+  // Le titre au-dessus sert d'étiquette. Sans lui, une synthèse vocale
+  // n'annonce que « liste » et la valeur, sans dire de quoi il s'agit.
+  const titre = hote.previousElementSibling;
+  if (titre?.id) liste.setAttribute('aria-labelledby', titre.id);
+  else liste.setAttribute('aria-label', t('profil.langue'));
+  liste.replaceChildren(
+    ...LANGUES.map((l) => {
+      const o = document.createElement('option');
+      o.value = l.code;
+      // Deux espaces après le drapeau : collé, l'émoji et la première lettre
+      // se touchent dans le menu du système, qui n'applique pas nos styles.
+      o.textContent = `${l.drapeau}  ${l.nom}`;
+      return o;
+    })
+  );
+  liste.value = langue;
+  liste.addEventListener('change', () => {
+    appliquerLaLangue(liste.value, { retenir: true });
+    apresChoix?.(liste.value);
+    haptic('light');
+  });
+  hote.replaceChildren(liste);
+  return liste;
+}
+
 function renderLangues() {
   const zone = $('profilLangues');
   if (!zone) return;
-  zone.replaceChildren(
-    ...LANGUES.map((l) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'bienvenue__langue' + (l.code === langue ? ' bienvenue__langue--choisie' : '');
-      b.innerHTML = `<span aria-hidden="true">${l.drapeau}</span>${l.nom}`;
-      b.setAttribute('aria-pressed', l.code === langue ? 'true' : 'false');
-      b.addEventListener('click', () => {
-        appliquerLaLangue(l.code, { retenir: true });
-        haptic('light');
-      });
-      return b;
-    })
-  );
+  // Construite une fois, puis seulement remise à jour : la refaire à chaque
+  // changement de langue ferait perdre le focus au client en plein choix.
+  const liste = zone.querySelector('select') ?? monterLaListeDeLangues(zone);
+  liste.value = langue;
 }
 
 /* ── L'accueil ───────────────────────────────────────────── */
@@ -2615,33 +2654,18 @@ function montrerLAccueil() {
   ecrireLeCadre();
 
   let choisie = code;
-  const choix = $('bienvenueChoix');
-  choix.replaceChildren(
-    ...LANGUES.map((l) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'bienvenue__langue' + (l.code === choisie ? ' bienvenue__langue--choisie' : '');
-      b.innerHTML = `<span aria-hidden="true">${l.drapeau}</span>${l.nom}`;
-      b.setAttribute('aria-pressed', l.code === choisie ? 'true' : 'false');
-      b.addEventListener('click', () => {
-        choisie = l.code;
-        appliquerLaLangue(l.code, { retenir: true });
-        // On réécrit le cadre lui-même : il est le premier à devoir parler
-        // la langue qu'on vient de choisir, sinon le client change de langue
-        // et voit la précédente lui répondre.
-        ecrireLeCadre();
-        for (const autre of choix.children) {
-          const sien = autre === b;
-          autre.classList.toggle('bienvenue__langue--choisie', sien);
-          autre.setAttribute('aria-pressed', sien ? 'true' : 'false');
-        }
-        // Le geste est donné : la musique peut partir, et elle partira.
-        lancerLaMusiqueALArrivee();
-        haptic('light');
-      });
-      return b;
-    })
-  );
+  const liste = monterLaListeDeLangues($('bienvenueChoix'), (code2) => {
+    choisie = code2;
+    // On réécrit le cadre lui-même : il est le premier à devoir parler la
+    // langue qu'on vient de choisir, sinon le client change de langue et voit
+    // la précédente lui répondre.
+    ecrireLeCadre();
+    // Le geste est donné : la musique peut partir, et elle partira.
+    lancerLaMusiqueALArrivee();
+  });
+  // `ecrireLeCadre` ne touche pas à la liste — les noms de langues ne se
+  // traduisent pas — mais il faut que sa valeur parte sur la bonne.
+  liste.value = choisie;
 
   $('bienvenueEntrer').addEventListener('click', () => {
     // Entrer sans avoir touché aux drapeaux, c'est accepter celui qui était
