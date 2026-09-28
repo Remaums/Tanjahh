@@ -174,6 +174,7 @@ function bindHandlers() {
   $('addVariant').addEventListener('click', () => addVariantRow());
   $('saveProduct').addEventListener('click', saveProduct);
   $('deleteProduct').addEventListener('click', removeProduct);
+  $('duplicateProduct').addEventListener('click', duplicateProduct);
 
   for (const el of document.querySelectorAll('[data-close]')) {
     el.addEventListener('click', closeEditor);
@@ -1558,6 +1559,7 @@ function openEditor(product) {
   // Un produit qui n'existe pas encore n'a pas de lien : il n'aurait nulle
   // part où mener.
   $('productLink').hidden = !product;
+  $('duplicateProduct').hidden = !product;
   // Ni de galerie : un média a besoin d'un produit auquel se rattacher.
   $('mediaBlock').hidden = !product;
   if (product) renderMedia(product);
@@ -1700,6 +1702,52 @@ async function saveProduct() {
     error.hidden = false;
   } finally {
     button.disabled = false;
+  }
+}
+
+/**
+ * Duplique la fiche ouverte, et ouvre la copie.
+ *
+ * Le nom est demandé tout de suite, et ce n'est pas une formalité :
+ * l'identifiant de la fiche s'en déduit, il sert de clé dans les commandes
+ * déjà passées, et il ne bougera plus jamais. Une copie créée sous
+ * « Purple Runtz (copie) » garderait cette adresse-là pour toujours.
+ *
+ * On ouvre la copie aussitôt : c'est ce qu'on veut faire à la seconde
+ * suivante — changer sa photo, ajuster un prix, la rendre visible. Revenir à
+ * la liste pour la retrouver serait un geste de plus, vingt fois de suite.
+ */
+async function duplicateProduct() {
+  if (!state.editing) return;
+  const source = state.editing;
+
+  const nom = window.prompt(
+    `Nom de la copie de « ${source.name} » ?\n\n` +
+      "L'adresse de la fiche se déduit de ce nom et ne changera plus ensuite.",
+    ''
+  );
+  if (nom === null) return;
+  if (!nom.trim()) return toast('La copie a besoin de son propre nom.');
+
+  const bouton = $('duplicateProduct');
+  bouton.disabled = true;
+  try {
+    const copie = await api(`/products/${source.id}/dupliquer`, {
+      method: 'POST',
+      // `api()` sérialise lui-même : lui passer une chaîne déjà sérialisée
+      // envoie du JSON dont la racine est une chaîne, qu'Express refuse.
+      body: { name: nom.trim() },
+    });
+    haptic('success');
+    await refreshAll();
+    openEditor(state.products.find((p) => p.id === copie.id) ?? copie);
+    // Dire ce qui n'a PAS été copié : le vendeur qui croit son stock repris
+    // s'en aperçoit devant une commande qu'il ne peut pas honorer.
+    toast('Copie créée — masquée, et son stock est à zéro');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    bouton.disabled = false;
   }
 }
 

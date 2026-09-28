@@ -228,6 +228,38 @@ redémarre. Une entrée ressemble à ça :
 > systématiquement **recalculés côté serveur** : un client ne peut pas se commander
 > un produit à 0 €.
 
+### Dupliquer une fiche
+
+Vingt variétés qui ne diffèrent que par le nom et la photo, c'est vingt fois
+les mêmes formats, les mêmes prix et les mêmes caractéristiques à retaper —
+une demi-heure par produit, et une faute de frappe sur le troisième.
+
+Le bouton **⧉ Dupliquer**, au pied d'une fiche enregistrée, demande le nom de
+la copie et l'ouvre aussitôt. Le nom est demandé tout de suite parce que
+l'adresse de la fiche s'en déduit, et qu'elle ne changera plus : elle sert de
+clé dans les commandes déjà passées.
+
+| Ce qui suit | Ce qui ne suit pas |
+|---|---|
+| Catégorie, pastille, étiquettes | **Le stock** — remis à zéro, fiche et formats |
+| Descriptions courte et complète | **La visibilité** — la copie naît masquée |
+| Caractéristiques | **La date d'entrée** — c'est aujourd'hui |
+| Formats : libellés et prix | |
+| Photos et galerie | |
+
+Les trois exclusions sont ce qui rend la copie sûre. Un stock repris, c'est de
+la marchandise annoncée qui n'existe pas ; une copie visible, c'est une fiche
+à moitié faite dans la vitrine ; une date reprise, c'est une copie qui entre
+dans les « nouveautés » avec l'ancienneté de son original.
+
+Les photos suivent, elles. Deux fiches peuvent montrer la même image le temps
+que tu remplaces celle de la copie — c'est réparable d'un geste, alors qu'une
+galerie à refaire est une galerie qu'on ne refait pas.
+
+**La copie s'annonce quand tu la publies**, pas quand tu la crées. Tu peux
+donc en faire vingt de suite sans qu'un seul message parte ; chacune
+s'annoncera le jour où tu la rendras visible.
+
 ### Réimporter les produits d'exemple
 
 Le catalogue de départ ne se pose **qu'une fois**, au tout premier démarrage :

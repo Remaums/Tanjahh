@@ -630,6 +630,9 @@
     </div>
     <footer class="a-modal__foot">
       <button class="a-btn a-btn--danger" id="deleteProduct" type="button">Supprimer</button>
+      <!-- Dupliquer n'a de sens que sur une fiche déjà enregistrée : masqué
+           tant qu'on est en train d'en créer une, comme le lien et le QR. -->
+      <button class="a-btn a-btn--ghost" id="duplicateProduct" type="button" hidden>⧉ Dupliquer</button>
       <button class="a-btn a-btn--ghost" id="productLink" type="button" hidden>🔗 Lien &amp; QR</button>
       <button class="a-btn a-btn--primary a-btn--grow" id="saveProduct" type="button">Enregistrer</button>
     </footer>

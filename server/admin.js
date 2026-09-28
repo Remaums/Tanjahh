@@ -16,7 +16,7 @@ import {
   deleteProduct,
   setStock,
   saveCategories,
-  restoreStock,
+  restoreStock, duplicateProduct,
 } from './catalog.js';
 import {
   STATUSES, listOrders, allOrders, getOrder, setStatus, stats, purgerCommandes,
@@ -500,7 +500,12 @@ adminRouter.post(
     // attendre Telegram pour afficher le produit qu'il vient de créer. Et un
     // brouillon masqué ne s'annonce pas — c'est justement un produit qu'on
     // prépare.
-    if (!produit.hidden) {
+    //
+    // `produit.visible`, et non `produit.hidden` : le catalogue ne connaît
+    // que `visible`, et ce champ-là n'existe sur aucun produit. `!undefined`
+    // valant `true`, tout brouillon masqué s'annonçait donc — la ligne disait
+    // l'inverse de ce que faisait le code juste en dessous.
+    if (produit.visible !== false) {
       proposerAnnonce('nouveautes', {
         titre: `🆕 Nouveau produit : ${produit.name}`,
         texte:
@@ -510,6 +515,21 @@ adminRouter.post(
           'Dispo dans la boutique.',
       }).catch(() => {});
     }
+  })
+);
+
+/**
+ * Dupliquer une fiche.
+ *
+ * Aucune annonce n'en part, et ce n'est pas un oubli : la copie naît masquée,
+ * donc invisible au catalogue. C'est la route d'enregistrement qui l'annonce,
+ * le jour où le vendeur la rend visible.
+ */
+adminRouter.post(
+  '/products/:id/dupliquer',
+  route(async (req, res) => {
+    const copie = await duplicateProduct(req.params.id, req.body ?? {});
+    res.status(201).json(copie);
   })
 );
 
@@ -586,7 +606,29 @@ adminRouter.delete(
 
 adminRouter.patch(
   '/products/:id',
-  route(async (req, res) => res.json(await updateProduct(req.params.id, req.body ?? {})))
+  route(async (req, res) => {
+    // L'état d'avant, lu avant d'écrire : c'est le passage de masqué à
+    // visible qui fait la nouveauté, pas l'enregistrement.
+    const avant = await getProduct(req.params.id, { includeHidden: true });
+    const produit = await updateProduct(req.params.id, req.body ?? {});
+    res.json(produit);
+
+    // Un brouillon qu'on publie est un produit nouveau pour le client, même
+    // si la fiche existe depuis trois jours côté vendeur. Sans cela, la
+    // création d'un brouillon ne s'annonçant pas — c'est le but — plus rien
+    // n'annonçait jamais ces produits-là : ils entraient au catalogue en
+    // silence, et la seule façon d'être annoncé était de ne pas se relire.
+    if (avant?.visible === false && produit.visible !== false) {
+      proposerAnnonce('nouveautes', {
+        titre: `🆕 Nouveau produit : ${produit.name}`,
+        texte:
+          `🆕 ${produit.name}\n\n` +
+          (produit.short ? `${produit.short}\n\n` : '') +
+          `À partir de ${(prixMini(produit) / 100).toFixed(2)} €\n\n` +
+          'Dispo dans la boutique.',
+      }).catch(() => {});
+    }
+  })
 );
 
 adminRouter.delete(

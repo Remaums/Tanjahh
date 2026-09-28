@@ -63,6 +63,59 @@ export async function createProduct(input) {
   });
 }
 
+/**
+ * Duplique une fiche produit.
+ *
+ * Le vendeur saisit vingt variétés qui ne diffèrent que par le nom et la
+ * photo : mêmes formats, mêmes prix, même structure de description, mêmes
+ * caractéristiques. Tout retaper à chaque fois, c'est une demi-heure par
+ * produit et une faute de frappe sur le troisième.
+ *
+ * Trois choses ne se copient JAMAIS, et ce sont elles qui rendent la copie
+ * sûre :
+ *
+ * - **le stock**, remis à zéro sur la fiche et sur chaque format. Un stock
+ *   copié, c'est de la marchandise annoncée qui n'existe pas, et un client
+ *   qui commande ce qu'on ne peut pas lui remettre.
+ * - **la visibilité** : la copie naît masquée. Elle n'est ni au catalogue,
+ *   ni annoncée, tant que le vendeur ne l'a pas relue. C'est ce qui permet
+ *   de dupliquer vingt fois de suite sans rien montrer d'à moitié fait.
+ * - **la date d'entrée**, qui redevient aujourd'hui : sinon la copie
+ *   arriverait au milieu des « nouveautés » avec l'ancienneté de l'original.
+ *
+ * Les photos, elles, suivent. Deux fiches peuvent montrer la même image le
+ * temps que le vendeur remplace celle de la copie — c'est réparable d'un
+ * geste, alors qu'une galerie à refaire est une galerie qu'on ne refait pas.
+ */
+export async function duplicateProduct(id, { name, id: nouvelId } = {}) {
+  return store.update((data) => {
+    const source = data.products.find((p) => p.id === id);
+    if (!source) throw new HttpError(404, 'Produit introuvable.');
+
+    const nom = String(name ?? '').trim();
+    if (!nom) throw new HttpError(400, 'La copie a besoin de son propre nom.');
+
+    const copie = normalizeProduct({
+      ...source,
+      // L'identifiant se déduit du nouveau nom, et ne bougera plus : il sert
+      // de clé dans les commandes déjà passées. Le demander maintenant évite
+      // une fiche qui gardera « -copie » dans son adresse pour toujours.
+      id: nouvelId || slug(nom),
+      name: nom,
+      createdAt: new Date().toISOString(),
+      stock: 0,
+      variants: source.variants?.map((v) => ({ ...v, stock: 0 })) ?? null,
+      visible: false,
+    });
+
+    if (data.products.some((p) => p.id === copie.id)) {
+      throw new HttpError(409, `Un produit porte déjà l'identifiant « ${copie.id} ».`);
+    }
+    data.products.push(copie);
+    return copie;
+  });
+}
+
 export async function updateProduct(id, patch) {
   return store.update((data) => {
     const index = data.products.findIndex((p) => p.id === id);
