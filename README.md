@@ -563,6 +563,7 @@ dans ton bot.
 | `/boutique` | Rouvre la Mini App |
 | `/commandes` | Les 5 dernières commandes du client |
 | `/aide` | Liste des commandes |
+| `/secours` | Le lien du bot de secours (+ le compte des inscrits, pour le vendeur) |
 | `/stop` | ne plus recevoir d'annonces |
 | `/annonces` | les recevoir de nouveau |
 | `/admin` | Espace d'administration (réservé) |
@@ -577,6 +578,83 @@ dans ton bot.
 Tout autre message d'un client est **relayé au vendeur**, qui répond en
 répondant au message. Un message du vendeur lui-même reçoit la liste des
 commandes.
+
+## Le bot de secours
+
+Un bot de vente se fait fermer. Quand c'est arrivé, la boutique elle-même
+tourne toujours — c'est ton serveur qui la sert, pas Telegram — mais la
+**porte** a disparu, et tes clients n'ont plus par où entrer.
+
+Le point dur n'est pas technique, il est dans les règles de Telegram :
+
+> **Un bot ne peut pas écrire le premier à quelqu'un qui ne l'a jamais
+> démarré.**
+
+Un bot de secours qui n'existerait qu'à partir de la panne ne pourrait donc
+joindre **personne**. C'est pourquoi celui-ci tourne **en même temps** que le
+principal, et pourquoi tout le reste consiste à faire en sorte que les clients
+lui aient écrit **avant**.
+
+### Le poser
+
+1. `@BotFather` → `/newbot`, exactement comme le premier.
+2. Dans `.env` :
+
+```
+BOT_TOKEN_SECOURS=987654:ZYXwvuTSRqpONMlkJIHgfedCBA
+BOT_USERNAME_SECOURS=ma_boutique_secours_bot
+```
+
+3. Redémarre. Les deux bots servent alors la même boutique, le même
+   catalogue, les mêmes commandes et les mêmes clients — il n'y a qu'un
+   magasin derrière les deux conversations.
+
+Laisse ces lignes vides et tout ce qui suit s'éteint : pas de second bot,
+pas de carte dans la boutique, pas de veille. Rien ne casse.
+
+### Comment les clients l'apprennent
+
+Trois endroits, parce qu'aucun ne suffit seul :
+
+- **`/start` du bot principal** — le seul message que tout le monde lit ;
+- **`/secours`** — à la demande, et cette commande **ne passe pas** par le
+  calcul d'entrée : c'est une sortie de secours ;
+- **l'onglet Profil de la Mini App** — une carte qui appelle au geste, puis
+  constate une fois qu'il est fait.
+
+Le registre ne compte que ceux qui ont **écrit au second bot**. Avoir commandé
+trente fois ne rend joignable par lui : seul ce geste-là le fait. `/secours`,
+côté vendeur, affiche le compte — c'est le seul chiffre qui dise si le filet
+existe vraiment. Six cents clients dont douze inscrits, ce n'est pas un filet,
+c'est douze clients sauvés.
+
+### La veille
+
+Toutes les cinq minutes, le serveur demande `getMe` aux deux bots.
+
+Toute la difficulté est de ne pas crier au loup. Un bot ne répond pas pour
+deux raisons sans rapport : Telegram a fermé le compte, ou le réseau a
+hoqueté. Annoncer un déménagement à toute la clientèle pour un hoquet de
+réseau, c'est fabriquer soi-même la panne qu'on surveillait. D'où deux
+verrous :
+
+1. seul un **refus de Telegram** compte — 401, 404, « Unauthorized ». Un
+   timeout, un DNS qui tombe, une machine coupée : notés, mais sans effet ;
+2. il en faut **trois de suite**, soit un quart d'heure de refus constant.
+
+Passé cela, le vendeur est prévenu, et les inscrits reçoivent l'adresse de
+secours — une seule fois, même si la panne dure des jours. Si le bot
+principal revient, le vendeur l'apprend et le compteur repart à zéro.
+
+### Ce que le secours ne fait pas
+
+Ce n'est pas un second exemplaire du premier. Il ouvre la boutique, transmet
+les messages au vendeur, et annonce la nouvelle adresse. Rien d'autre.
+
+La console du vendeur n'y est pas, et il ne la perd pas pour autant : elle est
+dans la Mini App (`/admin.html`), que ton serveur sert lui-même. La Mini App
+ouverte depuis l'un ou l'autre bot est acceptée — les deux signatures valent,
+sinon la porte de secours donnerait sur un mur.
 
 ### Les visites de la dernière demi-heure
 

@@ -445,6 +445,15 @@
       <p class="profil__langue-aide" data-t="profil.langueAide"></p>
     </div>
 
+    <!-- La porte de secours. Masquée tant que la boutique n'en déclare pas,
+         et masquée aussi une fois enregistrée n'aurait pas de sens : le
+         client doit pouvoir vérifier qu'il l'est. Elle change juste de ton. -->
+    <div class="profil__secours" id="profilSecours" hidden>
+      <p class="profil__langue-titre" data-t="secours.titre">Porte de secours</p>
+      <p class="profil__secours-texte" id="secoursTexte"></p>
+      <a class="btn btn--block profil__secours-lien" id="secoursLien" href="#" target="_blank" rel="noopener"></a>
+    </div>
+
     <div class="profil__onglets" id="profilOnglets" role="tablist">
       <button class="profil__onglet" type="button" role="tab" data-vue="commandes" aria-selected="true">
         <span data-t="profil.commandes">Commandes</span>

@@ -58,6 +58,19 @@ export const config = {
   // demande à Telegram si on ne le renseigne pas — mais le renseigner évite
   // un aller-retour réseau au premier lien généré.
   botUsername: (process.env.BOT_USERNAME ?? '').replace(/^@/, ''),
+  // Le bot de secours : un second jeton, un second @nom, la même boutique.
+  //
+  // Un bot de vente se fait fermer. Quand c'est arrivé, la boutique elle-même
+  // tourne toujours — c'est ce serveur qui la sert — mais la porte a disparu,
+  // et Telegram interdit formellement à un bot d'écrire le premier à
+  // quelqu'un qui ne l'a jamais démarré. Le secours ne sert donc à rien s'il
+  // n'est connu qu'au moment de la panne : il tourne en même temps que le
+  // premier, et les clients l'enregistrent avant d'en avoir besoin.
+  //
+  // Absent, tout ce qui suit s'éteint proprement : pas de second bot, pas de
+  // carte dans la boutique, pas de veille. Rien ne casse.
+  botTokenSecours: process.env.BOT_TOKEN_SECOURS ?? '',
+  botUsernameSecours: (process.env.BOT_USERNAME_SECOURS ?? '').replace(/^@/, ''),
   adminIds,
   port: Number(process.env.PORT ?? 3000),
   // Derrière un reverse proxy (Nginx, Caddy), on n'écoute que en local :

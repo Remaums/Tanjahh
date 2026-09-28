@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { config } from './config.js';
-import { verifyInitData } from './telegram-auth.js';
+import { verifyInitDataAny } from './telegram-auth.js';
 import {
   HttpError,
   MEDIA_MAX,
@@ -72,7 +72,12 @@ export const adminRouter = express.Router();
  * base momentanément injoignable.
  */
 export async function requireAdmin(req, res, next) {
-  const result = verifyInitData(req.get('X-Telegram-Init-Data'), config.botToken);
+  // Les deux jetons, pas un : le jour d'une fermeture du bot principal, la
+  // console du vendeur est la seule chose qui lui reste, et elle s'ouvre
+  // depuis le bot de secours.
+  const result = verifyInitDataAny(req.get('X-Telegram-Init-Data'), [
+    config.botToken, config.botTokenSecours,
+  ]);
   if (!result.ok) {
     return res.status(401).json({ error: `Authentification refusée : ${result.reason}` });
   }

@@ -24,6 +24,8 @@ import { estAdmin, listerAdmins, ajouterAdmin, retirerAdmin } from './admins.js'
 import { creerCadence, attenteEnClair } from './cadence.js';
 import { noterPassage, visitesDesClients, FENETRE_MS, MEMOIRE_MS } from './presence.js';
 import { noterUtilisateur, trouverParPseudo, ficheDuRegistre } from './users.js';
+import { lienDuSecours } from './bot-secours.js';
+import { combien as combienAuSecours, sante as santeDesPortes } from './secours.js';
 
 /**
  * Le bot, construit même sans jeton.
@@ -101,21 +103,39 @@ const PAS_D_URL =
  */
 const isAdmin = (id) => estAdmin(id);
 
-/** L'accueil : ce que voit quelqu'un qui vient d'ouvrir la conversation. */
-const accueillir = (ctx) =>
-  ctx.reply(
+/**
+ * L'accueil : ce que voit quelqu'un qui vient d'ouvrir la conversation.
+ *
+ * La porte de secours est nommée ici, et pas ailleurs, parce que c'est le
+ * seul message que tout le monde lit. Telegram interdit à un bot d'écrire le
+ * premier à qui ne l'a jamais démarré : le registre du secours ne peut donc
+ * se remplir que pendant que ce bot-ci fonctionne encore. Le jour où il
+ * faudra s'en servir, il sera trop tard pour le dire.
+ */
+const accueillir = async (ctx) => {
+  const secours = await lienDuSecours().catch(() => '');
+  const filet = secours
+    ? '\n\n🆘 *Garde aussi la porte de secours* : ' + escapeMarkdown(secours) + '\n' +
+      escapeMarkdown(
+        "Écris-lui une fois. C'est la même boutique, et c'est là que tu " +
+        'recevrais la nouvelle adresse si cette conversation venait à disparaître.'
+      )
+    : '';
+  return ctx.reply(
     `🌿 *${escapeMarkdown(config.shopName)}*\n\n` +
       // Le panier a disparu de la boutique il y a longtemps : ce message
       // continuait d'en promettre un à chaque nouveau client, et c'est la
       // toute première phrase qu'il lit.
       "Bienvenue dans la boutique\\. Tout se passe dans l'app : catalogue en images, " +
-      'fiches produits, et un bouton qui ouvre ta commande ici même, déjà écrite\\.\n\n' +
-      `Ton ID Telegram : \`${ctx.from.id}\``,
+      'fiches produits, et un bouton qui ouvre ta commande ici même, déjà écrite\\.' +
+      filet +
+      `\n\nTon ID Telegram : \`${ctx.from.id}\``,
     {
       parse_mode: 'MarkdownV2',
       reply_markup: shopKeyboard(),
     }
   );
+};
 
 /* ── La porte du bot ─────────────────────────────────────── */
 
@@ -168,6 +188,10 @@ bot.use(async (ctx, next) => {
   // laisserait devant une porte dont il cherche justement la clé — et elle ne
   // donne rien d'autre que ce mode d'emploi à qui n'est pas déclaré.
   if (/^\/admin(?:@\S+)?(?:\s|$)/.test(ctx.message?.text ?? '')) return next();
+  // `/secours` non plus : c'est la sortie de secours. Opposer un calcul à
+  // qui vient chercher l'adresse de repli, c'est fermer la porte qu'on
+  // vient de poser — et elle ne livre rien d'autre qu'un lien public.
+  if (/^\/secours(?:@\S+)?(?:\s|$)/.test(ctx.message?.text ?? '')) return next();
   if (!(await getSettings()).features.botCaptcha) return next();
   if (await estPasse(id)) return next();
 
@@ -216,6 +240,44 @@ bot.use(async (ctx, next) => {
 });
 
 bot.command('start', accueillir);
+
+/**
+ * La porte de secours, à la demande.
+ *
+ * Deux réponses selon qui demande : le client reçoit le lien, le vendeur
+ * reçoit en plus le compte de ceux qui l'ont enregistré. C'est le seul
+ * chiffre qui dise si le filet existe vraiment — une boutique de six cents
+ * clients dont douze ont écrit au secours n'a pas de filet, elle a douze
+ * clients sauvés.
+ */
+bot.command('secours', async (ctx) => {
+  const lien = await lienDuSecours().catch(() => '');
+  if (!lien) {
+    return ctx.reply(
+      "Il n'y a pas de bot de secours sur cette boutique pour l'instant." +
+        ((await isAdmin(ctx.from.id))
+          ? '\n\nPour en poser un : crée un second bot chez @BotFather, puis ' +
+            'renseigne BOT_TOKEN_SECOURS dans le .env et redémarre.'
+          : '')
+    );
+  }
+  if (await isAdmin(ctx.from.id)) {
+    const n = await combienAuSecours().catch(() => 0);
+    const etat = await santeDesPortes().catch(() => ({}));
+    return ctx.reply(
+      `🆘 Bot de secours : ${lien}\n\n` +
+        `${n} client(s) l'ont enregistré — ce sont les seuls que je pourrai ` +
+        'prévenir si ce bot-ci disparaît.\n' +
+        `Principal : ${etat.principal?.vivant === false ? `muet (${etat.principal.raison ?? '?'})` : 'debout'}\n` +
+        `Secours : ${etat.secours?.vivant === false ? `muet (${etat.secours.raison ?? '?'})` : 'debout'}`
+    );
+  }
+  return ctx.reply(
+    `🆘 La porte de secours : ${lien}\n\n` +
+      "Écris-lui une fois. C'est la même boutique, et c'est là que tu recevras " +
+      'la nouvelle adresse si cette conversation venait à disparaître.'
+  );
+});
 
 bot.command('boutique', (ctx) =>
   ctx.reply('Voilà le catalogue 👇', { reply_markup: shopKeyboard() })

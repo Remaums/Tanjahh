@@ -2681,3 +2681,24 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
 [dir='rtl'], [dir='rtl'] *, [dir='rtl'] *::before, [dir='rtl'] *::after {
   letter-spacing: normal !important;
 }
+
+/* ── La porte de secours ─────────────────────────────────────
+   Le même cadre que le choix de la langue : c'est un réglage du client,
+   pas une alarme. Un bloc rouge à cet endroit annoncerait une panne qui
+   n'a pas eu lieu, et ferait fuir plus de monde qu'il n'en couvrirait. */
+.profil__secours {
+  margin: 0 0 16px; padding: 12px 13px 13px; border-radius: 14px;
+  background: rgb(var(--panel-rgb) / .45);
+  border: 1px solid var(--line-soft);
+}
+.profil__secours-texte {
+  margin: 0 0 11px; font-size: 12.5px; line-height: 1.5; color: var(--muted);
+}
+.profil__secours-lien { text-decoration: none; }
+/* Enregistrée : le bouton n'appelle plus à un geste, il constate. Il reste
+   touchable — c'est la conversation, et on peut vouloir y aller. */
+.profil__secours--fait .profil__secours-lien {
+  background: transparent; color: var(--neon);
+  border: 1px solid rgb(var(--neon-rgb) / .45); box-shadow: none;
+}
+.profil__secours--fait .profil__secours-lien::before { content: '✓ '; }

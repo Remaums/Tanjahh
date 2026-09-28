@@ -223,6 +223,7 @@ function repeindreLesTextesFabriques() {
     renderLangues, renderStatut, renderClosedBanner, renderSousTitre,
     renderTitreDuBandeau, renderChiffres, renderGrid, renderCategories,
     renderRayons, renderContact, peindreLeJuke, renderSuggestionAvis, renderIdentite,
+    renderSecours,
   ];
   for (const refaire of refaires) {
     try { refaire(); } catch { /* pas encore de données : le prochain rendu s'en chargera */ }
@@ -3836,6 +3837,7 @@ async function ouvrirProfil() {
     renderCommandes(profil.commandes);
     renderFavoris(profil.favoris);
     renderAlertes(profil);
+    chargerLeSecours();
     renderPastilleProfil();
     renderChiffres(profil.commandes?.length);
     // La grille porte les mêmes cœurs : les repeindre ici évite qu'un favori
@@ -3944,6 +3946,68 @@ function renderFavoris(favoris) {
  * Construits depuis ce que le serveur déclare, pas depuis une liste recopiée
  * ici : ajouter un canal côté serveur doit suffire à le voir apparaître.
  */
+/**
+ * La porte de secours, telle que le client doit la voir.
+ *
+ * Elle ne raconte pas une panne qui n'a pas eu lieu. Le texte dit une chose
+ * simple et vraie : il y a une seconde conversation, écris-lui une fois, et
+ * tu resteras joignable. Personne n'a besoin de savoir qu'un bot de vente se
+ * fait fermer — le client a besoin d'avoir fait le geste avant.
+ *
+ * Une fois enregistrée, la carte reste : elle change de ton, pas de place.
+ * La faire disparaître priverait le client de la seule façon de vérifier
+ * qu'il est couvert, et c'est exactement la question qu'il se posera le
+ * jour où il en aura besoin.
+ */
+function renderSecours() {
+  const zone = $('profilSecours');
+  if (!zone) return;
+  const etat = state.secours;
+  zone.hidden = !etat?.disponible;
+  if (!etat?.disponible) return;
+
+  zone.classList.toggle('profil__secours--fait', Boolean(etat.inscrit));
+  $('secoursTexte').textContent = etat.inscrit ? t('secours.faitAide') : t('secours.texte');
+  const lien = $('secoursLien');
+  lien.textContent = etat.inscrit ? t('secours.fait') : t('secours.ouvrir');
+  lien.href = etat.lien;
+}
+
+/**
+ * Va chercher l'état du secours, et ne fait rien de bruyant s'il n'y arrive
+ * pas : une carte absente vaut mieux qu'un message d'erreur pour un réglage
+ * dont le client n'a jamais entendu parler.
+ */
+async function chargerLeSecours() {
+  try {
+    const res = await fetch('/api/secours', {
+      headers: { 'X-Telegram-Init-Data': tg?.initData ?? '' },
+    });
+    if (!res.ok) return;
+    state.secours = await res.json();
+  } catch {
+    state.secours = null;
+  }
+  renderSecours();
+
+  // Le client part écrire au bot de secours, puis revient. Sans cette
+  // relecture au retour, la carte lui redemanderait de faire ce qu'il vient
+  // de faire — et il le referait, en doutant que ça ait marché. On ne pose
+  // l'écoute qu'une fois, et seulement tant qu'il reste quelque chose à
+  // constater.
+  if (state.secours?.disponible && !state.secours.inscrit && !retourEcoute) {
+    retourEcoute = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !state.secours?.inscrit) {
+        chargerLeSecours().catch(() => {});
+      }
+    });
+  }
+}
+
+/** L'écoute du retour ne se pose qu'une fois, quoi qu'il arrive ensuite. */
+let retourEcoute = false;
+
 function renderAlertes({ canaux, preferences, desabonne }) {
   $('profilStop').hidden = !desabonne;
 

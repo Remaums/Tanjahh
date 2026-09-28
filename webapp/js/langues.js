@@ -328,6 +328,14 @@ export const TEXTES = {
     'ouverture.3': 'On allume les néons…',
     'ouverture.4': 'On sort la marchandise…',
     'ouverture.5': 'Prêt.',
+
+    'secours.titre': 'Porte de secours',
+    'secours.texte':
+      'Un second bot ouvre la même boutique. Écris-lui une fois : si cette conversation venait à ' +
+      'disparaître, c\'est là que tu recevrais la nouvelle adresse.',
+    'secours.ouvrir': 'Enregistrer la porte de secours',
+    'secours.fait': 'Porte de secours enregistrée',
+    'secours.faitAide': 'Tu es joignable là-bas. Rien d\'autre à faire.',
   },
 
   en: {
@@ -600,6 +608,14 @@ export const TEXTES = {
     'ouverture.3': 'Lighting the neon…',
     'ouverture.4': 'Bringing out the goods…',
     'ouverture.5': 'Ready.',
+
+    'secours.titre': 'Backup door',
+    'secours.texte':
+      'A second bot opens the same shop. Write to it once: if this conversation ever disappears, ' +
+      'that is where you will get the new address.',
+    'secours.ouvrir': 'Save the backup door',
+    'secours.fait': 'Backup door saved',
+    'secours.faitAide': 'You are reachable there. Nothing else to do.',
   },
 
   es: {
@@ -872,6 +888,14 @@ export const TEXTES = {
     'ouverture.3': 'Encendiendo los neones…',
     'ouverture.4': 'Sacando la mercancía…',
     'ouverture.5': 'Listo.',
+
+    'secours.titre': 'Puerta de emergencia',
+    'secours.texte':
+      'Un segundo bot abre la misma tienda. Escríbele una vez: si esta conversación ' +
+      'desapareciera, allí recibirías la nueva dirección.',
+    'secours.ouvrir': 'Guardar la puerta de emergencia',
+    'secours.fait': 'Puerta de emergencia guardada',
+    'secours.faitAide': 'Se te puede escribir allí. Nada más que hacer.',
   },
 
   it: {
@@ -1122,6 +1146,14 @@ export const TEXTES = {
     'ouverture.3': 'Accendiamo i neon…',
     'ouverture.4': 'Tiriamo fuori la merce…',
     'ouverture.5': 'Pronto.',
+
+    'secours.titre': 'Porta di riserva',
+    'secours.texte':
+      'Un secondo bot apre lo stesso negozio. Scrivigli una volta: se questa conversazione ' +
+      'dovesse sparire, è lì che riceverai il nuovo indirizzo.',
+    'secours.ouvrir': 'Salva la porta di riserva',
+    'secours.fait': 'Porta di riserva salvata',
+    'secours.faitAide': 'Sei raggiungibile lì. Non serve altro.',
   },
 
   nl: {
@@ -1376,6 +1408,14 @@ export const TEXTES = {
     'ouverture.3': 'We doen de neonlampen aan…',
     'ouverture.4': 'We halen de waar tevoorschijn…',
     'ouverture.5': 'Klaar.',
+
+    'secours.titre': 'Reservedeur',
+    'secours.texte':
+      'Een tweede bot opent dezelfde winkel. Schrijf hem één keer: als dit gesprek verdwijnt, ' +
+      'krijg je daar het nieuwe adres.',
+    'secours.ouvrir': 'Reservedeur opslaan',
+    'secours.fait': 'Reservedeur opgeslagen',
+    'secours.faitAide': 'Je bent daar bereikbaar. Verder niets te doen.',
   },
 
   pt: {
@@ -1626,6 +1666,14 @@ export const TEXTES = {
     'ouverture.3': 'A acender os néons…',
     'ouverture.4': 'A tirar a mercadoria…',
     'ouverture.5': 'Pronto.',
+
+    'secours.titre': 'Porta de emergência',
+    'secours.texte':
+      'Um segundo bot abre a mesma loja. Escreve-lhe uma vez: se esta conversa desaparecer, é aí ' +
+      'que recebes o novo endereço.',
+    'secours.ouvrir': 'Guardar a porta de emergência',
+    'secours.fait': 'Porta de emergência guardada',
+    'secours.faitAide': 'Podemos contactar-te aí. Nada mais a fazer.',
   },
 
   de: {
@@ -1878,6 +1926,14 @@ export const TEXTES = {
     'ouverture.3': 'Wir machen die Neonlichter an…',
     'ouverture.4': 'Wir holen die Ware raus…',
     'ouverture.5': 'Bereit.',
+
+    'secours.titre': 'Ersatzzugang',
+    'secours.texte':
+      'Ein zweiter Bot öffnet denselben Shop. Schreib ihm einmal: Sollte diese Unterhaltung ' +
+      'verschwinden, bekommst du dort die neue Adresse.',
+    'secours.ouvrir': 'Ersatzzugang sichern',
+    'secours.fait': 'Ersatzzugang gesichert',
+    'secours.faitAide': 'Du bist dort erreichbar. Sonst nichts zu tun.',
   },
 
   ar: {
@@ -2118,6 +2174,14 @@ export const TEXTES = {
     'ouverture.3': 'نُشعل النيون…',
     'ouverture.4': 'نُخرج البضاعة…',
     'ouverture.5': 'جاهز.',
+
+    'secours.titre': 'باب الطوارئ',
+    'secours.texte':
+      'بوت ثانٍ يفتح المتجر نفسه. راسله مرّة واحدة: إن اختفت هذه المحادثة، فمن هناك يصلك العنوان ' +
+      'الجديد.',
+    'secours.ouvrir': 'احفظ باب الطوارئ',
+    'secours.fait': 'تم حفظ باب الطوارئ',
+    'secours.faitAide': 'يمكننا الوصول إليك هناك. لا شيء آخر.',
   },
 };
 

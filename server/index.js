@@ -4,7 +4,10 @@ import express from 'express';
 import { webhookCallback } from 'grammy';
 
 import { config, publicConfig, assertConfigured } from './config.js';
-import { verifyInitData } from './telegram-auth.js';
+import { verifyInitDataAny } from './telegram-auth.js';
+import { configure as secoursConfigure, estInscrit as estInscritAuSecours, combien as combienAuSecours } from './secours.js';
+import { lienDuSecours, botSecours, prevenirLesInscrits } from './bot-secours.js';
+import { creerLaVeille, resumeDuSecours } from './veille.js';
 import {
   HttpError,
   getCatalog,
@@ -45,6 +48,9 @@ import { estDesabonne } from './annonces.js';
 
 /** Vrai quand ce fichier est lancé directement (`npm start`), faux quand il
  *  est simplement importé — par la fonction serverless de `api/index.js`. */
+/** La ronde qui surveille les deux portes. Montée au démarrage, en mode long polling seulement. */
+let veille = null;
+
 const standalone =
   process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
@@ -289,9 +295,27 @@ app.get('/api/catalog', async (req, res, next) => {
   }
 });
 
-/** Chaque appel authentifié doit porter l'en-tête signé par Telegram. */
+/**
+ * Les jetons qui signent une session valide : le bot principal, et le secours
+ * quand il existe. Calculé une fois — la liste ne change pas en cours de vie.
+ */
+const JETONS = [config.botToken, config.botTokenSecours].filter(Boolean);
+
+/**
+ * Chaque appel authentifié doit porter l'en-tête signé par Telegram.
+ *
+ * Deux signatures sont acceptées, pas une. La Mini App ouverte depuis le bot
+ * de secours est signée par le jeton du secours : la refuser reviendrait à
+ * avoir une porte de secours qui donne sur un mur. Les deux jetons désignent
+ * la même boutique et les mêmes clients — c'est le même identifiant Telegram
+ * qui sort des deux vérifications.
+ *
+ * L'ordre compte un peu : le principal d'abord, parce que c'est lui qui sert
+ * la quasi-totalité des appels, et qu'un HMAC de moins vaut mieux qu'un de
+ * plus sur le chemin le plus fréquenté.
+ */
 function verifierLIdentite(req, res, next) {
-  const result = verifyInitData(req.get('X-Telegram-Init-Data'), config.botToken);
+  const result = verifyInitDataAny(req.get('X-Telegram-Init-Data'), JETONS);
   if (!result.ok) {
     return res.status(401).json({ error: `Authentification refusée : ${result.reason}` });
   }
@@ -365,6 +389,35 @@ app.get('/api/porte', verifierLIdentite, async (req, res, next) => {
       (await estPasse(id)) ||
       (await listOrders({ userId: id, limit: 1 })).length > 0;
     return res.json({ requise: true, ouverte: Boolean(ouverte) });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * La porte de secours, telle que la boutique doit la montrer.
+ *
+ * Trois choses, et rien de plus : est-ce qu'il y en a une, où elle est, et
+ * est-ce que celui qui demande l'a déjà enregistrée. Le troisième point est
+ * tout l'intérêt de la route — c'est lui qui décide si la boutique doit
+ * insister ou se taire.
+ *
+ * Pas de liste, pas de compte : ce sont les affaires du vendeur, et elles
+ * sont dans l'espace admin. Une route publique qui dirait « 412 clients
+ * enregistrés » renseignerait surtout qui n'a rien à y faire.
+ */
+app.get('/api/secours', verifierLIdentite, async (req, res, next) => {
+  try {
+    if (!secoursConfigure()) return res.json({ disponible: false });
+    const lien = await lienDuSecours();
+    // Sans nom de bot, pas de lien : afficher une carte qui ne mène nulle
+    // part serait pire que ne rien afficher, parce qu'elle serait touchée.
+    if (!lien) return res.json({ disponible: false });
+    return res.json({
+      disponible: true,
+      lien,
+      inscrit: await estInscritAuSecours(req.telegramUser.id),
+    });
   } catch (err) {
     return next(err);
   }
@@ -1352,8 +1405,50 @@ if (standalone) {
     signaler(err);
   }
 
+  /* ── La seconde porte ──────────────────────────────────────
+     Elle tourne en même temps que la première, jamais à sa place. Un bot
+     de secours qui n'existerait qu'à partir de la panne serait un numéro
+     que personne n'a dans son répertoire : Telegram interdit à un bot
+     d'écrire le premier à qui ne l'a jamais démarré, si bien que le
+     registre des joignables ne se remplit que pendant que tout va bien. */
+  if (botSecours) {
+    try {
+      botSecours
+        .start({
+          onStart: (me) => console.log(`  Bot de secours @${me.username} démarré.`),
+        })
+        .catch((err) =>
+          console.error(`  Bot de secours non démarré (${err.message}). Le principal n'est pas touché.`)
+        );
+    } catch (err) {
+      console.error(`  Bot de secours non démarré (${err.message}). Le principal n'est pas touché.`);
+    }
+
+    veille = creerLaVeille({
+      portes: { principal: bot.api, secours: botSecours.api },
+      // Le vendeur est prévenu par le bot encore debout. Le principal
+      // d'abord — c'est là qu'il lit d'habitude — et le secours s'il ne
+      // répond plus, ce qui est justement le cas qui déclenche l'annonce.
+      prevenirVendeur: async (texte) => {
+        if (!config.adminChatId) return;
+        try {
+          await bot.api.sendMessage(config.adminChatId, texte);
+        } catch {
+          await botSecours.api.sendMessage(config.adminChatId, texte).catch(() => {});
+        }
+      },
+      prevenirClients: (texte, liste) => prevenirLesInscrits(texte, { destinataires: liste }),
+    });
+    veille.demarrer();
+  }
+  resumeDuSecours().then((ligne) => console.log(`  ${ligne}`)).catch(() => {});
+
   // Arrêt propre : sans ça, le long polling garde le process en vie.
   for (const signal of ['SIGINT', 'SIGTERM']) {
-    process.once(signal, () => bot.stop());
+    process.once(signal, () => {
+      veille?.arreter();
+      bot.stop();
+      botSecours?.stop().catch(() => {});
+    });
   }
 }

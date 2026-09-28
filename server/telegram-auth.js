@@ -53,3 +53,29 @@ export function verifyInitData(initData, botToken, { maxAgeSeconds = 86400 } = {
 
   return { ok: true, user, authDate: new Date(authDateRaw * 1000) };
 }
+
+/**
+ * La même vérification, mais contre plusieurs jetons.
+ *
+ * Une boutique a deux portes : le bot principal et le bot de secours. La
+ * Mini App ouverte depuis l'une ou l'autre est signée par le jeton de
+ * celle-là, et les deux doivent être acceptées — sinon la porte de secours
+ * donne sur un mur, ce qui est la seule chose qu'on ne peut pas se permettre
+ * le jour où on s'en sert.
+ *
+ * Les jetons vides sont ignorés : une boutique sans secours passe donc
+ * exactement par le même chemin qu'avant. Le refus rendu est celui du
+ * premier jeton — c'est le principal, et c'est lui que le message d'erreur
+ * doit nommer.
+ */
+export function verifyInitDataAny(initData, jetons, options) {
+  const utiles = (Array.isArray(jetons) ? jetons : [jetons]).filter(Boolean);
+  if (!utiles.length) return { ok: false, reason: 'aucun jeton de bot configuré' };
+  let premierRefus = null;
+  for (const jeton of utiles) {
+    const essai = verifyInitData(initData, jeton, options);
+    if (essai.ok) return essai;
+    premierRefus ??= essai;
+  }
+  return premierRefus;
+}

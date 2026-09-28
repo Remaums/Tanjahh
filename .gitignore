@@ -18,4 +18,7 @@ server/data/users.json
 server/data/avis.json
 server/data/admins.json
 server/data/preferences.json
+# Le registre du bot de secours : qui peut être joint par lui, et la
+# dernière santé connue de chaque porte. Données de boutique, pas du code.
+server/data/secours.json
 server/data/favoris.json
