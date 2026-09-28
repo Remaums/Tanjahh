@@ -2606,7 +2606,7 @@ function montrerLAccueil() {
   // touché, et deux listes à tenir à jour en deviendraient une qui oublie.
   const ecrireLeCadre = () => {
     $('bienvenueSalut').textContent = nom ? `${t('accueil.bienvenue')} ${nom}` : t('accueil.bienvenue');
-    $('bienvenueTexte').textContent = t('accueil.texte');
+    $('bienvenueTexte').textContent = t('accueil.texte', { boutique: state.shop?.shopName ?? '' }).trim();
     ecrireLHoraire();
     $('bienvenueService').textContent = t('accueil.service');
     $('bienvenueLegende').textContent = t('accueil.langue');

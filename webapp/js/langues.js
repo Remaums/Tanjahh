@@ -31,7 +31,12 @@ export const TEXTES = {
   fr: {
     /* ── L'accueil ── */
     'accueil.bienvenue': 'Bienvenue',
-    'accueil.texte': 'De nouvelles variétés, de nouvelles gammes. Qualité garantie.',
+    // `{boutique}` et non le nom écrit en dur : il vient des réglages, et
+    // le jour où le vendeur renomme sa boutique, trois traductions
+    // garderaient l'ancien sans que personne pense à venir les corriger.
+    'accueil.texte':
+      "{boutique} t'apporte de nouvelles variétés et de nouvelles gammes, "
+      + 'renouvelées toute l\'année. Qualité garantie sur chaque produit du catalogue.',
     'accueil.horaires': '7/7 · 13H-00H',
     'accueil.service': 'Meet-up & Livraison',
     'accueil.langue': 'Choisis ta langue',
@@ -319,7 +324,9 @@ export const TEXTES = {
 
   en: {
     'accueil.bienvenue': 'Welcome',
-    'accueil.texte': 'New varieties, new ranges. Quality guaranteed.',
+    'accueil.texte':
+      '{boutique} brings you new varieties and new ranges, refreshed all year round. '
+      + 'Quality guaranteed on every product in the catalogue.',
     'accueil.horaires': '7/7 · 1PM-12AM',
     'accueil.service': 'Meet-up & Delivery',
     'accueil.langue': 'Choose your language',
@@ -589,7 +596,9 @@ export const TEXTES = {
 
   es: {
     'accueil.bienvenue': 'Bienvenido',
-    'accueil.texte': 'Nuevas variedades, nuevas gamas. Calidad garantizada.',
+    'accueil.texte':
+      '{boutique} te trae nuevas variedades y nuevas gamas, renovadas todo el año. '
+      + 'Calidad garantizada en cada producto del catálogo.',
     'accueil.horaires': '7/7 · 13:00-00:00',
     'accueil.service': 'Meet-up y Entrega',
     'accueil.langue': 'Elige tu idioma',
