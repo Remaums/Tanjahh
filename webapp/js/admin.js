@@ -105,6 +105,7 @@ function bindHandlers() {
   $('addCategory').addEventListener('click', () => addCategoryRow());
   $('saveCategories').addEventListener('click', saveCategoryList);
   $('saveSettings').addEventListener('click', saveGuards);
+  $('saveContact').addEventListener('click', saveContact);
   $('saveOpening').addEventListener('click', saveOpening);
   $('saveFulfillment').addEventListener('click', saveFulfillment);
   $('addZone').addEventListener('click', () => addZoneRow());
@@ -1941,6 +1942,8 @@ function renderSettings() {
   renderMusique();
   renderCommandes();
 
+  $('fSnapchat').value = settings.contact?.snapchat ?? '';
+
   const opening = settings.opening ?? { open: true, hours: {} };
   $('fOpen').checked = Boolean(opening.open);
   $('fClosedMessage').value = opening.message ?? '';
@@ -2021,6 +2024,33 @@ function renderHours(days) {
       return row;
     })
   );
+}
+
+/**
+ * Enregistre le compte vers lequel part le bouton « Commander ».
+ *
+ * On renvoie ce que le serveur a retenu dans le champ, pas ce que le vendeur
+ * a tapé : il colle le plus souvent le lien complet de partage, le serveur
+ * n'en garde que le pseudo, et sans ce retour l'écran continuerait d'afficher
+ * une URL qui n'est plus ce qui est enregistré.
+ */
+async function saveContact() {
+  const button = $('saveContact');
+  button.disabled = true;
+  try {
+    state.settings = await api('/settings', {
+      method: 'PUT',
+      body: { contact: { snapchat: $('fSnapchat').value.trim() } },
+    });
+    renderSettings();
+    const pseudo = state.settings.contact?.snapchat;
+    toast(pseudo ? `Commandes sur Snapchat : @${pseudo}` : 'Commandes sur la conversation Telegram');
+    haptic('success');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    button.disabled = false;
+  }
 }
 
 async function saveOpening() {

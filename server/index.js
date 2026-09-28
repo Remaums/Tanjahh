@@ -289,6 +289,9 @@ app.get('/api/catalog', async (req, res, next) => {
       // et cette réponse-ci se lit sans la moindre signature.
       musique: playlistPublique(settings.musique, settings.features.musique),
       fulfillment: settings.fulfillment,
+      // Où le bouton « Commander » emmène. Un pseudo public, rien d'autre :
+      // c'est déjà ce que le vendeur affiche partout ailleurs.
+      contact: settings.contact,
       // Les paliers sont publics : c'est une promesse d'affichage (« −10 %
       // dès 100 € »), pas un secret. Les codes, eux, ne sortent jamais d'ici.
       discounts: { tiers: settings.features.tiers ? settings.discounts.tiers : [] },

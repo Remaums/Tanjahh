@@ -33,6 +33,9 @@ const DEFAULTS = {
   slots: defaultSlots(),
   // Seuil d'alerte : en dessous, le vendeur reçoit un message.
   alerts: { lowStock: 3 },
+  // Où le bouton « Commander » emmène le client. Vide : la conversation
+  // Telegram du vendeur, comme avant. Rempli : le compte Snapchat.
+  contact: { snapchat: '' },
   // L'entretien qui se fait tout seul, tous les jours.
   //
   // La sauvegarde est allumée d'office : elle ne détruit rien, elle ne coûte
@@ -118,6 +121,7 @@ export async function getSettings() {
     limits: { ...DEFAULTS.limits, ...(data.limits ?? {}) },
     fulfillment: { ...DEFAULTS.fulfillment, ...(data.fulfillment ?? {}) },
     alerts: { ...DEFAULTS.alerts, ...(data.alerts ?? {}) },
+    contact: { ...DEFAULTS.contact, ...(data.contact ?? {}) },
     discounts: { tiers: normalizeTiers(data.discounts?.tiers) },
     zones: normalizeZones(data.zones),
     slots: { ...normalizeSlots(data.slots), enabled: features.slots },
@@ -209,6 +213,15 @@ export async function saveSettings(patch) {
         lowStock: bounded(patch.alerts.lowStock, 0, 999, DEFAULTS.alerts.lowStock),
       };
     }
+    if (patch.contact) {
+      const avant = { ...DEFAULTS.contact, ...(data.contact ?? {}) };
+      data.contact = {
+        snapchat:
+          patch.contact.snapchat === undefined
+            ? avant.snapchat
+            : pseudoSnapchat(patch.contact.snapchat),
+      };
+    }
     if (patch.fulfillment) {
       const current = { ...DEFAULTS.fulfillment, ...(data.fulfillment ?? {}) };
       const pickup = patch.fulfillment.pickup === undefined ? current.pickup : Boolean(patch.fulfillment.pickup);
@@ -251,6 +264,38 @@ export async function saveSettings(patch) {
     }
     return { ...DEFAULTS, ...data };
   });
+}
+
+/**
+ * Le pseudo Snapchat, quelle que soit la façon dont on l'a collé.
+ *
+ * Le vendeur copie ce qu'il a sous la main : le lien complet que Snapchat
+ * lui donne à partager, le `@pseudo` qu'il lit dans l'application, ou le
+ * pseudo nu. Les trois doivent marcher — refuser le lien collé, c'est-à-dire
+ * la forme la plus probable, serait un réglage qui ne s'enregistre jamais
+ * sans qu'on comprenne pourquoi.
+ *
+ * On ne garde que le pseudo : le lien se refabrique à l'affichage, et le
+ * stocker entier laisserait entrer n'importe quelle URL dans un attribut
+ * `href` de la boutique.
+ *
+ * Vide remet le bouton sur Telegram : c'est ainsi qu'on revient en arrière.
+ */
+function pseudoSnapchat(valeur) {
+  const brut = String(valeur ?? '').trim();
+  if (!brut) return '';
+
+  // `snapchat.com/add/pseudo`, avec ou sans https, avec ou sans www, et
+  // avec ce que Snapchat accroche derrière (?share_id=…, //, etc.).
+  const lien = brut.match(/snapchat\.com\/(?:add|t)\/([^/?#]+)/i);
+  const pseudo = (lien ? lien[1] : brut).replace(/^@/, '').trim();
+
+  // Les pseudos Snapchat commencent par une lettre et n'acceptent ensuite
+  // que lettres, chiffres, point, tiret et souligné.
+  if (!/^[A-Za-z][A-Za-z0-9._-]{1,28}$/.test(pseudo)) {
+    throw new HttpError(400, 'Pseudo Snapchat invalide : un pseudo, un @pseudo ou le lien snapchat.com/add/…');
+  }
+  return pseudo;
 }
 
 /**
