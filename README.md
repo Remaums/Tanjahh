@@ -621,6 +621,31 @@ existent. Le catalogue s'ouvre d'un bouton ; un client n'a rien à taper.
 Il n'y a plus de `/aide`. La liste des commandes du vendeur est dans
 `/admin`, l'endroit qu'il ouvre déjà.
 
+## Les captures d'écran
+
+**Une capture d'écran ne peut pas être empêchée.** Ni par cette boutique, ni
+par aucune page web : les boutons volume + alimentation sont hors de portée
+du navigateur. Telegram sait le faire dans ses chats secrets, mais son API
+Mini App n'expose rien de tel — vérifié, ce n'est pas un oubli de notre part.
+Et même si elle l'exposait, un second téléphone photographie l'écran.
+
+Ce que la boutique fait, à la place :
+
+- **l'appui long ne propose plus « Enregistrer l'image »** sur les photos de
+  produits, et une image ne se traîne plus hors de la page. Deux moitiés,
+  une par téléphone : `-webkit-touch-callout` pour iOS (Chromium ne connaît
+  pas cette propriété et la jette), l'annulation de l'événement
+  `contextmenu` pour Android. La vidéo garde son menu — le lui retirer
+  casserait ses contrôles sans rien protéger ;
+- **la porte d'entrée**, qui est le vrai levier : le bot de secours puis le
+  calcul avant de voir le moindre prix. Un fouineur qui n'entre pas ne
+  capture rien.
+
+Ce qui reste possible et n'est pas fait : **filigraner** le catalogue avec
+l'identifiant Telegram de celui qui le regarde. Cela n'empêche toujours pas
+la capture, mais rend la fuite traçable — c'est la seule mesure qui ait un
+effet réel sur un fouineur, et elle se paie en photos moins nettes.
+
 ## Le bot de secours
 
 Un bot de vente se fait fermer. Quand c'est arrivé, la boutique elle-même

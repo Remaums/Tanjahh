@@ -808,6 +808,19 @@ function bindStaticHandlers() {
   // Fermer la Mini App ramène le client dans la conversation du bot, là où il
   // envoie sa pièce : pas besoin de connaître le nom du bot.
   $('verifAction').addEventListener('click', () => (tg ? tg.close() : window.history.back()));
+  // Le menu d'appui long sur une photo — « Enregistrer l'image », « Copier ».
+  //
+  // Une écoute déléguée sur le document plutôt qu'une par image : la grille
+  // se repeint à chaque filtre, chaque tri et chaque changement de langue, et
+  // des écoutes posées image par image seraient reposées à chaque fois, ou
+  // oubliées sur celles qu'un rendu suivant fabrique.
+  //
+  // Les images seulement. La vidéo garde son menu : ses contrôles natifs en
+  // dépendent, et les casser ne protégerait rien de plus.
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target instanceof HTMLImageElement) e.preventDefault();
+  });
+
   $('porteAction').addEventListener('click', sortirDeLaPorte);
   $('porteRetry').addEventListener('click', () => reprendreSiLaPorteEstOuverte({ dire: true }));
   $('suggestionAvis').addEventListener('click', () => ouvrirLAvis(state.avisADonner[0]));

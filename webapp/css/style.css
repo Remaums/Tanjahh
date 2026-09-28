@@ -2715,3 +2715,29 @@ img.galerie__gif { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: c
   border: 1px solid rgb(var(--neon-rgb) / .45); box-shadow: none;
 }
 .profil__secours--fait .profil__secours-lien::before { content: '✓ '; }
+
+/* ── Les photos ne se décrochent pas ─────────────────────────
+
+   Ce que ceci fait, et il faut être exact : sur un appui long, le téléphone
+   ne propose plus « Enregistrer l'image » ni « Partager », et l'image ne se
+   traîne plus hors de la page. C'est le geste du curieux pressé.
+
+   Ce que ceci NE fait PAS : empêcher une capture d'écran. Aucune page web
+   ne le peut — ni celle-ci, ni aucune autre. Un bouton de volume + un bouton
+   d'alimentation sont hors de portée du navigateur, et le resteront.
+
+   Posé sur les images seulement. La vidéo garde ses contrôles natifs : les
+   lui retirer casserait le lecteur, et on n'aurait rien gagné — un client
+   qui veut la vidéo la filme depuis un autre téléphone.
+
+   `-webkit-touch-callout` ne vaut que sur iOS : Chromium ne connaît pas
+   cette propriété et jette la déclaration — vérifié, elle ne figure même
+   pas dans la règle une fois la feuille analysée. Sur Android, c'est
+   l'annulation de l'événement `contextmenu`, dans app.js, qui fait tout le
+   travail. Les deux moitiés sont nécessaires, chacune pour un téléphone. */
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
