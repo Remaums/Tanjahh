@@ -714,11 +714,16 @@
 <div class="sheet" id="commandeSheet" hidden>
   <div class="sheet__backdrop" data-close></div>
   <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="commandeTitre">
-    <button class="sheet__close" type="button" data-close aria-label="Fermer" data-t-aria="aria.fermer">✕</button>
+    <button class="sheet__close sheet__close--clair" type="button" data-close
+            aria-label="Fermer" data-t-aria="aria.fermer">✕</button>
     <div class="sheet__scroll">
-      <p class="commande__icone" aria-hidden="true">👻</p>
-      <h2 class="feuille__titre goldtext" id="commandeTitre" data-t="snap.titre">Pour commander</h2>
-      <p class="commande__texte" data-t="snap.texte"></p>
+      <!-- Le bandeau dit où aller avant même qu'on lise : la couleur porte
+           l'information plus vite que la phrase. -->
+      <div class="commande__bandeau" aria-hidden="true"><span>👻</span></div>
+      <div class="commande__corps">
+        <h2 class="feuille__titre goldtext" id="commandeTitre" data-t="snap.titre">Pour commander</h2>
+        <p class="commande__texte" data-t="snap.texte"></p>
+      </div>
     </div>
     <div class="sheet__bar">
       <button class="btn btn--primary btn--grow" type="button" data-close data-t="snap.compris">J'ai compris</button>
