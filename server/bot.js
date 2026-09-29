@@ -1385,10 +1385,8 @@ bot.callbackQuery(/^ann:(\d+)$/, async (ctx) => {
   }
 
   try {
-    // Deux publics, deux raisons à écrire en bas du message. Le registre
-    // englobe ceux qui n'ont jamais rien acheté : leur dire « tu as déjà
-    // commandé ici » serait faux, et c'est ce genre de détail qui fait écrire
-    // /stop.
+    // Deux publics : le registre du bot, qui englobe ceux qui n'ont jamais
+    // rien acheté, et un canal d'alertes, qui ne vise que des clients.
     const versTous = brouillon.canal === 'registre';
     const cibles = versTous
       ? await destinatairesDuRegistre()
@@ -1404,11 +1402,7 @@ bot.callbackQuery(/^ann:(\d+)$/, async (ctx) => {
 
     // On rend la main tout de suite : trois cents messages prennent une minute,
     // et personne ne doit rester devant un bouton grisé pendant ce temps.
-    diffuser(envoi, cibles, {
-      raison: versTous
-        ? 'Tu reçois ce message parce que tu as déjà ouvert cette boutique.'
-        : undefined,
-    })
+    diffuser(envoi, cibles)
       .then(({ recus, echecs }) =>
         bot.api.sendMessage(
           config.adminChatId,
@@ -1818,18 +1812,24 @@ export async function retrouverVignette(chatId, fileId) {
  * Un client qui a bloqué le bot fait échouer son envoi sans que le reste en
  * souffre — et il est désabonné au passage, puisqu'il a dit non à sa manière.
  */
-export async function diffuser(envoi, clients, { paquet = 20, pause = 1200, raison } = {}) {
+export async function diffuser(envoi, clients, { paquet = 20, pause = 1200 } = {}) {
   let recus = 0;
   let echecs = 0;
 
-  // La raison doit être vraie pour celui qui lit. « Tu as déjà commandé ici »
-  // envoyé à quelqu'un qui n'a fait qu'ouvrir le bot est un mensonge, petit
-  // mais bien visible, et c'est ce genre de détail qui fait écrire /stop.
-  const texte =
-    `${envoi.texte}\n\n` +
-    '— — —\n' +
-    `${raison ?? 'Tu reçois ce message parce que tu as déjà commandé ici.'} ` +
-    'Écris /stop pour ne plus en recevoir.';
+  // Le texte du vendeur, et rien d'autre.
+  //
+  // Le bot ajoutait un pied de page : un filet de séparation, la raison pour
+  // laquelle on reçoit ce message, et « Écris /stop pour ne plus en
+  // recevoir ». Le vendeur écrit ses annonces au mot près et veut qu'elles
+  // partent telles quelles.
+  //
+  // `/stop` MARCHE TOUJOURS — la commande n'a pas bougé, et le bouton de
+  // désabonnement reste dans le profil de la boutique. C'est sa mention
+  // automatique qui s'en va, pas la sortie. Un client qui ne la trouve pas
+  // bloque le bot à la place, et un blocage est définitif et silencieux :
+  // c'est au vendeur de garder une porte de sortie lisible dans ses propres
+  // mots.
+  const texte = envoi.texte;
 
   for (let i = 0; i < clients.length; i += paquet) {
     const tranche = clients.slice(i, i + paquet);

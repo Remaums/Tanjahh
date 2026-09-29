@@ -1859,11 +1859,25 @@ clients et parfois par Telegram :
 | Cadence de 12 h entre deux annonces | envoyer trois fois le même jour |
 | Envoi étalé, par paquets de 20 | dépasser la limite de Telegram et se faire couper |
 
-Chaque annonce se termine par la façon de s'en désabonner. Un client qui écrit
-`/stop` ne reçoit plus rien, `/annonces` le remet dans la liste, et le vendeur
-dispose des deux boutons pour ceux qui le lui demandent de vive voix. **Les
-messages sur ses propres commandes continuent** : ce sont des réponses, pas de
-la publicité.
+**Ton texte part tel quel.** Le bot n'ajoute plus rien en dessous — ni filet de
+séparation, ni « tu reçois ce message parce que… », ni mention de `/stop`. Une
+annonce s'écrit au mot près, avec un prix, une heure, une signature, et elle
+arrive comme elle a été écrite. Une suite vérifie l'égalité **exacte** du texte
+envoyé, caractère pour caractère : c'est plus sévère que chercher le mot
+« stop », et c'est voulu — une nouvelle mention, un jour, passerait entre les
+mailles d'un test qui ne cherche qu'un mot.
+
+> ⚠️ **La sortie existe toujours, mais plus rien ne l'annonce.** Un client qui
+> écrit `/stop` ne reçoit plus d'annonces, `/annonces` le remet dans la liste,
+> le bouton est dans son profil, et le vendeur dispose des deux gestes pour
+> ceux qui le lui demandent de vive voix. On a enlevé le panneau, pas la
+> porte — mais celui qui ne sait pas comment s'arrêter **bloque le bot**, et un
+> blocage est définitif et silencieux, là où un désabonnement se défait.
+> Laisser une sortie dans tes propres mots, de temps en temps, coûte moins cher
+> qu'un client perdu pour de bon.
+
+**Les messages sur ses propres commandes continuent** : ce sont des réponses,
+pas de la publicité.
 
 Un client qui a bloqué le bot fait échouer son envoi sans que le reste en
 souffre, et il est désabonné au passage — il a dit non à sa manière. Une panne
