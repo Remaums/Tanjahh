@@ -697,6 +697,17 @@ body.admin {
 .a-etat--ok { color: var(--neon); border-color: rgb(var(--neon-rgb) / .5); }
 .a-etat--ko { color: var(--red); border-color: rgb(var(--red-rgb) / .5); }
 
+/* Le panneau d'effacement, déplié sous les actions de la fiche. Encadré de
+   rouge : ce qui se fait là ne se rattrape pas, et l'écran doit le dire avant
+   qu'on lise le texte. */
+.a-effacer {
+  margin-top: 12px; padding: 12px; border-radius: 12px;
+  border: 1px solid rgb(var(--red-rgb) / .45);
+  background: rgb(var(--red-rgb) / .07);
+  display: grid; gap: 10px;
+}
+.a-effacer__quoi { margin: 0; font-weight: 700; font-size: 13px; }
+
 .a-client__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .a-client__actions .a-btn { flex: 1 1 auto; text-align: center; text-decoration: none; }
 .a-client__telegram { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; font-size: 13.5px; }

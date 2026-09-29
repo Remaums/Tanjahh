@@ -1316,6 +1316,69 @@ panier vide. Un panier déjà rempli n'est jamais remplacé sans qu'on demande.
 Il suit l'interrupteur **« Mes commandes »** : sans historique, il n'y a rien à
 reprendre.
 
+### Effacer les données d'une personne
+
+Le bouton est sur **chaque fiche**, dans *Clients* et dans *Utilisateurs*, et
+dans **Réglages → Effacer les données d'une personne** pour quelqu'un qui n'a
+de fiche nulle part — une personne qui a mis trois produits en favori sans
+jamais commander ni écrire au bot n'apparaît dans aucune des deux listes, et
+c'est pourtant le cas où elle écrira pour demander qu'on l'oublie.
+
+Le bouton **n'efface rien** : il déplie un panneau qui va d'abord demander au
+serveur ce qu'on a sur cette personne. Un effacement ne se rattrape pas, et on
+a le droit de voir ce qu'on s'apprête à perdre — y compris « rien », qui est
+la réponse quand on s'est trompé d'un chiffre.
+
+| Ce qu'on fait | Ce qui reste |
+|---|---|
+| **Oublier** | ses commandes, avec leurs montants et leurs articles, mais plus rien qui désigne quelqu'un. Ses avis restent, sans auteur. Le bilan ne bouge pas |
+| **Tout effacer** | rien : ses commandes et ses avis partent aussi, et leur chiffre avec |
+
+**Oublier est presque toujours le bon choix**, pour la même raison que sur
+l'effacement par date : une comptabilité ne se réécrit pas.
+
+Dans les deux cas s'en vont : le registre du bot, les favoris, la langue
+choisie, les réglages d'alertes, les lignes attendues en rupture, le verdict
+de vérification, la porte du bot, l'inscription au bot de secours, le
+désabonnement aux annonces et les codes promo réclamés.
+
+> **Deux choses ne sont PAS effacées, et le panneau le dit.**
+>
+> **Le blocage reste.** Sinon l'effacement deviendrait le moyen de se
+> débloquer : on demande qu'on l'oublie, et on revient le lendemain sous le
+> même identifiant. Le rapport le rappelle après coup ; le déblocage est un
+> geste à part.
+>
+> **Un administrateur n'est pas effaçable.** C'est le garde-fou contre
+> l'accident qui coûte le plus cher — s'effacer soi-même. Retire-lui d'abord
+> ses droits.
+
+Et une limite qu'il faut connaître : le **texte** d'un avis reste tel quel en
+mode *oublier*. Quelqu'un qui a signé son avis de son nom dans le corps du
+message reste nommé — un effacement ne sait pas lire. C'est pour ça que
+l'autre mode existe.
+
+> ⚠️ Mêmes garde-fous que l'effacement par date : une sauvegarde part dans ta
+> conversation **avant** qu'on touche au magasin, l'effacement est refusé si
+> elle n'a pas pu partir, et il faut écrire `EFFACER` — que le serveur
+> redemande de son côté, parce qu'une interface se contourne et qu'une commande
+> `curl` n'a pas d'écran de confirmation.
+
+#### Aucun magasin ne doit y échapper
+
+Un effacement partiel est **pire** que pas d'effacement du tout : il annonce
+que c'est fait. Le vendeur répond « c'est effacé » à son client, et un numéro
+de téléphone dort toujours dans un magasin ajouté six mois plus tard par
+quelqu'un qui n'a jamais entendu parler de cette fonctionnalité.
+
+`server/effacement.js` porte donc la liste complète des magasins de la
+boutique, chacun avec son traitement — ou avec la raison écrite pour laquelle
+il ne contient rien de personnel. Une suite compare cette liste aux
+`createStore()` du code et **tombe si un magasin apparaît sans y figurer**.
+Ajouter un magasin oblige à dire ce qu'il advient de son contenu quand
+quelqu'un demande à partir, même si la réponse est « rien, il n'y a personne
+dedans ».
+
 ### Effacer des commandes, ou les faire oublier
 
 Trois façons de repartir, dans **Réglages → Effacer des commandes**, et elles ne

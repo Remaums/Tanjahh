@@ -105,7 +105,11 @@ export async function createOrder({
 export async function listOrders({ userId, status, limit = 50 } = {}) {
   const orders = await store.read();
   return orders
-    .filter((o) => (userId ? o.user.id === userId : true))
+    // Comparaison en chaînes : l'identifiant arrive tantôt en nombre (depuis
+    // Telegram), tantôt en texte (depuis une URL ou un magasin JSON). En
+    // strict, `'8721' === 8721` est faux et la liste revenait VIDE — pas en
+    // erreur, vide, ce qui se lit comme « ce client n'a jamais commandé ».
+    .filter((o) => (userId ? String(o.user?.id ?? '') === String(userId) : true))
     .filter((o) => (status ? o.status === status : true))
     .slice(-limit)
     .reverse();
@@ -166,6 +170,59 @@ export async function slotCounts() {
 /* ══ Effacer, ou oublier ═════════════════════════════════════ */
 
 /**
+ * Une commande qui ne désigne plus personne.
+ *
+ * Ce qui fait une comptabilité reste : montants, articles, mode, créneau — et
+ * le secteur, qui désigne une commune et non une porte. Ce qui désigne
+ * quelqu'un s'en va.
+ *
+ * À part, parce que deux effacements s'en servent : la purge par date et
+ * l'effacement d'une personne. Recopiée, la liste des champs finirait par
+ * diverger, et le jour où elle diverge, un effacement laisse derrière lui un
+ * numéro de téléphone que l'autre enlève.
+ */
+export function anonymiserCommande(o) {
+  return {
+    ...o,
+    user: { id: null, username: null, firstName: null },
+    address: null,
+    phone: null,
+    contact: null,
+    note: null,
+    anonymise: true,
+  };
+}
+
+/**
+ * Les commandes d'une personne : effacées, ou seulement déshabillées.
+ *
+ * `garder` conserve les commandes sans leur propriétaire — le bilan ne bouge
+ * pas. Sinon elles partent, et leur chiffre avec.
+ */
+export async function effacerLesCommandesDe(userId, { garder = true } = {}) {
+  const cible = String(userId);
+  return store.update((orders) => {
+    const sienne = (o) => String(o?.user?.id ?? '') === cible;
+    const concernees = orders.filter(sienne).length;
+    if (!garder) {
+      const gardees = orders.filter((o) => !sienne(o));
+      orders.length = 0;
+      orders.push(...gardees);
+      return { concernees, effacees: concernees, anonymisees: 0 };
+    }
+    let anonymisees = 0;
+    const gardees = orders.map((o) => {
+      if (!sienne(o)) return o;
+      anonymisees++;
+      return anonymiserCommande(o);
+    });
+    orders.length = 0;
+    orders.push(...gardees);
+    return { concernees, effacees: 0, anonymisees };
+  });
+}
+
+/**
  * Ce que devient le magasin après un effacement. Fonction pure : elle décide,
  * `purgerCommandes` écrit.
  *
@@ -209,18 +266,7 @@ export function trierPourPurge(orders, { mode, avant, seulementFinies = false } 
       if (!vieille(o) || o.anonymise) return o;
       if (seulementFinies && !finie(o)) return o;
       anonymisees++;
-      return {
-        ...o,
-        // Ce qui désigne quelqu'un s'en va. Ce qui fait une comptabilité reste :
-        // montants, articles, mode, créneau — et le secteur, qui désigne une
-        // commune, pas une porte.
-        user: { id: null, username: null, firstName: null },
-        address: null,
-        phone: null,
-        contact: null,
-        note: null,
-        anonymise: true,
-      };
+      return anonymiserCommande(o);
     });
     return { gardees, effacees: 0, anonymisees };
   }
@@ -250,7 +296,18 @@ export async function purgerCommandes({ mode, avant, seulementFinies = false } =
 export async function replaceOrders(orders) {
   if (!Array.isArray(orders)) throw new HttpError(400, 'Liste de commandes invalide.');
 
-  const propres = orders.filter((o) => o && typeof o === 'object' && o.reference && o.user?.id);
+  // `o.user?.id` écartait toutes les commandes ANONYMISÉES — celles dont
+  // l'identifiant vaut `null` justement parce qu'on a oublié qui les a
+  // passées. Une boutique qui suit le conseil du panneau (oublier ses vieux
+  // clients, garder sa comptabilité) perdait donc ces commandes, et leur
+  // chiffre, à la première restauration de sauvegarde. Sans un mot : elles
+  // étaient comptées comme « écartées ».
+  //
+  // Ce qu'on veut écarter, c'est une ligne qui n'est pas une commande. Une
+  // référence et un bloc `user`, fût-il vide, suffisent à la reconnaître.
+  const propres = orders.filter(
+    (o) => o && typeof o === 'object' && o.reference && o.user && typeof o.user === 'object'
+  );
   return store.update((data) => {
     data.length = 0;
     data.push(...propres);

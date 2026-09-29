@@ -542,6 +542,24 @@
     </label>
     <button class="a-btn a-btn--danger a-btn--block" id="doPurge" type="button">Effacer</button>
 
+    <h2 class="a-h2">Effacer les données d'une personne</h2>
+    <p class="a-hint">
+      Le bouton est aussi sur chaque fiche, dans <b>Clients</b> et dans
+      <b>Utilisateurs</b>. Ici, c'est pour quelqu'un qui n'y figure pas : une
+      personne qui a mis des produits en favori sans jamais commander ni
+      écrire au bot n'a de fiche nulle part, mais la boutique garde quand même
+      des traces d'elle. Colle son identifiant Telegram.
+      <b>Oublier</b> détache la personne de tout en gardant les montants —
+      ton bilan ne bouge pas. <b>Tout effacer</b> enlève aussi ses commandes et
+      ses avis. Ni l'un ni l'autre ne lève un blocage : sinon effacer
+      deviendrait le moyen de se débloquer.
+    </p>
+    <label class="a-field"><span>Identifiant Telegram</span>
+      <input id="fOublieId" type="text" inputmode="numeric" autocomplete="off"
+             spellcheck="false" placeholder="123456789">
+    </label>
+    <div id="fOublieBloc"></div>
+
     <h2 class="a-h2">Vérifications</h2>
     <ul class="a-list" id="verificationsList"></ul>
 

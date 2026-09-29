@@ -35,6 +35,7 @@ import {
 import { refusDeTelegram, texteValide } from './messagerie.js';
 import { estAdmin, listerAdmins } from './admins.js';
 import { estPasse, ouvrirLaPorte, oublier as refermerLaPorte } from './bot-captcha.js';
+import { apercuDeLaPersonne, effacerLaPersonne } from './effacement.js';
 import { journal } from './entretien.js';
 import {
   tousLesAvis, resumeParProduit, changerStatut, repondreALAvis, supprimerAvis, oublierProduit,
@@ -1484,6 +1485,69 @@ adminRouter.post(
 
     const fait = await purgerCommandes({ mode, avant });
     res.json({ ...fait, sauvegarde: envoi ? true : false });
+  })
+);
+
+/**
+ * Ce qu'on a sur quelqu'un. Lecture seule : rien n'est touché ici.
+ *
+ * Le bouton d'effacement ne doit pas s'appuyer à l'aveugle — et « rien du
+ * tout » est une réponse utile, c'est celle qu'on obtient en se trompant d'un
+ * chiffre dans l'identifiant.
+ */
+adminRouter.get(
+  '/clients/:id/donnees',
+  route(async (req, res) => res.json(await apercuDeLaPersonne(req.params.id)))
+);
+
+/**
+ * Effacer les données d'une personne.
+ *
+ * Mêmes garde-fous que l'effacement par date, et pour la même raison : ça ne
+ * se rattrape pas. Une sauvegarde part dans la conversation du vendeur AVANT
+ * qu'on touche au magasin, et l'effacement est refusé si elle n'a pas pu
+ * partir. Le mot de confirmation est redemandé ici, parce qu'une interface se
+ * contourne et qu'un `curl` n'a pas d'écran de confirmation.
+ */
+adminRouter.post(
+  '/clients/:id/effacer',
+  route(async (req, res) => {
+    const { mode = 'oublier', confirmation, sauvegarde = true } = req.body ?? {};
+
+    if (String(confirmation).trim().toUpperCase() !== 'EFFACER') {
+      throw new HttpError(400, 'Écris EFFACER pour confirmer : cette opération ne se rattrape pas.');
+    }
+
+    // L'aperçu d'abord : il refuse déjà un identifiant qui n'en est pas un, et
+    // il dit si c'est un admin — autant s'en apercevoir avant d'expédier une
+    // sauvegarde de tout le magasin pour rien.
+    const apercu = await apercuDeLaPersonne(req.params.id);
+
+    let envoi = null;
+    if (sauvegarde !== false) {
+      const copie = await buildBackup();
+      const jour = new Date().toISOString().slice(0, 10);
+      try {
+        envoi = await envoyerDansLaConversation(
+          req.telegramUser.id,
+          `avant-effacement-${apercu.id}-${jour}.json`,
+          JSON.stringify(copie, null, 2),
+          `💾 Sauvegarde prise avant d'effacer ${apercu.nom ?? apercu.id}.\n` +
+            "Garde ce fichier : c'est le seul retour en arrière possible."
+        );
+      } catch (err) {
+        throw new HttpError(
+          409,
+          "La sauvegarde n'a pas pu partir dans ta conversation, donc rien n'a été effacé.\n\n" +
+            `Raison : ${err?.description ?? err.message}\n\n` +
+            'Ouvre la conversation du bot, envoie-lui /start, puis recommence. ' +
+            "Tu peux aussi décocher la sauvegarde — mais alors il n'y aura pas de retour en arrière."
+        );
+      }
+    }
+
+    const fait = await effacerLaPersonne(req.params.id, { mode });
+    res.json({ ...fait, sauvegarde: Boolean(envoi) });
   })
 );
 

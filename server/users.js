@@ -117,3 +117,13 @@ function normaliser(valeur) {
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 }
+
+/** Retire quelqu'un du registre. Il redeviendra inconnu à sa prochaine visite. */
+export async function oublierUtilisateur(id) {
+  return store.update((data) => {
+    const clef = String(id);
+    const avait = Object.hasOwn(data, clef);
+    delete data[clef];
+    return avait;
+  });
+}

@@ -47,3 +47,25 @@ export async function pendingCount() {
   const data = await store.read();
   return Object.values(data).reduce((sum, list) => sum + (list?.length ?? 0), 0);
 }
+
+/**
+ * Retire quelqu'un de toutes les listes d'attente, quelle que soit la ligne.
+ *
+ * Parcourt les clefs plutôt que de demander lesquelles : personne ne tient la
+ * liste des produits qu'un client attend, et un effacement qui oublierait une
+ * ligne laisserait partir un message à quelqu'un qui n'existe plus.
+ */
+export async function oublierClient(userId) {
+  return store.update((data) => {
+    const cible = String(userId);
+    let retire = 0;
+    for (const [clef, abonnes] of Object.entries(data)) {
+      const restants = (abonnes ?? []).filter((v) => String(v) !== cible);
+      if (restants.length === (abonnes ?? []).length) continue;
+      retire++;
+      if (restants.length) data[clef] = restants;
+      else delete data[clef];
+    }
+    return retire;
+  });
+}

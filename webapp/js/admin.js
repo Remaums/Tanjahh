@@ -105,6 +105,7 @@ function bindHandlers() {
   $('addCategory').addEventListener('click', () => addCategoryRow());
   $('saveCategories').addEventListener('click', saveCategoryList);
   $('saveSettings').addEventListener('click', saveGuards);
+  monterLEffacementParId();
   $('saveContact').addEventListener('click', saveContact);
   $('saveOpening').addEventListener('click', saveOpening);
   $('saveFulfillment').addEventListener('click', saveFulfillment);
@@ -889,6 +890,10 @@ function detailUtilisateur(u) {
     ban.disabled = false;
   });
   actions.append(ban);
+
+  const [effacer, panneau] = blocEffacement(u.id, () => refreshAll());
+  actions.append(effacer);
+  bloc.append(panneau);
   return bloc;
 }
 
@@ -1083,7 +1088,131 @@ function detailClient(fiche) {
   });
   actions.append(ban);
 
+  const [effacer, panneau] = blocEffacement(fiche.id, () => refreshAll());
+  actions.append(effacer);
+  bloc.append(panneau);
+
   return bloc;
+}
+
+/**
+ * Effacer les données d'une personne, depuis sa fiche.
+ *
+ * Le bouton n'efface rien : il déplie un panneau qui va d'abord DEMANDER au
+ * serveur ce qu'on a sur cette personne. Un effacement ne se rattrape pas, et
+ * le vendeur a le droit de voir ce qu'il s'apprête à perdre — y compris
+ * « rien », qui est la réponse quand on s'est trompé d'un chiffre.
+ *
+ * Deux modes, et le libellé dit lequel choisir : oublier garde la
+ * comptabilité, effacer la réécrit.
+ */
+function blocEffacement(id, surFini) {
+  const bouton = document.createElement('button');
+  bouton.className = 'a-btn a-btn--danger';
+  bouton.type = 'button';
+  bouton.textContent = '🧹 Effacer ses données';
+
+  const panneau = document.createElement('div');
+  panneau.className = 'a-effacer';
+  panneau.hidden = true;
+  panneau.innerHTML =
+    '<p class="a-effacer__quoi" aria-live="polite">Je regarde ce qu\'on a…</p>' +
+    '<label class="a-field"><span>Que faire</span>' +
+    '<select data-mode>' +
+    '<option value="oublier">Oublier — ses commandes restent, sans son nom</option>' +
+    '<option value="effacer">Tout effacer — ses commandes et ses avis partent aussi</option>' +
+    '</select></label>' +
+    '<p class="a-hint">Oublier est presque toujours le bon choix : ton bilan ne bouge pas, ' +
+    'et il ne reste plus rien qui désigne quelqu\'un. ' +
+    '<b>Un blocage n\'est pas levé</b> — sinon effacer deviendrait le moyen de se débloquer.</p>' +
+    '<label><input type="checkbox" data-sauvegarde checked> M\'envoyer une sauvegarde d\'abord</label>' +
+    '<label class="a-field"><span>Écris EFFACER pour confirmer</span>' +
+    '<input data-confirmation type="text" autocomplete="off" spellcheck="false" placeholder="EFFACER"></label>' +
+    '<button class="a-btn a-btn--danger a-btn--block" type="button" data-go>Effacer définitivement</button>';
+
+  bouton.addEventListener('click', async () => {
+    panneau.hidden = !panneau.hidden;
+    if (panneau.hidden) return;
+    const quoi = panneau.querySelector('.a-effacer__quoi');
+    try {
+      const vu = await api(`/clients/${encodeURIComponent(id)}/donnees`);
+      const morceaux = [
+        `${vu.commandes} commande${vu.commandes > 1 ? 's' : ''}`,
+        vu.depense ? formatPrice(vu.depense) : null,
+        vu.avis ? `${vu.avis} avis` : null,
+        vu.favoris ? `${vu.favoris} favori${vu.favoris > 1 ? 's' : ''}` : null,
+        vu.connu ? 'connu du bot' : null,
+        vu.verification !== 'none' ? `vérification : ${vu.verification}` : null,
+        vu.bloque ? '⛔ bloqué' : null,
+      ].filter(Boolean);
+      quoi.textContent = vu.admin
+        ? "C'est un administrateur : retire-lui d'abord ses droits."
+        : `On a sur cette personne : ${morceaux.join(' · ')}.`;
+      panneau.querySelector('[data-go]').disabled = Boolean(vu.admin);
+    } catch (err) {
+      quoi.textContent = err.message;
+    }
+  });
+
+  panneau.querySelector('[data-go]').addEventListener('click', async (ev) => {
+    const go = ev.currentTarget;
+    go.disabled = true;
+    try {
+      const fait = await api(`/clients/${encodeURIComponent(id)}/effacer`, {
+        method: 'POST',
+        body: {
+          mode: panneau.querySelector('[data-mode]').value,
+          sauvegarde: panneau.querySelector('[data-sauvegarde]').checked,
+          confirmation: panneau.querySelector('[data-confirmation]').value,
+        },
+      });
+      toast(fait.bloqueEncore ? 'Effacé — il reste bloqué' : 'Effacé');
+      haptic('success');
+      surFini?.(fait);
+    } catch (err) {
+      toast(err.message);
+    } finally {
+      go.disabled = false;
+    }
+  });
+
+  return [bouton, panneau];
+}
+
+/**
+ * Effacer quelqu'un qui n'a de fiche nulle part.
+ *
+ * Une personne qui a mis trois produits en favori sans jamais commander ni
+ * écrire au bot n'apparaît ni dans Clients — qui se reconstruit à partir des
+ * commandes — ni dans Utilisateurs, qui est le registre du bot. La boutique
+ * garde pourtant des traces d'elle, et c'est précisément le cas où elle
+ * écrira pour demander qu'on l'oublie.
+ *
+ * Le même panneau que sur une fiche, mais suspendu à un champ : il se
+ * reconstruit à chaque identifiant saisi, sinon le second effacement
+ * porterait sur la personne du premier.
+ */
+function monterLEffacementParId() {
+  const champ = $('fOublieId');
+  const hote = $('fOublieBloc');
+  if (!champ || !hote) return;
+  let dernier = '';
+  const refaire = () => {
+    const id = champ.value.trim();
+    if (id === dernier) return;
+    dernier = id;
+    hote.replaceChildren();
+    if (!/^\d{1,20}$/.test(id)) return;
+    const [bouton, panneau] = blocEffacement(id, () => {
+      champ.value = '';
+      dernier = '';
+      hote.replaceChildren();
+      refreshAll();
+    });
+    hote.append(bouton, panneau);
+  };
+  champ.addEventListener('input', refaire);
+  champ.addEventListener('change', refaire);
 }
 
 /**

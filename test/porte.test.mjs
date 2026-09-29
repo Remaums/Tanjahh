@@ -42,7 +42,14 @@ const check = (label, ok, detail = '') => {
 
 const ADMIN = signInitData(TOKEN, { id: 424242, first_name: 'Patron' });
 const h = (qui) => ({ 'Content-Type': 'application/json', 'X-Telegram-Init-Data': qui });
-const souche = 970000 + (Date.now() % 20000);
+// Une souche large et TIRÉE AU SORT, pas `Date.now() % 20000`.
+//
+// Vingt mille identifiants possibles pour une boutique de développement qui
+// en a déjà vu un millier passer commande : environ une exécution sur quinze
+// tombait sur un ancien client, qui entre alors sans épreuve — et la suite
+// échouait sur « Rallumée, elle referme », une fois sur quinze, sans rien
+// qui l'explique. Le hasard sur un milliard rend la collision négligeable.
+const souche = 1000000000 + Math.floor(Math.random() * 900000000);
 let prochain = 0;
 const inconnu = () => {
   const id = souche + prochain++;

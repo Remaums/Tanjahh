@@ -106,3 +106,13 @@ export async function amateursDuProduit(productId) {
     .filter(([, liste]) => liste.includes(produit))
     .map(([id]) => id);
 }
+
+/** Les favoris d'une personne s'en vont avec elle. */
+export async function oublierClient(userId) {
+  return store.update((data) => {
+    const clef = String(userId);
+    const combien = (data[clef] ?? []).length;
+    delete data[clef];
+    return combien;
+  });
+}

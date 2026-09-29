@@ -164,3 +164,8 @@ export const taille = () => presents.size;
 export function oublierTout() {
   presents.clear();
 }
+
+/** Retire quelqu'un de la présence. Éphémère de toute façon, mais pas dans la minute. */
+export function oublierPresence(userId) {
+  return presents.delete(String(userId ?? ''));
+}

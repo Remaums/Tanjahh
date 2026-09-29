@@ -290,3 +290,38 @@ export async function oublierProduit(productId) {
     return effaces;
   });
 }
+
+/**
+ * Les avis d'une personne : effacés, ou seulement détachés d'elle.
+ *
+ * `garder` laisse l'avis en place — sa note continue de compter dans la
+ * moyenne du produit — mais il perd son auteur : prénom, pseudo, identifiant,
+ * et la référence de commande qui y ramenait. Il passe anonyme du même coup,
+ * sans quoi `nomPublic` chercherait un prénom qui n'est plus là.
+ *
+ * Le TEXTE reste, et c'est à dire : quelqu'un qui a signé son avis de son nom
+ * dans le corps du message reste nommé. Un effacement ne sait pas lire. C'est
+ * pour ça que l'autre mode existe, et que le panneau le dit.
+ */
+export async function effacerLesAvisDe(userId, { garder = true } = {}) {
+  const cible = String(userId);
+  return store.update((liste) => {
+    const sien = (a) => String(a?.user?.id ?? '') === cible;
+    const concernes = liste.filter(sien).length;
+    if (!garder) {
+      const gardes = liste.filter((a) => !sien(a));
+      liste.length = 0;
+      liste.push(...gardes);
+      return { concernes, effaces: concernes, detaches: 0 };
+    }
+    let detaches = 0;
+    for (const avis of liste) {
+      if (!sien(avis)) continue;
+      detaches++;
+      avis.user = { id: null, firstName: null, username: null };
+      avis.reference = null;
+      avis.anonyme = true;
+    }
+    return { concernes, effaces: 0, detaches };
+  });
+}

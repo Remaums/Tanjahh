@@ -251,3 +251,23 @@ export async function bestDiscount({ code, subtotal, userId, tiers, reserve = fa
   }
   return { discount: 0, label: null, code: null, source: null };
 }
+
+/**
+ * Retire quelqu'un des codes qu'il a réclamés.
+ *
+ * `uses` ne bouge pas, et c'est voulu : c'est le compteur du code, pas une
+ * donnée sur quelqu'un. Le décrémenter rendrait au stock un bon déjà consommé,
+ * et un code limité à cent usages en aurait cent-un.
+ */
+export async function oublierClient(userId) {
+  return store.update((data) => {
+    const cible = String(userId);
+    let retire = 0;
+    for (const promo of Object.values(data)) {
+      const avant = (promo.usedBy ?? []).length;
+      promo.usedBy = (promo.usedBy ?? []).filter((v) => String(v) !== cible);
+      if (promo.usedBy.length !== avant) retire++;
+    }
+    return retire;
+  });
+}

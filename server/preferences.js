@@ -126,3 +126,13 @@ export async function compterParCanal(clients) {
   }
   return compte;
 }
+
+/** Ses réglages d'alertes s'en vont : il repartira des valeurs par défaut. */
+export async function oublierClient(userId) {
+  return store.update((data) => {
+    const clef = String(userId);
+    const avait = Object.hasOwn(data, clef);
+    delete data[clef];
+    return avait;
+  });
+}
