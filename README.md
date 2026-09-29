@@ -970,9 +970,38 @@ verrous :
    timeout, un DNS qui tombe, une machine coupée : notés, mais sans effet ;
 2. il en faut **trois de suite**, soit un quart d'heure de refus constant.
 
-Passé cela, le vendeur est prévenu, et les inscrits reçoivent l'adresse de
-secours — une seule fois, même si la panne dure des jours. Si le bot
+Passé cela, le vendeur est prévenu, et **les inscrits reçoivent le message
+de bascule** — une seule fois, même si la panne dure des jours. Si le bot
 principal revient, le vendeur l'apprend et le compteur repart à zéro.
+
+Ce que le client reçoit, dans la conversation du bot de secours :
+
+> 🆘 **TANJA HH 67**
+>
+> L'autre conversation ne répond plus. Rien n'a changé pour toi : le
+> catalogue, les prix et tes commandes sont intacts, et tout se passe
+> désormais ici.
+>
+> Garde cette conversation : c'est elle, maintenant, qui ouvre la boutique.
+>
+> `[ 🛒 Ouvrir la boutique ]`
+
+**Le bouton part avec le message**, et ce n'est pas un ornement : l'annonce
+dit « tout se passe ici maintenant » et, sans rien à toucher, elle demandait
+au client de retrouver seul un chemin qui venait justement de disparaître. Le
+bouton *est* la nouvelle porte. Sans `WEBAPP_URL` en https, il n'y en a pas —
+un bouton mort dans le message qui annonce la panne serait la deuxième
+mauvaise nouvelle en trois lignes.
+
+Le texte ne dit ni « supprimé », ni « banni », ni « fermé. » Le client s'en
+moque, et l'annonce d'une fermeture est exactement ce qui fait fuir. Il dit ce
+qui est vrai et utile.
+
+> ⚠️ **Seuls les inscrits sont joignables** — ceux qui ont fait `/start`
+> auprès du bot de secours avant la panne. Les autres ne recevront rien :
+> Telegram interdit formellement à un bot d'écrire le premier à quelqu'un qui
+> ne l'a jamais démarré. C'est toute la raison d'être de la porte d'entrée qui
+> demande ce `/start` — le filet se tend avant, jamais pendant.
 
 ### Ce que le secours ne fait pas
 

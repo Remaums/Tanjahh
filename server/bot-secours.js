@@ -309,15 +309,24 @@ export async function configurerLesCommandesDuSecours() {
  * panne. Rend le compte de ce qui est parti et de ce qui a été refusé — un
  * refus veut presque toujours dire « ce client a bloqué le bot », et on le
  * retire alors du registre pour ne pas le compter comme couvert.
+ *
+ * Le bouton de la boutique part avec le message, et ce n'est pas un ornement.
+ * Ce message-là dit « tout se passe ici maintenant » : sans rien à toucher,
+ * il demande au client de retrouver tout seul un chemin qui vient justement
+ * de disparaître. Le bouton EST la nouvelle porte.
+ *
+ * Sans adresse en https, pas de bouton : un bouton mort dans le message qui
+ * annonce la panne serait la deuxième mauvaise nouvelle en trois lignes.
  */
 export async function prevenirLesInscrits(texte, { destinataires, paquet = 20, pause = 1200 } = {}) {
   if (!botSecours) return { envoyes: 0, refuses: 0 };
   let envoyes = 0;
   let refuses = 0;
+  const clavier = clavierBoutique();
   const liste = destinataires ?? [];
   for (const [rang, id] of liste.entries()) {
     try {
-      await botSecours.api.sendMessage(id, texte);
+      await botSecours.api.sendMessage(id, texte, { reply_markup: clavier });
       envoyes += 1;
     } catch (err) {
       refuses += 1;
