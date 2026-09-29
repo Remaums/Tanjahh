@@ -422,9 +422,11 @@ bot.use(async (ctx, next) => {
    Mini App, déjà signé par Telegram ; et tout le monde, si la boutique n'a
    pas de second bot ou si le vendeur a éteint l'interrupteur. */
 
+// Le lien arrive entier : sa charge utile est posée par `lienDuSecours`, qui
+// seule sait la forme d'une adresse de bot.
 const clavierDuSecours = (lien) =>
   new InlineKeyboard()
-    .url('🆘 Ouvrir le bot de secours', `${lien}?start=entree`)
+    .url('🆘 Ouvrir le bot de secours', lien)
     .row()
     .text("J'ai écrit au bot de secours", 'sec:fait');
 

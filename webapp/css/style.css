@@ -558,6 +558,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   margin: 0 0 6px; font-size: 11.5px; font-weight: 800;
   letter-spacing: .18em; text-transform: uppercase; color: var(--neon);
 }
+/* « Étape 1 sur 2 » : discret, sous le sur-titre. Il renseigne, il
+   n'annonce pas — le titre de la marche reste ce qu'on lit en premier. */
+.gate__marches {
+  margin: 0 0 8px; font-size: 12px; font-weight: 700;
+  color: rgb(var(--cream-rgb) / .58);
+}
 .gate__title { font-size: 30px; line-height: 1.05; margin: 0; }
 .gate__text { margin: 10px 0 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
 .gate__fine {
@@ -1947,9 +1953,58 @@ video.favori__image { display: block; background: rgb(var(--ink-rgb) / .45); }
    couvrir le catalogue, et le seul coin que rien d'autre n'occupe. Elle
    est volontairement petite — c'est une ambiance qu'on propose, pas une
    fonction de la boutique. */
+/* Les deux pastilles flottantes — musique et langue — partagent une hauteur
+   de départ, pour qu'un seul réglage les déplace ensemble. */
+.juke, .lpastille { --pastille-bas: calc(var(--tabbar-h, 78px) + 14px); }
+/* Sur la fiche produit, la barre de commande prend le bas de l'écran : les
+   deux montent au-dessus plutôt que de se cacher dessous. */
+.juke--haut, .lpastille--haut {
+  --pastille-bas: calc(var(--tabbar-h, 78px) + var(--pbar-h, 68px) + 12px);
+}
+
+/* La pastille de langue : même cercle que celle de la musique, mais elle
+   n'ouvre rien elle-même — le `<select>` posé dessus s'en charge. */
+/* `z-index: 96` : au-dessus des voiles d'entrée (95), en dessous du contrôle
+   d'âge (100), du cadre d'accueil (110) et du rideau (120).
+   La ligne n'est pas arbitraire. La pastille flotte au-dessus des écrans qui
+   RETIENNENT le client — la porte du bot, le calcul, la vérification — parce
+   que c'est précisément là qu'un client qui ne lit pas la langue reste coincé
+   sur des consignes. Elle reste en dessous de ceux qui portent déjà leur
+   propre choix de langue (le cadre d'accueil) ou qui doivent être lus avant
+   tout le reste (le contrôle d'âge) : deux sélecteurs de langue sur le même
+   écran, c'est un de trop. */
+.lpastille {
+  position: fixed; inset-inline-end: 14px; z-index: 96;
+  bottom: var(--pastille-bas);
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgb(var(--night2-rgb) / .92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / .12);
+  box-shadow: 0 6px 18px rgb(0 0 0 / .45);
+  transition: bottom .22s ease, border-color .18s ease, transform .12s ease;
+}
+/* La musique est là : la langue se range au-dessus. Sans elle, la langue
+   prend la place du bas — une pastille seule flottant à mi-hauteur, avec un
+   trou en dessous, se lit comme un bouton qui a perdu son voisin. */
+.lpastille--empilee { bottom: calc(var(--pastille-bas) + 52px); }
+.lpastille:active { transform: scale(.9); }
+.lpastille__drapeau { font-size: 21px; line-height: 1; pointer-events: none; }
+/* Transparent et par-dessus tout le cercle : c'est lui qu'on touche.
+   `opacity: 0` et non `visibility: hidden` — un champ réellement masqué ne
+   reçoit plus l'appui, et la pastille ne ferait rien du tout. */
+.lpastille__liste {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; border: 0; padding: 0; margin: 0;
+  appearance: none; -webkit-appearance: none;
+  background: transparent; color: inherit; font: inherit;
+  cursor: pointer;
+}
+.lpastille:focus-within { border-color: rgb(var(--neon-rgb) / .55); }
+
 .juke {
   position: fixed; inset-inline-end: 14px; z-index: 34;
-  bottom: calc(var(--tabbar-h, 78px) + 14px);
+  bottom: var(--pastille-bas);
   width: 44px; height: 44px; padding: 0; border-radius: 50%;
   display: grid; place-items: center; cursor: pointer;
   color: rgb(var(--cream-rgb) / .72);
@@ -1960,11 +2015,9 @@ video.favori__image { display: block; background: rgb(var(--ink-rgb) / .45); }
   transition: bottom .22s ease, color .18s ease, border-color .18s ease,
               box-shadow .18s ease, transform .12s ease;
 }
-/* Sur la fiche produit, la barre de commande prend le bas de l'écran : la
-   pastille monte au-dessus plutôt que de se cacher dessous. La hauteur de
-   la barre est mesurée à l'affichage, donc ce calcul suit un article
-   épuisé comme un texte grossi par le téléphone. */
-.juke--haut { bottom: calc(var(--tabbar-h, 78px) + var(--pbar-h, 68px) + 12px); }
+/* La hauteur de la barre est mesurée à l'affichage : le calcul de
+   `--pastille-bas`, plus haut, suit donc un article épuisé comme un texte
+   grossi par le téléphone. */
 .juke:active { transform: scale(.9); }
 .juke__icone { width: 19px; height: 19px; }
 /* Les deux icônes occupent la même case : on en montre une à la fois, sans

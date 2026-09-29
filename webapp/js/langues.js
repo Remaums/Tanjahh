@@ -56,6 +56,7 @@ export const TEXTES = {
 
     /* ── La porte du bot ── */
     'porte.entree': 'Entrée',
+    'porte.marches': 'Étape {n} sur {total}',
     'porte.titre': "Un calcul, et c'est ouvert",
     'porte.texte':
       "Retourne dans la conversation du bot : il t'y pose une petite addition. " +
@@ -369,6 +370,7 @@ export const TEXTES = {
     'accueil.entrer': 'Enter the shop',
 
     'porte.entree': 'Entry',
+    'porte.marches': 'Step {n} of {total}',
     'porte.titre': 'One sum, and you’re in',
     'porte.texte':
       'Go back to the bot chat: it will give you a small sum. ' +
@@ -664,6 +666,7 @@ export const TEXTES = {
     'accueil.entrer': 'Entrar en la tienda',
 
     'porte.entree': 'Entrada',
+    'porte.marches': 'Paso {n} de {total}',
     'porte.titre': 'Una cuenta, y ya estás dentro',
     'porte.texte':
       'Vuelve a la conversación del bot: te pondrá una suma sencilla. ' +
@@ -960,6 +963,7 @@ export const TEXTES = {
     'accueil.entrer': 'Entra nel negozio',
 
     'porte.entree': 'Ingresso',
+    'porte.marches': 'Passaggio {n} di {total}',
     'porte.titre': 'Un calcolo, e si apre',
     'porte.texte':
       'Torna nella chat del bot: ti pone una piccola addizione. Rispondi, poi torna qui — il ' +
@@ -1235,6 +1239,7 @@ export const TEXTES = {
     'accueil.entrer': 'Naar de winkel',
 
     'porte.entree': 'Ingang',
+    'porte.marches': 'Stap {n} van {total}',
     'porte.titre': 'Eén sommetje en het is open',
     'porte.texte':
       'Ga terug naar het gesprek met de bot: daar krijg je een kleine optelsom. Beantwoord die en ' +
@@ -1514,6 +1519,7 @@ export const TEXTES = {
     'accueil.entrer': 'Entrar na loja',
 
     'porte.entree': 'Entrada',
+    'porte.marches': 'Passo {n} de {total}',
     'porte.titre': 'Uma conta, e está aberto',
     'porte.texte':
       'Volta à conversa do bot: ele põe-te uma pequena soma. Responde e volta — a loja abre ' +
@@ -1788,6 +1794,7 @@ export const TEXTES = {
     'accueil.entrer': 'Zum Shop',
 
     'porte.entree': 'Eingang',
+    'porte.marches': 'Schritt {n} von {total}',
     'porte.titre': 'Eine Rechnung, und es ist offen',
     'porte.texte':
       'Geh zurück in den Bot-Chat: Dort bekommst du eine kleine Additionsaufgabe. Beantworte sie ' +
@@ -2062,6 +2069,7 @@ export const TEXTES = {
     'accueil.entrer': 'ادخل المتجر',
 
     'porte.entree': 'الدخول',
+    'porte.marches': 'الخطوة {n} من {total}',
     'porte.titre': 'عملية حسابية واحدة، ويُفتح',
     'porte.texte':
       'عد إلى محادثة البوت: سيطرح عليك عملية جمع بسيطة. أجب عنها ثم عد إلى هنا — سيُفتح المتجر ' +

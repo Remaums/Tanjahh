@@ -236,7 +236,7 @@ function repeindreLesTextesFabriques() {
     renderLangues, renderStatut, renderClosedBanner, renderSousTitre,
     renderTitreDuBandeau, renderChiffres, renderGrid, renderCategories,
     renderRayons, renderContact, peindreLeJuke, renderSuggestionAvis, renderIdentite,
-    renderSecours,
+    renderSecours, peindreLesMarches, peindreLaPastilleDeLangue,
   ];
   for (const refaire of refaires) {
     try { refaire(); } catch { /* pas encore de données : le prochain rendu s'en chargera */ }
@@ -382,6 +382,7 @@ async function init() {
   renderSousTitre();
   renderTitreDuBandeau();
   monterLeJuke();
+  monterLaPastilleDeLangue();
   renderStatut();
   renderCategories();
   renderGrid();
@@ -1241,6 +1242,7 @@ function montrerLOnglet(nom) {
   // qu'un sélecteur conditionnel en CSS — celui-ci se serait appuyé sur
   // `:has()`, que toutes les WebView ne servent pas encore.
   $('juke')?.classList.toggle('juke--haut', nom === 'produit');
+  $('lpastille')?.classList.toggle('lpastille--haut', nom === 'produit');
   // Le panneau est ancré sur la pastille, qui monte ou descend selon la vue :
   // laissé ouvert, il se retrouverait décalé de la hauteur d'une barre.
   fermerLeMenu();
@@ -1459,6 +1461,30 @@ function peindreLaPorte(etat) {
     el.dataset.t = clefs[rang];
     el.textContent = t(clefs[rang]);
   });
+
+  // Le compte des marches, s'il y en a plus d'une. Une seule, et la ligne
+  // n'apprend rien : « étape 1 sur 1 » ne fait qu'ajouter un chiffre à lire.
+  state.porteMarche = (etat.marches ?? 1) > 1
+    ? { n: etat.marche ?? 1, total: etat.marches }
+    : null;
+  peindreLesMarches();
+}
+
+/**
+ * « Étape 1 sur 2 », dans la langue du moment.
+ *
+ * À part, et rejouée à chaque changement de langue, parce que ce libellé
+ * porte deux nombres : `data-t` ne sait rendre qu'une clef sans paramètre,
+ * et un client qui change de langue devant le voile — la liste est sur
+ * l'écran d'accueil, juste avant — lirait « Étape {n} sur {total} », en
+ * toutes lettres.
+ */
+function peindreLesMarches() {
+  const compte = $('porteMarches');
+  if (!compte) return;
+  const marche = state.porteMarche;
+  compte.hidden = !marche;
+  compte.textContent = marche ? t('porte.marches', { n: marche.n, total: marche.total }) : '';
 }
 
 /**
@@ -2828,6 +2854,60 @@ function monterLaListeDeLangues(hote, apresChoix) {
   });
   hote.replaceChildren(liste);
   return liste;
+}
+
+/**
+ * La pastille de langue, flottante et toujours là.
+ *
+ * Le choix ne vivait qu'à deux endroits : le cadre d'accueil, qui ne
+ * s'affiche qu'une fois, et le profil, à deux touches de là. Un client qui
+ * laisse passer le premier et ne pense pas au second reste dans une langue
+ * qu'il n'a pas choisie — huit langues que personne ne sait atteindre ne
+ * valent pas mieux qu'une seule.
+ *
+ * C'est le `<select>` transparent posé sur le drapeau qui reçoit l'appui,
+ * et le système ouvre sa propre liste : aucune WebView ne laisse déplier une
+ * liste native par script de façon fiable, et une liste refaite à la main
+ * perdrait la molette que le client connaît de tous ses autres réglages.
+ */
+function monterLaPastilleDeLangue() {
+  const liste = $('lpastilleListe');
+  if (!liste || liste.options.length) return;
+  liste.replaceChildren(
+    ...LANGUES.map((l) => {
+      const o = document.createElement('option');
+      o.value = l.code;
+      // Le nom est écrit, comme dans les deux autres listes : un drapeau
+      // désigne un pays, pas une langue, et qui ne reconnaît pas 🇲🇦 pour
+      // l'arabe resterait devant une pastille qu'il n'ose pas toucher.
+      o.textContent = `${l.drapeau}  ${l.nom}`;
+      return o;
+    })
+  );
+  liste.addEventListener('change', () => {
+    appliquerLaLangue(liste.value, { retenir: true });
+    haptic('light');
+  });
+  peindreLaPastilleDeLangue();
+}
+
+/** Le drapeau du moment, et la place de la pastille sous celle de la musique. */
+function peindreLaPastilleDeLangue() {
+  const hote = $('lpastille');
+  const liste = $('lpastilleListe');
+  if (!hote || !liste) return;
+
+  // Une seule langue : une pastille qui n'offre aucun choix n'est qu'un
+  // bouton de plus à contourner du pouce.
+  hote.hidden = LANGUES.length < 2;
+  liste.value = langue;
+  const drapeau = $('lpastilleDrapeau');
+  if (drapeau) drapeau.textContent = LANGUES.find((l) => l.code === langue)?.drapeau ?? '🌐';
+
+  // La musique occupe le bas : la langue se range au-dessus. Sans elle, elle
+  // prend la place du bas — une pastille seule flottant à mi-hauteur, avec un
+  // trou dessous, se lit comme un bouton qui a perdu son voisin.
+  hote.classList.toggle('lpastille--empilee', $('juke')?.hidden === false);
 }
 
 function renderLangues() {

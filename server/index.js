@@ -432,7 +432,10 @@ async function etatDeLEntree(id) {
   }
 
   const inscrit = secoursExige ? await estInscritAuSecours(id) : false;
-  const lien = secoursExige && !inscrit ? await lienDuSecours().catch(() => '') : '';
+  // `porte` : ce lien-là part du voile de la Mini App, où la boutique attend
+  // déjà ouverte derrière le client. Le bot de secours lui répondra donc d'y
+  // retourner, et non d'aller chercher l'autre conversation.
+  const lien = secoursExige && !inscrit ? await lienDuSecours('porte').catch(() => '') : '';
   const calculPasse = calculExige ? await estPasse(id) : false;
   return { ...socle, inscrit, lien, calculPasse };
 }
@@ -483,7 +486,9 @@ app.put('/api/langue', verifierLIdentite, async (req, res, next) => {
 app.get('/api/secours', verifierLIdentite, async (req, res, next) => {
   try {
     if (!secoursConfigure()) return res.json({ disponible: false });
-    const lien = await lienDuSecours();
+    // Même raison : la carte qui porte ce lien vit dans le profil de la
+    // Mini App, pas dans une conversation.
+    const lien = await lienDuSecours('porte');
     // Sans nom de bot, pas de lien : afficher une carte qui ne mène nulle
     // part serait pire que ne rien afficher, parce qu'elle serait touchée.
     if (!lien) return res.json({ disponible: false });

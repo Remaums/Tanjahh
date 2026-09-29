@@ -58,9 +58,20 @@ export async function usernameDuSecours() {
 }
 
 /** Le lien t.me qui ouvre la conversation du secours, ou '' s'il est inconnu. */
-export async function lienDuSecours() {
+export async function lienDuSecours(origine = 'entree') {
   const nom = await usernameDuSecours();
-  return nom ? `https://t.me/${nom}` : '';
+  // `?start=porte` plutôt que le lien nu. Un lien nu ouvre la fiche du bot,
+  // et Telegram n'y propose « Démarrer » que si la conversation n'existe pas
+  // encore : un client qui l'avait déjà ouverte sans rien envoyer tombait sur
+  // une conversation vide, sans rien à toucher, et revenait sans être
+  // inscrit. Avec une charge utile, Telegram présente toujours le bouton.
+  //
+  // Et elle dit d'où il vient : `porte` c'est le voile de la Mini App, où la
+  // boutique attend déjà ouverte derrière ; `entree` c'est le péage du bot
+  // principal, où c'est l'autre conversation qu'il doit retrouver. Deux
+  // chemins, deux phrases — se tromper de phrase, c'est renvoyer quelqu'un
+  // là d'où il ne vient pas.
+  return nom ? `https://t.me/${nom}?start=${encodeURIComponent(origine)}` : '';
 }
 
 if (botSecours) {
@@ -128,12 +139,13 @@ if (botSecours) {
     return poserLEpreuve(ctx, porte.epreuve);
   });
 
-  botSecours.command('start', (ctx) =>
-    // `?start=entree` : il arrive du péage du bot principal, où on vient de
-    // lui demander ce message. Le renvoyer tout de suite là-bas lui épargne
-    // de chercher comment revenir — et c'est là-bas que la boutique s'ouvre.
-    ctx.match === 'entree' ? renvoyerAuPrincipal(ctx) : accueillir(ctx)
-  );
+  botSecours.command('start', (ctx) => {
+    // Il arrive d'une porte : on ne lui souhaite pas la bienvenue comme à un
+    // visiteur qui passait par là, on lui dit que c'est fait et où aller.
+    if (ctx.match === 'entree') return renvoyerAuPrincipal(ctx);
+    if (ctx.match === 'porte') return renvoyerALaBoutique(ctx);
+    return accueillir(ctx);
+  });
   botSecours.command('boutique', (ctx) =>
     ctx.reply('Voilà le catalogue 👇', { reply_markup: clavierBoutique() })
   );
@@ -245,6 +257,33 @@ const renvoyerAuPrincipal = (ctx) => {
       'ici que tu recevrais la nouvelle adresse.\n\n' +
       "Maintenant retourne dans l'autre conversation — c'est là que la " +
       "boutique s'ouvre.",
+    { reply_markup: clavier }
+  );
+};
+
+/**
+ * Il vient du voile de la Mini App : la boutique l'attend, ouverte.
+ *
+ * Distinct de `renvoyerAuPrincipal`, qui renvoie vers l'autre conversation.
+ * Ici la boutique est restée ouverte derrière lui et se déverrouille toute
+ * seule : lui dire d'aller chercher une conversation serait un détour, et
+ * un détour de plus est exactement ce qu'on essaie de lui épargner.
+ *
+ * Le bouton rouvre la boutique directement quand l'adresse est utilisable.
+ * À défaut — une installation sans WEBAPP_URL en https — on retombe sur la
+ * conversation principale, qui, elle, sait l'ouvrir.
+ */
+const renvoyerALaBoutique = (ctx) => {
+  const clavier = urlUtilisable()
+    ? clavierBoutique()
+    : config.botUsername
+      ? new InlineKeyboard().url('← Revenir à la boutique', `https://t.me/${config.botUsername}`)
+      : undefined;
+  return ctx.reply(
+    "✅ C'est noté, tu es enregistré ici.\n\n" +
+      "Garde cette conversation : si l'autre bot venait à disparaître, c'est " +
+      'ici que tu recevrais la nouvelle adresse.\n\n' +
+      'Tu peux retourner dans la boutique — elle se déverrouille toute seule.',
     { reply_markup: clavier }
   );
 };

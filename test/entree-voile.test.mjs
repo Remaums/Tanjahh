@@ -90,5 +90,35 @@ check('Le calcul prend alors le relais', d.etape === 'calcul', JSON.stringify(d)
 d = inconnu({ lien: '', calculExige: false });
 check('Et sans calcul non plus, la boutique s ouvre', d.ouverte === true, JSON.stringify(d));
 
+console.log('\n── Le compte des marches ───────────────────────────');
+
+// Découvrir la seconde marche en revenant de la première, c'est se voir
+// déplacer le but — et c'est là qu'on abandonne. Le client doit savoir dès
+// le premier écran qu'il y en a deux.
+d = inconnu();
+check('Deux portes : « étape 1 sur 2 »', d.marche === 1 && d.marches === 2, JSON.stringify(d));
+
+d = inconnu({ inscrit: true, lien: '' });
+check('Une fois le secours écrit : « étape 2 sur 2 »',
+  d.marche === 2 && d.marches === 2, JSON.stringify(d));
+
+// Le piège : le lien disparaît de l'état dès que le client est inscrit — le
+// serveur ne le calcule plus, il ne sert plus à rien. Compter les marches
+// sur sa présence ferait lire « étape 1 sur 2 » puis « étape 1 sur 1 »,
+// comme si la première n'avait jamais eu lieu.
+check('Et la première marche continue de compter', d.marches === 2, String(d.marches));
+
+d = inconnu({ secoursExige: false });
+check('Le calcul seul ne compte qu une marche',
+  d.marche === 1 && d.marches === 1, JSON.stringify(d));
+
+d = inconnu({ calculExige: false });
+check('Le secours seul non plus', d.marche === 1 && d.marches === 1, JSON.stringify(d));
+
+// Une porte sans poignée ne se compte pas : l'annoncer donnerait à lire
+// « étape 1 sur 2 » à quelqu'un qui n'en franchira qu'une.
+d = inconnu({ lien: '' });
+check('Une porte sans poignée ne compte pas', d.marches === 1, JSON.stringify(d));
+
 console.log(`\nVoile d'entrée : ${failures ? `${failures} ÉCHEC(S)` : 'OK'}`);
 process.exit(failures ? 1 : 0);

@@ -96,7 +96,12 @@ check('… et la dit fermée', etat.requise === true && etat.ouverte === false, 
 // l'information que le client détient déjà, puisque c'est lui qui ne l'a
 // pas franchie.
 {
-  const permises = new Set(['requise', 'ouverte', 'etape', 'lien']);
+  // `marche` et `marches` sont venus avec le compte affiché sur le voile
+  // (« étape 1 sur 2 »). Ils passent la même épreuve que `etape` : ils ne
+  // renseignent personne. Combien de portes cette boutique a posées, et
+  // laquelle arrête ce client-là, c'est ce qu'il lit sur l'écran — et c'est
+  // lui qui ne les a pas franchies. Rien là-dedans n'aide à les franchir.
+  const permises = new Set(['requise', 'ouverte', 'etape', 'lien', 'marche', 'marches']);
   const surplus = Object.keys(etat).filter((k) => !permises.has(k));
   check('… sans rien dire de plus', surplus.length === 0, surplus.join(',') || Object.keys(etat).join(','));
   check("… et rien du calcul lui-même",

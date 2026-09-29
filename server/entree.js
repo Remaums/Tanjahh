@@ -27,7 +27,8 @@
  * @param {boolean} etat.inscrit       il a écrit au bot de secours
  * @param {boolean} etat.calculPasse   il a répondu au calcul
  * @param {string}  [etat.lien]        l'adresse du bot de secours
- * @returns {{requise: boolean, ouverte: boolean, etape?: 'secours'|'calcul', lien?: string}}
+ * @returns {{requise: boolean, ouverte: boolean, etape?: 'secours'|'calcul',
+ *            lien?: string, marche?: number, marches?: number}}
  */
 export function decisionDEntree({
   calculExige, secoursExige, admin, client, inscrit, calculPasse, lien = '',
@@ -41,13 +42,33 @@ export function decisionDEntree({
   // déjà payé de sa personne.
   if (admin || client) return { requise: true, ouverte: true };
 
+  // Combien de marches ce visiteur-là a devant lui, en comptant celle qu'il
+  // vient de franchir. Le client doit savoir dès la première qu'il y en a une
+  // seconde : la découvrir en revenant, c'est se voir déplacer le but, et
+  // c'est là qu'on abandonne. Le compte se fait donc ici, avec la décision,
+  // et non dans l'écran — deux calculs séparés finiraient par ne plus dire la
+  // même chose.
+  //
+  // La marche du secours compte encore une fois franchie (`inscrit`) : sinon
+  // le client lirait « étape 1 sur 2 », puis « étape 1 sur 1 », comme si la
+  // première n'avait jamais existé. Sans lien et sans inscription, elle ne
+  // compte pas — c'est une porte sans poignée, et on ne la lui montre pas.
+  const marcheSecours = secoursExige && (inscrit || Boolean(lien));
+  const marches = (marcheSecours ? 1 : 0) + (calculExige ? 1 : 0);
+
   // Sans lien, on ne retient personne : une porte sans poignée n'est pas une
   // porte, c'est un mur. Mieux vaut laisser passer que bloquer sur une
   // configuration à moitié faite.
   if (secoursExige && !inscrit && lien) {
-    return { requise: true, ouverte: false, etape: 'secours', lien };
+    return { requise: true, ouverte: false, etape: 'secours', lien, marche: 1, marches };
   }
 
   if (!calculExige) return { requise: true, ouverte: true };
-  return { requise: true, ouverte: Boolean(calculPasse), etape: 'calcul' };
+  return {
+    requise: true,
+    ouverte: Boolean(calculPasse),
+    etape: 'calcul',
+    marche: marcheSecours ? 2 : 1,
+    marches,
+  };
 }

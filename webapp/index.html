@@ -141,6 +141,12 @@
 <div class="gate" id="porte" hidden>
   <div class="gate__card">
     <p class="gate__eyebrow" id="porteEntree" data-t="porte.entree">Entrée</p>
+    <!-- « Étape 1 sur 2 ». Affiché seulement quand il y a vraiment deux
+         marches : découvrir la seconde en revenant de la première, c'est se
+         voir déplacer le but, et c'est là qu'on abandonne. `aria-live` parce
+         que le voile ne se recharge pas entre les deux — seul son texte
+         change, et sans ça une synthèse vocale ne dirait rien du passage. -->
+    <p class="gate__marches" id="porteMarches" aria-live="polite" hidden></p>
     <h2 class="gate__title goldtext" id="porteTitre" data-t="porte.titre">Un calcul, et c'est ouvert</h2>
     <p class="gate__text" id="porteTexte" data-t="porte.texte">
       Retourne dans la conversation du bot : il t'y pose une petite addition.
@@ -554,6 +560,25 @@
 
      `preload="none"` : tant que personne n'appuie, pas un octet d'audio
      ne part. Un client venu acheter ne paie pas l'ambiance. -->
+<!-- ══ La pastille de langue ══
+
+     Le choix était posé à deux endroits seulement : le cadre d'accueil, qui
+     ne s'affiche qu'une fois, et le profil, à deux touches de là. Un client
+     qui laisse passer le premier et ne pense pas au second reste dans une
+     langue qu'il n'a pas choisie — la boutique avait huit langues que
+     personne ne savait atteindre.
+
+     Elle est donc flottante, comme celle de la musique, et visible partout.
+     Le `<select>` transparent est posé PAR-DESSUS le drapeau : c'est lui qui
+     reçoit l'appui, et le système ouvre sa propre liste. Rien à ouvrir en
+     JavaScript — aucune WebView ne laisse déplier une liste native au clavier
+     ou par script de façon fiable, et une liste refaite à la main perdrait la
+     molette que le client connaît de tous ses autres réglages. -->
+<div class="lpastille" id="lpastille" hidden>
+  <span class="lpastille__drapeau" id="lpastilleDrapeau" aria-hidden="true">🇫🇷</span>
+  <select class="lpastille__liste" id="lpastilleListe" aria-label="Langue" data-t-aria="profil.langue"></select>
+</div>
+
 <button class="juke" id="juke" type="button" hidden
         aria-label="Ouvrir le lecteur de musique" data-t-aria="juke.ouvrir" aria-expanded="false" aria-controls="jukeMenu">
   <svg class="juke__icone juke__icone--play" viewBox="0 0 24 24" aria-hidden="true">

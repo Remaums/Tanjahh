@@ -741,6 +741,34 @@ La deuxième compte plus qu'il n'y paraît : un client dont Telegram est déjà
 dans sa langue n'a rien à régler, et un réglage qu'on n'a pas besoin de
 toucher est le meilleur des réglages.
 
+### Où on en change
+
+Trois endroits, et le troisième est celui qui manquait :
+
+| | |
+|---|---|
+| **Le cadre d'accueil** | la liste des huit langues, à la première visite |
+| **Le profil** | la même liste, en tête de l'écran |
+| **La pastille flottante** | en bas à droite, **sur tous les écrans** |
+
+Les deux premiers ne suffisaient pas. Le cadre d'accueil ne s'affiche qu'une
+fois ; le profil est à deux touches de là, et il faut savoir qu'il y a quelque
+chose à y chercher. Un client qui laisse passer le premier restait dans une
+langue qu'il n'avait pas choisie — huit langues que personne ne sait atteindre
+ne valent pas mieux qu'une seule.
+
+La pastille porte le drapeau du moment et ouvre la liste du système, celle que
+le client connaît de tous ses autres réglages. Elle flotte **au-dessus des
+écrans qui le retiennent** — la porte du bot de secours, le calcul, la
+vérification d'identité — parce que c'est précisément là qu'un client qui ne
+lit pas la langue reste coincé sur des consignes. Elle reste **en dessous** du
+cadre d'accueil, qui porte déjà sa propre liste, et du contrôle d'âge, qui se
+lit avant tout le reste.
+
+Quand la musique d'ambiance est allumée, les deux pastilles se rangent l'une
+au-dessus de l'autre, et montent ensemble au-dessus de la barre de commande
+sur une fiche produit.
+
 ### Le choix est partagé
 
 C'est le serveur qui le garde, pas le navigateur. Sans cet endroit commun,
@@ -844,6 +872,29 @@ BOT_USERNAME_SECOURS=ma_boutique_secours_bot
 
 Laisse ces lignes vides et tout ce qui suit s'éteint : pas de second bot,
 pas de carte dans la boutique, pas de veille. Rien ne casse.
+
+### Deux marches, annoncées comme telles
+
+Quand les deux portes sont allumées — le bot de secours **et** le calcul — le
+voile d'entrée affiche **« Étape 1 sur 2 »**, puis « Étape 2 sur 2 ».
+
+Ce n'est pas une décoration. Sans ce compte, le client faisait la première
+marche, revenait, et découvrait une seconde porte dont personne ne lui avait
+parlé : c'est se voir déplacer le but, et c'est là qu'on abandonne. Le compte
+est calculé avec la décision d'entrée, jamais dans l'écran — deux calculs
+séparés finiraient par ne plus dire la même chose.
+
+La ligne ne s'affiche que s'il y a vraiment deux marches. Une seule, et
+« étape 1 sur 1 » n'ajouterait qu'un chiffre à lire.
+
+> Le lien vers le bot de secours porte `?start=porte`. Un lien nu ouvre la
+> fiche du bot, et Telegram n'y propose « Démarrer » que si la conversation
+> n'existe pas encore : un client qui l'avait déjà ouverte sans rien envoyer
+> tombait sur une conversation vide, sans rien à toucher, et revenait sans
+> être inscrit. La charge utile dit aussi d'où il vient — `porte` pour le
+> voile de la Mini App, où la boutique attend déjà ouverte derrière lui,
+> `entree` pour le péage du bot principal, où c'est l'autre conversation
+> qu'il doit retrouver. Deux chemins, deux phrases.
 
 ### Le premier /start passe par lui
 
