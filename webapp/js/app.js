@@ -1379,13 +1379,6 @@ function renderContact() {
   if (state.fulfillment?.pickup) lignes.push(['🤝', t('contact.retrait'), t('contact.retraitDetail')]);
   if (state.fulfillment?.delivery) lignes.push(['🛵', t('contact.livraison'), t('contact.livraisonDetail')]);
   lignes.push(['💶', t('contact.especes'), t('contact.especesDetail')]);
-  // Le compte Snapchat, quand c'est là que se prennent les commandes. Le
-  // bouton « Commander » y emmène directement, mais le toast qui donne le
-  // pseudo dure deux secondes : sans cette ligne, un client qui l'a laissé
-  // passer n'a plus aucun moyen de retrouver le compte depuis la boutique.
-  if (state.contact?.snapchat) {
-    lignes.push(['👻', 'Snapchat', `@${state.contact.snapchat}`]);
-  }
 
   $('contactInfos').replaceChildren(
     ...lignes.map(([emoji, titre, detail]) => {
@@ -3531,13 +3524,17 @@ async function refreshCatalog() {
  * remise, remise en main propre ou livraison) se dit en deux phrases, et
  * mieux que par un formulaire.
  */
-function buildOrderMessage(produit, variante) {
+function ligneDeCommande(produit, variante) {
   const format = variante ? ` — ${variante.label}` : '';
   const prix = variante?.price ?? produit.price;
+  return `• ${produit.name}${format}${prix ? ` — ${formatPrice(prix)}` : ''}`;
+}
+
+function buildOrderMessage(produit, variante) {
   return [
     t('msg.bonjourCommander', { boutique: state.shop.shopName }),
     '',
-    `• ${produit.name}${format}${prix ? ` — ${formatPrice(prix)}` : ''}`,
+    ligneDeCommande(produit, variante),
   ].join('\n');
 }
 
@@ -3558,17 +3555,17 @@ function commanderCeProduit() {
   const produit = state.current;
   if (!produit) return;
   const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
-  const message = buildOrderMessage(produit, variante);
 
   // Snapchat d'abord, quand le vendeur en a donné un : c'est là qu'il prend
   // ses commandes. Sans pseudo Snapchat, le bouton fait ce qu'il a toujours
   // fait, et la boutique n'a pas besoin d'être redéployée pour changer d'avis.
   if (state.contact?.snapchat) {
-    ouvrirSnapchat(message);
-    haptic('success');
-    montrerLOnglet(state.retour);
+    montrerOuCommander();
+    haptic('light');
     return;
   }
+
+  const message = buildOrderMessage(produit, variante);
 
   if (!state.shop.sellerUsername) {
     toast(t('msg.vendeurAbsent'));
@@ -3580,67 +3577,19 @@ function commanderCeProduit() {
 }
 
 /**
- * Emmène le client sur le Snapchat du vendeur, sa commande en poche.
+ * Dit COMMENT commander, et rien d'autre.
  *
- * Telegram accepte `?text=` et dépose la phrase dans le champ de saisie.
- * Snapchat n'a pas d'équivalent : aucun lien public n'ouvre une
- * conversation avec un message pré-rempli — `snapchat.com/add/pseudo`
- * ouvre la fiche du compte, et c'est tout ce qu'on peut viser. Le client
- * arriverait donc devant un champ vide, et devrait retaper le nom exact du
- * produit et son format de mémoire, après avoir quitté la boutique.
+ * Le bouton ouvrait Snapchat, puis a montré le compte. Il n'indique plus que
+ * la marche à suivre : le compte du vendeur ne s'affiche pas dans une
+ * boutique ouverte à tous, il se donne ailleurs. Rien à copier, rien à
+ * recopier, aucune adresse — le panneau informe, un point c'est tout.
  *
- * D'où la copie : la ligne est dans le presse-papier avant qu'on parte, et
- * il lui reste un appui long. Si la copie échoue — la WebView de Telegram
- * n'expose pas toujours le presse-papier — on ne fait pas semblant : on le
- * dit, et on nomme le compte pour qu'il puisse s'y retrouver.
+ * La fiche reste derrière : le client referme et retrouve ce qu'il regardait.
+ * Une redirection le sortait de la boutique au moment précis où il venait de
+ * choisir, et s'il revenait il avait oublié sur quoi.
  */
-function ouvrirSnapchat(message) {
-  const pseudo = state.contact.snapchat;
-  const url = `https://www.snapchat.com/add/${encodeURIComponent(pseudo)}`;
-
-  // La copie part AVANT l'ouverture du lien : `openLink` passe la main à
-  // Snapchat, et un presse-papier écrit après coup n'arrive jamais.
-  copierLeTexte(message).then((copie) => {
-    toast(copie ? t('msg.snapCopie') : t('msg.snapColle', { pseudo }));
-  });
-
-  // `openTelegramLink` ne sait ouvrir que des liens t.me — il refuserait
-  // celui-ci en silence. `openLink` est fait pour le reste du web.
-  if (tg?.openLink) tg.openLink(url);
-  else window.open(url, '_blank', 'noopener');
-}
-
-/**
- * Copie un texte, et dit honnêtement si ça a marché.
- *
- * `navigator.clipboard` manque dans une partie des WebView de Telegram, et
- * n'existe pas hors contexte sécurisé. Le vieux `execCommand('copy')` sur
- * un champ caché y marche encore : c'est le seul filet qui rattrape ces
- * cas-là. Aucune exception ne sort d'ici — un presse-papier récalcitrant
- * ne doit pas empêcher d'ouvrir Snapchat.
- */
-async function copierLeTexte(texte) {
-  try {
-    await navigator.clipboard.writeText(texte);
-    return true;
-  } catch {
-    /* on tente le filet ci-dessous */
-  }
-  try {
-    const champ = document.createElement('textarea');
-    champ.value = texte;
-    // Hors écran plutôt que `hidden` : un champ réellement masqué ne se
-    // sélectionne pas, et la copie échouerait sans rien dire.
-    champ.setAttribute('readonly', '');
-    champ.style.cssText = 'position:fixed;top:-1000px;opacity:0';
-    document.body.append(champ);
-    champ.select();
-    const fait = document.execCommand('copy');
-    champ.remove();
-    return fait;
-  } catch {
-    return false;
-  }
+function montrerOuCommander() {
+  openSheet('commandeSheet');
 }
 
 /**
@@ -3851,6 +3800,11 @@ function openSheet(id) {
   closeSheets();
   $(id).hidden = false;
   document.body.style.overflow = 'hidden';
+  // La pastille de langue flotte au-dessus des voiles d'entrée — c'est voulu,
+  // c'est là qu'un client perdu en a besoin. Au-dessus d'un panneau qu'on
+  // lit, elle se pose en travers du texte : elle s'efface le temps qu'il
+  // soit ouvert.
+  document.body.classList.add('feuille-ouverte');
   syncBackButton();
   syncMainButton();
   // Les places partent pendant qu'on remplit son panier : on rafraîchit à
@@ -3865,6 +3819,7 @@ function closeSheets() {
   // fiche ne doit pas couper la vidéo qu'on regardait derrière.
   for (const sheet of document.querySelectorAll('.sheet')) sheet.hidden = true;
   document.body.style.overflow = '';
+  document.body.classList.remove('feuille-ouverte');
   syncBackButton();
   syncMainButton();
 }

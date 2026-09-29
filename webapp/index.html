@@ -705,6 +705,27 @@
   </div>
 </div>
 
+<!-- ══ Pour commander ══ ══════════════════════════════════════
+     Le bouton « Commander » n'emmène nulle part et ne donne aucune
+     adresse : il indique la marche à suivre, et c'est tout. Le compte
+     du vendeur ne s'affiche pas dans la boutique — il se donne
+     ailleurs, et une boutique ouverte à tous n'est pas l'endroit pour
+     l'afficher. -->
+<div class="sheet" id="commandeSheet" hidden>
+  <div class="sheet__backdrop" data-close></div>
+  <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="commandeTitre">
+    <button class="sheet__close" type="button" data-close aria-label="Fermer" data-t-aria="aria.fermer">✕</button>
+    <div class="sheet__scroll">
+      <p class="commande__icone" aria-hidden="true">👻</p>
+      <h2 class="feuille__titre goldtext" id="commandeTitre" data-t="snap.titre">Pour commander</h2>
+      <p class="commande__texte" data-t="snap.texte"></p>
+    </div>
+    <div class="sheet__bar">
+      <button class="btn btn--primary btn--grow" type="button" data-close data-t="snap.compris">J'ai compris</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ Profil ══ ═══════════════════════════════════════════════
      Trois sections sous un seul toit : ce qu'il a commandé, ce
      qu'il garde de côté, et ce qu'il accepte de recevoir. Un

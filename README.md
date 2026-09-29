@@ -187,38 +187,32 @@ Mini App d'administration s'ouvre avec quatre onglets.
 
 ### Où mènent les commandes
 
-Cette boutique ne prend pas la commande : elle amène le client au vendeur.
-Le bouton **Commander** d'une fiche produit ouvre donc une conversation, et
-**Réglages → Où mènent les commandes** décide laquelle.
+Cette boutique ne prend pas la commande : elle amène le client au vendeur. Le
+bouton **Commander** d'une fiche produit **n'emmène nulle part** — il ouvre un
+panneau qui indique la marche à suivre :
 
-| Champ *Compte Snapchat* | Ce que fait le bouton |
+> 👻 **Pour commander**
+> Les commandes se prennent sur Snapchat : envoie-nous un message là-bas. La
+> boutique, elle, sert à choisir.
+
+**Aucune adresse n'est donnée.** Ni le compte, ni un lien, ni la commande à
+recopier : le panneau informe, un point c'est tout. Le compte du vendeur ne
+s'affiche nulle part dans la boutique — ni sur ce panneau, ni sur l'écran
+Contact — parce qu'une boutique ouverte à tous n'est pas l'endroit pour
+l'afficher. Il se donne ailleurs, comme le vendeur l'entend.
+
+La fiche reste ouverte derrière : le client referme le panneau et retrouve ce
+qu'il regardait. Une redirection le sortait de la boutique au moment précis où
+il venait de choisir, et s'il revenait il avait oublié sur quoi.
+
+| Champ *Compte Snapchat*, dans Réglages | Ce que fait le bouton |
 |---|---|
-| rempli | ouvre `snapchat.com/add/<pseudo>` |
+| rempli | ouvre le panneau « Pour commander » |
 | vide | rouvre la conversation Telegram du vendeur, avec la commande écrite dedans |
 
-Colle ce que tu as sous la main — le lien de partage que Snapchat te donne,
-`@pseudo` ou le pseudo nu : les trois marchent. Seul le pseudo est gardé, et
-le lien se refabrique à l'affichage.
-
-> **Snapchat ne sait pas pré-remplir un message.** Telegram accepte `?text=`
-> et dépose la phrase dans le champ de saisie ; aucun lien Snapchat public ne
-> fait l'équivalent — `snapchat.com/add/…` ouvre la fiche du compte, et c'est
-> tout ce qu'on peut viser. Le client arriverait donc devant un champ vide,
-> à retaper de mémoire le nom exact du produit et son format, après avoir
-> quitté la boutique.
->
-> La boutique **copie donc la commande dans son presse-papier** avant de
-> l'emmener : il lui reste un appui long pour la coller. Et quand la copie
-> échoue — `navigator.clipboard` manque dans une partie des WebView de
-> Telegram — elle ne fait pas semblant : elle le dit et nomme le compte.
-
-Le compte apparaît aussi en clair sur l'écran **Contact**, sous les horaires.
-Le message qui annonce la copie dure deux secondes ; sans cette ligne, un
-client qui l'a laissé passer n'aurait plus aucun moyen de retrouver le compte
-depuis la boutique.
-
-Vider le champ remet tout comme avant. C'est le chemin du retour en arrière,
-et il ne demande aucun redéploiement.
+Le champ n'est donc plus qu'un **interrupteur** : ce qu'on y met n'apparaît
+jamais côté client. Colle ce que tu as sous la main — le lien de partage,
+`@pseudo` ou le pseudo nu ; seul le pseudo est gardé.
 
 ### Le cycle d'une commande
 

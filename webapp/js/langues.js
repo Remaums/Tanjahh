@@ -276,8 +276,9 @@ export const TEXTES = {
 
     /* ── Ce qu'on écrit au vendeur ── */
     'msg.bonjourCommander': 'Bonjour ! Je voudrais commander sur {boutique} ⚡',
-    'msg.snapCopie': 'Ta commande est copiée — colle-la dans Snap 👻',
-    'msg.snapColle': 'Écris ta commande à {pseudo} sur Snap 👻',
+    'snap.titre': 'Pour commander',
+    'snap.texte': 'Les commandes se prennent sur Snapchat : envoie-nous un message là-bas. La boutique, elle, sert à choisir.',
+    'snap.compris': 'J\'ai compris',
     'msg.bonjourQuestion': 'Bonjour ! Une question sur {boutique} ⚡',
     'msg.bonjourRecommander': 'Bonjour ! Je voudrais recommander la même chose sur {boutique} ⚡',
     'msg.article': 'Article',
@@ -578,8 +579,9 @@ export const TEXTES = {
 
     /* ── Ce qu'on écrit au vendeur ── */
     'msg.bonjourCommander': 'Hello! I would like to order from {boutique} ⚡',
-    'msg.snapCopie': 'Your order is copied — paste it into Snap 👻',
-    'msg.snapColle': 'Send your order to {pseudo} on Snap 👻',
+    'snap.titre': 'To order',
+    'snap.texte': 'Orders are taken on Snapchat: send us a message there. The shop is for choosing.',
+    'snap.compris': 'Got it',
     'msg.bonjourQuestion': 'Hello! A question about {boutique} ⚡',
     'msg.bonjourRecommander': 'Hello! I would like to order the same thing again from {boutique} ⚡',
     'msg.article': 'Item',
@@ -876,8 +878,9 @@ export const TEXTES = {
 
     /* ── Ce qu'on écrit au vendeur ── */
     'msg.bonjourCommander': '¡Hola! Quiero hacer un pedido en {boutique} ⚡',
-    'msg.snapCopie': 'Tu pedido está copiado: pégalo en Snap 👻',
-    'msg.snapColle': 'Envía tu pedido a {pseudo} en Snap 👻',
+    'snap.titre': 'Para pedir',
+    'snap.texte': 'Los pedidos se hacen por Snapchat: envíanos un mensaje allí. La tienda sirve para elegir.',
+    'snap.compris': 'Entendido',
     'msg.bonjourQuestion': '¡Hola! Una pregunta sobre {boutique} ⚡',
     'msg.bonjourRecommander': '¡Hola! Quiero repetir el mismo pedido en {boutique} ⚡',
     'msg.article': 'Artículo',
@@ -1160,8 +1163,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Stessa categoria · {cat}',
 
     'msg.bonjourCommander': 'Ciao! Vorrei ordinare da {boutique} ⚡',
-    'msg.snapCopie': 'Il tuo ordine è copiato: incollalo su Snap 👻',
-    'msg.snapColle': 'Manda il tuo ordine a {pseudo} su Snap 👻',
+    'snap.titre': 'Per ordinare',
+    'snap.texte': 'Gli ordini si prendono su Snapchat: mandaci un messaggio lì. Il negozio serve a scegliere.',
+    'snap.compris': 'Ho capito',
     'msg.bonjourQuestion': 'Ciao! Una domanda su {boutique} ⚡',
     'msg.bonjourRecommander': 'Ciao! Vorrei riordinare la stessa cosa da {boutique} ⚡',
     'msg.article': 'Articolo',
@@ -1442,8 +1446,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Zelfde categorie · {cat}',
 
     'msg.bonjourCommander': 'Hallo! Ik wil graag bestellen bij {boutique} ⚡',
-    'msg.snapCopie': 'Je bestelling is gekopieerd — plak hem in Snap 👻',
-    'msg.snapColle': 'Stuur je bestelling naar {pseudo} op Snap 👻',
+    'snap.titre': 'Om te bestellen',
+    'snap.texte': 'Bestellingen gaan via Snapchat: stuur ons daar een bericht. De winkel is om te kiezen.',
+    'snap.compris': 'Begrepen',
     'msg.bonjourQuestion': 'Hallo! Een vraag over {boutique} ⚡',
     'msg.bonjourRecommander': 'Hallo! Ik wil graag hetzelfde opnieuw bestellen bij {boutique} ⚡',
     'msg.article': 'Artikel',
@@ -1720,8 +1725,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Mesma categoria · {cat}',
 
     'msg.bonjourCommander': 'Olá! Queria encomendar na {boutique} ⚡',
-    'msg.snapCopie': 'A tua encomenda está copiada — cola-a no Snap 👻',
-    'msg.snapColle': 'Envia a tua encomenda para {pseudo} no Snap 👻',
+    'snap.titre': 'Para encomendar',
+    'snap.texte': 'As encomendas fazem-se no Snapchat: envia-nos uma mensagem por lá. A loja serve para escolher.',
+    'snap.compris': 'Percebi',
     'msg.bonjourQuestion': 'Olá! Uma pergunta sobre a {boutique} ⚡',
     'msg.bonjourRecommander': 'Olá! Queria repetir a mesma encomenda na {boutique} ⚡',
     'msg.article': 'Artigo',
@@ -1999,8 +2005,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Gleiche Kategorie · {cat}',
 
     'msg.bonjourCommander': 'Hallo! Ich würde gern bei {boutique} bestellen ⚡',
-    'msg.snapCopie': 'Deine Bestellung ist kopiert — füg sie in Snap ein 👻',
-    'msg.snapColle': 'Schick deine Bestellung an {pseudo} auf Snap 👻',
+    'snap.titre': 'Zum Bestellen',
+    'snap.texte': 'Bestellt wird über Snapchat: schick uns dort eine Nachricht. Der Shop ist zum Aussuchen.',
+    'snap.compris': 'Verstanden',
     'msg.bonjourQuestion': 'Hallo! Eine Frage zu {boutique} ⚡',
     'msg.bonjourRecommander': 'Hallo! Ich würde gern dasselbe nochmal bei {boutique} bestellen ⚡',
     'msg.article': 'Artikel',
@@ -2264,8 +2271,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'الفئة نفسها · {cat}',
 
     'msg.bonjourCommander': 'مرحباً! أودّ الطلب من {boutique} ⚡',
-    'msg.snapCopie': 'طلبك منسوخ — الصقه في سناب 👻',
-    'msg.snapColle': 'أرسل طلبك إلى {pseudo} على سناب 👻',
+    'snap.titre': 'للطلب',
+    'snap.texte': 'الطلبات تُؤخذ على سناب شات: أرسل لنا رسالة هناك. المتجر للاختيار.',
+    'snap.compris': 'فهمت',
     'msg.bonjourQuestion': 'مرحباً! عندي سؤال عن {boutique} ⚡',
     'msg.bonjourRecommander': 'مرحباً! أودّ إعادة الطلب نفسه من {boutique} ⚡',
     'msg.article': 'منتج',
