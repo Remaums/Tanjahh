@@ -33,16 +33,23 @@ export const FEATURES = [
   {
     key: 'captcha',
     label: 'Épreuve anti-robot',
-    hint: 'Une grille de tuiles à résoudre avant de pouvoir commander.',
+    hint:
+      "Une pièce à faire glisser à sa place sur une image du film d'ouverture, " +
+      'avant de pouvoir commander.',
     default: true,
   },
   {
     key: 'botCaptcha',
-    label: "Épreuve d'entrée du bot",
+    label: "Calcul d'entrée du bot (ancien)",
     hint:
       "Un petit calcul au premier /start, avant que le bot ne réponde. " +
-      "Un client qui a déjà commandé n'y est pas soumis, et l'administrateur non plus.",
-    default: true,
+      "Éteint d'origine : l'épreuve d'entrée est désormais le puzzle de la " +
+      "boutique, et deux épreuves à la suite font partir les clients. " +
+      "Rallume-le seulement si tu veux les deux.",
+    // Éteint par défaut depuis que le puzzle existe. Une boutique déjà en
+    // service garde son réglage : un défaut ne remonte pas dans un fichier
+    // écrit, et personne ne doit voir sa porte s'ouvrir sans l'avoir demandé.
+    default: false,
   },
   {
     key: 'porteSecours',

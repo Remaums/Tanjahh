@@ -26,13 +26,15 @@ export async function getShopPass(base, initData) {
   const challenge = await res.json();
   if (!challenge.required) return '';
 
-  // Les leurres sont tirés sans remise : la seule tuile répétée est la cible.
-  const counts = new Map();
-  for (const tile of challenge.tiles) counts.set(tile, (counts.get(tile) ?? 0) + 1);
-  const target = [...counts.entries()].find(([, n]) => n > 1)?.[0];
-  const selection = challenge.tiles
-    .map((tile, index) => (tile === target ? index : -1))
-    .filter((index) => index >= 0);
+  // L'épreuve est un puzzle : la pièce va à l'endroit du trou, que le serveur
+  // annonce pour qu'on puisse le dessiner. Et un geste, car le serveur refuse
+  // un dépôt qui n'a pris aucun temps — la suite fait donc ce qu'un doigt
+  // fait, en plus vite.
+  const debut = Date.now();
+  const trace = Array.from({ length: 8 }, (_, i) => ({
+    t: debut + i * 30,
+    x: Math.round((challenge.x * (i + 1)) / 8),
+  }));
 
   const solved = await fetch(`${base}/api/captcha`, {
     method: 'POST',
@@ -41,7 +43,8 @@ export async function getShopPass(base, initData) {
       nonce: challenge.nonce,
       expiresAt: challenge.expiresAt,
       token: challenge.token,
-      selection,
+      x: challenge.x,
+      trace,
     }),
   });
   if (!solved.ok) throw new Error(`Épreuve d'entrée non résolue : HTTP ${solved.status}`);

@@ -77,7 +77,9 @@ export const TEXTES = {
 
     /* ── L'épreuve de tuiles ── */
     'tuiles.entete': 'Vérification',
-    'tuiles.consigne': 'Touche les 3 feuilles',
+    'tuiles.consigne': 'Remets la pièce à sa place',
+    'tuiles.aide': 'Fais-la glisser du doigt — ou avec les flèches du clavier.',
+    'tuiles.pieceAria': 'La pièce à replacer',
     'tuiles.texte': "Une seconde, le temps de vérifier que tu n'es pas un robot.",
     'tuiles.valider': 'Valider',
 
@@ -389,7 +391,9 @@ export const TEXTES = {
     'age.non': 'No',
 
     'tuiles.entete': 'Check',
-    'tuiles.consigne': 'Tap the 3 leaves',
+    'tuiles.consigne': 'Put the missing piece back',
+    'tuiles.aide': 'Slide it with your finger — or use the arrow keys.',
+    'tuiles.pieceAria': 'The missing piece',
     'tuiles.texte': 'One moment, just checking you are not a robot.',
     'tuiles.valider': 'Confirm',
 
@@ -685,7 +689,9 @@ export const TEXTES = {
     'age.non': 'No',
 
     'tuiles.entete': 'Comprobación',
-    'tuiles.consigne': 'Toca las 3 hojas',
+    'tuiles.consigne': 'Vuelve a colocar la pieza',
+    'tuiles.aide': 'Deslízala con el dedo — o usa las flechas del teclado.',
+    'tuiles.pieceAria': 'La pieza que falta',
     'tuiles.texte': 'Un momento, comprobamos que no eres un robot.',
     'tuiles.valider': 'Validar',
 
@@ -982,7 +988,9 @@ export const TEXTES = {
     'age.non': 'No',
 
     'tuiles.entete': 'Verifica',
-    'tuiles.consigne': 'Tocca le 3 foglie',
+    'tuiles.consigne': 'Rimetti il pezzo al suo posto',
+    'tuiles.aide': 'Trascinalo col dito — o usa le frecce della tastiera.',
+    'tuiles.pieceAria': 'Il pezzo mancante',
     'tuiles.texte': 'Un attimo, il tempo di verificare che non sei un robot.',
     'tuiles.valider': 'Conferma',
 
@@ -1258,7 +1266,9 @@ export const TEXTES = {
     'age.non': 'Nee',
 
     'tuiles.entete': 'Controle',
-    'tuiles.consigne': 'Tik de 3 blaadjes aan',
+    'tuiles.consigne': 'Leg het ontbrekende stuk terug',
+    'tuiles.aide': 'Schuif het met je vinger — of gebruik de pijltjestoetsen.',
+    'tuiles.pieceAria': 'Het ontbrekende stuk',
     'tuiles.texte': 'Even kijken of je geen robot bent.',
     'tuiles.valider': 'Bevestigen',
 
@@ -1537,7 +1547,9 @@ export const TEXTES = {
     'age.non': 'Não',
 
     'tuiles.entete': 'Verificação',
-    'tuiles.consigne': 'Toca nas 3 folhas',
+    'tuiles.consigne': 'Repõe a peça em falta',
+    'tuiles.aide': 'Arrasta-a com o dedo — ou usa as setas do teclado.',
+    'tuiles.pieceAria': 'A peça em falta',
     'tuiles.texte': 'Um segundo, para verificar que não és um robô.',
     'tuiles.valider': 'Confirmar',
 
@@ -1813,7 +1825,9 @@ export const TEXTES = {
     'age.non': 'Nein',
 
     'tuiles.entete': 'Prüfung',
-    'tuiles.consigne': 'Tippe die 3 Blätter an',
+    'tuiles.consigne': 'Setz das fehlende Stück ein',
+    'tuiles.aide': 'Zieh es mit dem Finger — oder nimm die Pfeiltasten.',
+    'tuiles.pieceAria': 'Das fehlende Stück',
     'tuiles.texte': 'Einen Moment, wir prüfen nur kurz, dass du kein Roboter bist.',
     'tuiles.valider': 'Bestätigen',
 
@@ -2086,7 +2100,9 @@ export const TEXTES = {
     'age.non': 'لا',
 
     'tuiles.entete': 'تحقّق',
-    'tuiles.consigne': 'اضغط على الأوراق الثلاث',
+    'tuiles.consigne': 'أعد القطعة إلى مكانها',
+    'tuiles.aide': 'اسحبها بإصبعك — أو استخدم أسهم لوحة المفاتيح.',
+    'tuiles.pieceAria': 'القطعة الناقصة',
     'tuiles.texte': 'لحظة واحدة، للتأكّد أنك لست روبوتاً.',
     'tuiles.valider': 'تأكيد',
 

@@ -48,7 +48,7 @@ const state = {
   blocked: false,     // compte privé de commande par le vendeur
   mode: 'pickup',
   captcha: null,      // épreuve en cours
-  selection: [],      // tuiles touchées
+  puzzle: null,       // où en est la pièce, et le geste qui l'a menée là
   startProduct: null, // produit demandé par un lien direct, à ouvrir une fois entré
   current: null, // produit ouvert dans la fiche
   currentVariant: null,
@@ -1606,10 +1606,8 @@ async function openCaptcha() {
     }
 
     state.captcha = challenge;
-    state.selection = [];
-    $('captchaPrompt').textContent = challenge.prompt;
     $('captchaSubmit').disabled = true;
-    renderTiles();
+    monterLePuzzle(challenge);
   } catch (err) {
     console.error(err);
     error.textContent = t('msg.verifIndispo');
@@ -1617,28 +1615,106 @@ async function openCaptcha() {
   }
 }
 
-function renderTiles() {
-  $('captchaGrid').replaceChildren(
-    ...state.captcha.tiles.map((tile, index) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'tile';
-      btn.textContent = tile;
-      btn.setAttribute('aria-pressed', String(state.selection.includes(index)));
-      btn.addEventListener('click', () => {
-        const picked = !state.selection.includes(index);
-        state.selection = picked
-          ? [...state.selection, index]
-          : state.selection.filter((i) => i !== index);
-        // On bascule la tuile touchée plutôt que de refaire la grille :
-        // redessiner ferait perdre le focus au clavier à chaque appui.
-        btn.setAttribute('aria-pressed', String(picked));
-        $('captchaSubmit').disabled = state.selection.length === 0;
-        haptic('light');
-      });
-      return btn;
-    })
-  );
+/**
+ * Monte l'épreuve : l'image, le trou, la pièce.
+ *
+ * Le découpage se fait ici et non sur le serveur. Découper un JPEG côté
+ * serveur demanderait une bibliothèque d'images installée sur le VPS, et une
+ * épreuve d'entrée qui dépend d'un binaire absent est une boutique fermée. Le
+ * navigateur, lui, sait recadrer une image d'un `background-position` négatif
+ * — sans canvas, sans rien à charger.
+ *
+ * La contrepartie est écrite dans `server/captcha.js` : la position du trou
+ * voyage jusqu'au client. C'est vrai de toutes les épreuves de ce genre — on
+ * ne peut pas demander de viser sans montrer où. Ce qui est jugé, c'est le
+ * geste autant que la position.
+ */
+function monterLePuzzle(epreuve) {
+  const plateau = $('puzzlePlateau');
+  const fond = $('puzzleFond');
+  const trou = $('puzzleTrou');
+  const piece = $('puzzlePiece');
+  if (!plateau || !fond || !trou || !piece) return;
+
+  const { largeur, hauteur, piece: cote, x, y } = epreuve;
+  plateau.classList.remove('puzzle--gagne');
+  plateau.style.width = `${largeur}px`;
+  plateau.style.aspectRatio = `${largeur} / ${hauteur}`;
+  fond.src = epreuve.image;
+
+  for (const [el, gauche] of [[trou, x], [piece, 0]]) {
+    el.style.width = `${cote}px`;
+    el.style.height = `${cote}px`;
+    el.style.top = `${y}px`;
+    el.style.left = `${gauche}px`;
+  }
+  // La pièce montre le morceau d'image qui manque : c'est la même photo,
+  // décalée de sa position dans le cadre.
+  piece.style.backgroundImage = `url("${epreuve.image}")`;
+  piece.style.backgroundSize = `${largeur}px ${hauteur}px`;
+  piece.style.backgroundPosition = `${-x}px ${-y}px`;
+
+  state.puzzle = { x: 0, max: largeur - cote, trace: [] };
+  piece.style.transform = 'translateX(0px)';
+
+  // Une seule fois : le plateau se remonte à chaque nouvelle épreuve, et
+  // rebrancher à chaque fois ferait avancer la pièce de deux crans par geste.
+  if (!piece.dataset.branche) {
+    piece.dataset.branche = 'oui';
+    brancherLaPiece(piece);
+  }
+}
+
+/**
+ * Le glissement, au doigt, à la souris et au clavier.
+ *
+ * Les événements « pointer » couvrent les trois d'un coup — pas de code
+ * séparé pour le tactile et la souris, donc pas de moitié qui se met à
+ * diverger. Le clavier n'est pas un extra : quelqu'un qui ne peut pas faire
+ * glisser doit pouvoir entrer, et les flèches déplacent la pièce d'un pixel,
+ * ou de dix avec une touche de plus.
+ */
+function brancherLaPiece(piece) {
+  let prise = null;
+
+  const poser = (valeur, instant = Date.now()) => {
+    const p = state.puzzle;
+    if (!p) return;
+    p.x = Math.max(0, Math.min(p.max, Math.round(valeur)));
+    piece.style.transform = `translateX(${p.x}px)`;
+    // La trace sert au serveur à distinguer un geste d'un envoi direct. On
+    // garde peu de points : ce qui compte est qu'il y en ait, et que ça ait
+    // duré — pas la courbe exacte, qu'on ne saurait pas juger.
+    if (p.trace.length < 60) p.trace.push({ t: instant, x: p.x });
+    $('captchaSubmit').disabled = false;
+  };
+
+  piece.addEventListener('pointerdown', (ev) => {
+    prise = { depart: ev.clientX, avant: state.puzzle?.x ?? 0 };
+    state.puzzle.trace = [{ t: Date.now(), x: state.puzzle.x }];
+    piece.setPointerCapture?.(ev.pointerId);
+    ev.preventDefault();
+  });
+  piece.addEventListener('pointermove', (ev) => {
+    if (!prise) return;
+    poser(prise.avant + (ev.clientX - prise.depart));
+  });
+  for (const fin of ['pointerup', 'pointercancel']) {
+    piece.addEventListener(fin, (ev) => {
+      if (!prise) return;
+      prise = null;
+      piece.releasePointerCapture?.(ev.pointerId);
+      haptic('light');
+    });
+  }
+
+  piece.addEventListener('keydown', (ev) => {
+    const pas = ev.shiftKey ? 10 : 1;
+    if (ev.key === 'ArrowRight') poser((state.puzzle?.x ?? 0) + pas);
+    else if (ev.key === 'ArrowLeft') poser((state.puzzle?.x ?? 0) - pas);
+    else return;
+    ev.preventDefault();
+  });
 }
 
 async function submitCaptcha() {
@@ -1658,7 +1734,8 @@ async function submitCaptcha() {
         nonce: state.captcha.nonce,
         expiresAt: state.captcha.expiresAt,
         token: state.captcha.token,
-        selection: state.selection,
+        x: state.puzzle?.x ?? 0,
+        trace: state.puzzle?.trace ?? [],
       }),
     });
     const data = await res.json().catch(() => ({}));

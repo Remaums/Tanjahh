@@ -182,9 +182,23 @@
 <div class="gate" id="captcha" hidden>
   <div class="gate__card">
     <p class="gate__eyebrow" data-t="tuiles.entete">Vérification</p>
-    <h2 class="gate__title goldtext" id="captchaPrompt" data-t="tuiles.consigne">Touche les 3 feuilles</h2>
+    <h2 class="gate__title goldtext" id="captchaPrompt" data-t="tuiles.consigne">Remets la pièce à sa place</h2>
     <p class="gate__text" data-t="tuiles.texte">Une seconde, le temps de vérifier que tu n'es pas un robot.</p>
-    <div class="grid-tiles" id="captchaGrid" role="group" aria-labelledby="captchaPrompt"></div>
+
+    <!-- Le plateau. Le fond est l'image, le trou et la pièce sont dessinés
+         par-dessus en JavaScript : une image découpée côté serveur aurait
+         demandé une bibliothèque d'images sur le VPS, et une épreuve d'entrée
+         qui dépend d'un binaire absent est une boutique fermée. -->
+    <div class="puzzle" id="puzzlePlateau">
+      <img class="puzzle__fond" id="puzzleFond" alt="" draggable="false">
+      <span class="puzzle__trou" id="puzzleTrou" aria-hidden="true"></span>
+      <!-- La pièce est un bouton : elle se prend au doigt, à la souris, et
+           aux flèches du clavier pour qui ne peut pas glisser. -->
+      <button class="puzzle__piece" id="puzzlePiece" type="button"
+              aria-describedby="captchaPrompt" data-t-aria="tuiles.pieceAria"></button>
+    </div>
+    <p class="gate__fine" id="puzzleAide" data-t="tuiles.aide"></p>
+
     <p class="gate__error" id="captchaError" hidden></p>
     <button class="btn btn--primary btn--grow" id="captchaSubmit" type="button" disabled data-t="tuiles.valider">Valider</button>
   </div>

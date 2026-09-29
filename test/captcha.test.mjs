@@ -78,21 +78,70 @@ check('Commande sans épreuve refusée', r.status === 403 && data.error === 'CAP
 
 /* ── L'épreuve, résolue puis rejouée ─────────────────────── */
 
+/** Un glissement, comme un doigt : plusieurs points, et du temps. */
+const geste = (jusqua) => {
+  const debut = Date.now();
+  return Array.from({ length: 8 }, (_, i) => ({
+    t: debut + i * 30, x: Math.round((jusqua * (i + 1)) / 8),
+  }));
+};
+
 const challenge = await (await call('/api/captcha', { init: client })).json();
-check('Grille servie', Array.isArray(challenge.tiles) && challenge.tiles.length === 9);
+check('Une image du film est servie',
+  /^\/assets\/captcha\/charge-\d+\.jpg$/.test(challenge.image ?? ''), challenge.image);
+check('Avec la taille du plateau et de la pièce',
+  challenge.largeur > 0 && challenge.hauteur > 0 && challenge.piece > 0,
+  `${challenge.largeur}×${challenge.hauteur}, pièce ${challenge.piece}`);
+check('Le trou tient entièrement dans le cadre',
+  challenge.x >= 0 && challenge.x + challenge.piece <= challenge.largeur &&
+  challenge.y >= 0 && challenge.y + challenge.piece <= challenge.hauteur,
+  `x=${challenge.x} y=${challenge.y}`);
+// La pièce part du bord gauche : si le trou y était aussi, l'épreuve serait
+// déjà résolue sans bouger.
+check("Le trou n'est pas au point de départ", challenge.x > challenge.piece,
+  `x=${challenge.x}, pièce ${challenge.piece}`);
 
-const cibles = challenge.tiles.map((t, i) => (t === '🍁' ? i : -1)).filter((i) => i >= 0);
+// `...challenge` porte DÉJÀ `x` — le serveur l'envoie pour qu'on dessine le
+// trou. Pour éprouver l'absence de réponse, il faut donc le retirer : ma
+// première version se contentait de l'étaler et croyait tester le vide.
+const { x: _sansX, ...sansPosition } = challenge;
+r = await call('/api/captcha', {
+  method: 'POST', init: client, body: { ...sansPosition, trace: geste(challenge.x) },
+});
+check('Sans position, refusé', r.status === 400, `HTTP ${r.status}`);
 
-r = await call('/api/captcha', { method: 'POST', init: client, body: { ...challenge, selection: [] } });
-check('Réponse vide refusée', r.status === 400, `HTTP ${r.status}`);
+r = await call('/api/captcha', {
+  method: 'POST', init: client, body: { ...challenge, x: challenge.x, trace: [] },
+});
+check('Sans geste, refusé', r.status === 400, `HTTP ${r.status}`);
 
-const fausse = [...Array(9).keys()].filter((i) => !cibles.includes(i)).slice(0, 3);
-r = await call('/api/captcha', { method: 'POST', init: client, body: { ...challenge, selection: fausse } });
-check('Mauvaise réponse refusée', r.status === 400, `HTTP ${r.status}`);
+r = await call('/api/captcha', {
+  method: 'POST', init: client,
+  body: { ...challenge, x: challenge.x + 40, trace: geste(challenge.x + 40) },
+});
+check('À côté du trou, refusé', r.status === 400, `HTTP ${r.status}`);
 
-r = await call('/api/captcha', { method: 'POST', init: client, body: { ...challenge, selection: cibles } });
+// Le jeton lie l'épreuve à CE client : le bricoler doit être sans effet.
+r = await call('/api/captcha', {
+  method: 'POST', init: client,
+  body: { ...challenge, token: '0'.repeat(64), x: challenge.x, trace: geste(challenge.x) },
+});
+check('Un jeton bricolé, refusé', r.status === 400, `HTTP ${r.status}`);
+
+r = await call('/api/captcha', {
+  method: 'POST', init: client, body: { ...challenge, x: challenge.x, trace: geste(challenge.x) },
+});
 const { pass } = await r.json();
-check('Bonne réponse acceptée', r.status === 200 && typeof pass === 'string');
+check('La pièce au bon endroit, accepté', r.status === 200 && typeof pass === 'string');
+
+// Ce que le serveur juge, c'est SA cible, pas celle que le client annonce :
+// annoncer un trou ailleurs ne déplace pas la réponse.
+const menteur = await (await call('/api/captcha', { init: client })).json();
+r = await call('/api/captcha', {
+  method: 'POST', init: client,
+  body: { ...menteur, x: menteur.x + 60, trace: geste(menteur.x + 60) },
+});
+check("Annoncer un autre trou ne change pas la cible", r.status === 400, `HTTP ${r.status}`);
 
 /* ── Le laissez-passer est nominatif ─────────────────────── */
 

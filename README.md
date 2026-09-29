@@ -1930,13 +1930,52 @@ personne.
 
 Deux portes, indépendantes, activables depuis l'espace admin (onglet Réglages).
 
-### Épreuve anti-robot
+### Épreuve anti-robot : la pièce qui manque
 
-Une grille de neuf tuiles à résoudre avant de pouvoir commander, vérifiée côté
-serveur. À noter : la vraie barrière contre les robots reste la signature
-Telegram contrôlée à chaque appel — sans compte Telegram, aucune commande.
-L'épreuve ajoute une friction et un geste conscient à l'entrée. Activée par
-défaut, elle se coupe d'une case.
+Une image du **film d'ouverture** — celui que le client vient de regarder — à
+laquelle il manque un carré, et une pièce à faire glisser jusqu'au trou. Un
+seul geste, avant de pouvoir commander.
+
+Elle remplace la grille de tuiles **et** le calcul que le bot posait dans la
+conversation : deux épreuves à la suite font partir les clients. Le calcul
+existe toujours en réglage, éteint d'origine (*Fonctionnalités → Calcul
+d'entrée du bot*) ; une boutique déjà en service garde le sien tant qu'elle ne
+le coupe pas — un défaut ne remonte pas dans un fichier déjà écrit.
+
+Le glissement marche au doigt, à la souris et **aux flèches du clavier** :
+quelqu'un qui ne peut pas faire glisser doit pouvoir entrer.
+
+#### Ce que ça vaut, et ce que ça ne vaut pas
+
+La vraie barrière contre les robots reste la **signature Telegram** contrôlée
+à chaque appel : sans compte Telegram, aucune commande. L'épreuve ajoute une
+friction et un geste conscient.
+
+> Et il faut le dire franchement : **la position du trou voyage jusqu'au
+> client**, parce qu'il faut bien la lui montrer pour qu'il puisse viser. Un
+> automate qui lit la réponse dans le message du serveur la trouve donc sans
+> effort. C'est vrai de **toutes** les épreuves de ce genre — celles du
+> commerce n'examinent pas la réponse mais le geste, et c'est ce qu'on fait
+> ici aussi. Ce qui reste : un script doit fabriquer un mouvement plausible au
+> lieu de poster un nombre. Avec la limite de douze essais et la signature
+> Telegram, c'est la friction qu'on cherchait, pas un coffre-fort — et le
+> prétendre serait plus dangereux que l'épreuve elle-même.
+
+Le serveur ne garde rien : la position du trou se **déduit** de l'aléa de
+l'épreuve et d'un secret du serveur, et se recalcule au moment de juger. Le
+client ne peut donc pas annoncer une autre cible que la sienne, et la boutique
+peut redémarrer au milieu d'une épreuve sans rien perdre.
+
+#### Les images
+
+Huit images, extraites du film une fois pour toutes et versionnées dans
+`webapp/assets/captcha/` (110 Ko en tout). Pas d'extraction sur le serveur :
+ffmpeg n'est pas installé sur un VPS ordinaire, et une épreuve d'entrée qui
+dépend d'un binaire absent est une boutique fermée.
+
+```bash
+node tools/puzzle-images.mjs     # à relancer quand le film change
+```
 
 ### Épreuve d'entrée du bot
 
