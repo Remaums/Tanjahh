@@ -219,6 +219,23 @@ jamais côté client. Colle ce que tu as sous la main — le lien de partage,
 > les réglages de contact entiers publiait l'identifiant de conversation du
 > vendeur. C'est une suite d'épreuves qui l'a arrêté, pas une relecture.
 
+### Les fichiers de la boutique portent une empreinte
+
+`index.html` et `admin.html` servent leurs scripts et leurs styles avec une
+empreinte de leur contenu : `/js/app.js?v=01b7bcb3`. Le contenu change,
+l'adresse change, et aucun cache ne peut servir l'ancien fichier.
+
+Ce n'est pas une précaution théorique. Sans elle, un téléphone qui gardait
+l'ancien `app.js` continuait de le lire — et le jour où un champ de l'API a
+été renommé, ce fichier-là cherchait un champ disparu : le bouton
+« Commander » retombait sur Telegram sans que rien ne le dise, et **recharger
+la page n'y changeait rien**, puisque c'est le script qui était vieux, pas la
+page.
+
+La page, elle, n'est jamais mise en cache — c'est elle qui porte les adresses
+versionnées. L'empreinte se refait quand un fichier bouge, d'après sa date de
+modification : pas besoin de redémarrer après avoir touché un script.
+
 ### Qui la boutique prévient
 
 Deux réglages qui vivaient dans le `.env` du serveur — les changer demandait

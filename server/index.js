@@ -11,6 +11,7 @@ import {
   lienDuSecours, botSecours, prevenirLesInscrits, configurerLesCommandesDuSecours,
 } from './bot-secours.js';
 import { creerLaVeille, resumeDuSecours } from './veille.js';
+import { servirLaPage } from './pages.js';
 import { decisionDEntree } from './entree.js';
 import { langueDe, choisirLaLangue } from './langue.js';
 import {
@@ -194,6 +195,18 @@ app.use(async (req, res, next) => {
       '</body></html>'
   );
 });
+
+// Les deux pages passent par `servirLaPage`, qui colle une empreinte des
+// scripts et des styles sur leurs adresses. Monté AVANT `express.static`,
+// sinon celui-ci servirait le fichier brut et l'empreinte ne serait jamais
+// posée. Voir `pages.js` : c'est ce qui empêche un téléphone de garder un
+// vieux script le jour où l'API change.
+for (const [chemins, fichier] of [
+  [['/', '/index.html'], 'index.html'],
+  [['/admin', '/admin.html'], 'admin.html'],
+]) {
+  app.get(chemins, servirLaPage(webappDir, fichier));
+}
 
 app.use(express.static(webappDir, { extensions: ['html'] }));
 

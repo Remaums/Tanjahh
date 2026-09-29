@@ -1180,6 +1180,25 @@ function blocEffacement(id, surFini) {
 }
 
 /**
+ * Où partent les commandes, écrit en clair.
+ *
+ * Un champ Snapchat vide ne disait rien : impossible de savoir depuis le
+ * panneau si le bouton « Commander » ouvrait le panneau Snapchat ou rouvrait
+ * la conversation Telegram. Il fallait ouvrir la boutique et appuyer dessus —
+ * et quand on s'en apercevait, c'était en croyant à une panne.
+ */
+function peindreLeCanal(contact) {
+  const ligne = $('canalActif');
+  if (!ligne) return;
+  const snap = Boolean(contact.snapchat);
+  ligne.classList.toggle('a-canal--snap', snap);
+  ligne.textContent = snap
+    ? '👻 Le bouton « Commander » ouvre le panneau Snapchat.'
+    : '✈️ Le bouton « Commander » rouvre la conversation Telegram du vendeur, ' +
+      'avec la commande écrite dedans. Remplis le champ ci-dessus pour passer sur Snapchat.';
+}
+
+/**
  * Effacer quelqu'un qui n'a de fiche nulle part.
  *
  * Une personne qui a mis trois produits en favori sans jamais commander ni
@@ -2072,6 +2091,7 @@ function renderSettings() {
   renderCommandes();
 
   $('fSnapchat').value = settings.contact?.snapchat ?? '';
+  peindreLeCanal(settings.contact ?? {});
   $('fAdminChat').value = settings.contact?.adminChatId ?? '';
   $('fSellerUsername').value = settings.contact?.sellerUsername ?? '';
 
