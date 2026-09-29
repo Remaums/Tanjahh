@@ -68,13 +68,18 @@ try {
     !/"fileId"|"thumbFileId"/.test(brut),
     (brut.match(/"(thumb)?[fF]ileId"/g) ?? []).slice(0, 3).join(' ') || 'aucun');
 
+  // Le compte du vendeur a vécu ici, pour le bouton « Écris-nous » de l'écran
+  // Contact. Ce bouton n'existe plus, la boutique n'affiche le compte nulle
+  // part — et une route sans signature n'a donc plus de raison de le donner.
+  check("Le compte du vendeur n'en sort pas",
+    publique.shop?.sellerUsername === undefined, JSON.stringify(publique.shop));
+  check("Ni son pseudo ailleurs dans la réponse", !brut.includes('compte_temoin'),
+    (brut.match(/compte_temoin/g) ?? []).join(' ') || 'absent');
+  check("Ni le nom du champ", !/sellerUsername/.test(brut));
+
   console.log('\n── Ce qui en sort, et doit en sortir ───────────────');
 
-  // Le compte vendeur est public : c'est lui que le bouton « Écris-nous » de
-  // l'écran Contact ouvre, et un @ Telegram n'est pas un secret.
-  check('Le compte vendeur est servi', publique.shop?.sellerUsername === 'compte_temoin',
-    publique.shop?.sellerUsername);
-  check("Le nom de la boutique aussi", Boolean(publique.shop?.shopName), publique.shop?.shopName);
+  check("Le nom de la boutique", Boolean(publique.shop?.shopName), publique.shop?.shopName);
   check('Et le catalogue', Array.isArray(publique.products) && publique.products.length > 0,
     `${publique.products?.length} produits`);
 } finally {

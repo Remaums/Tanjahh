@@ -268,11 +268,11 @@ app.get('/api/catalog', async (req, res, next) => {
     const settings = await getSettings();
     // La Mini App a besoin de savoir quelles portes elle doit présenter.
     res.json({
-      // `publicConfig` fige ce que le `.env` disait au démarrage ; le compte
-      // vendeur, lui, se règle aussi dans le panneau. On rend donc la valeur
-      // effective, sans quoi un changement fait dans le panneau n'atteindrait
-      // jamais la boutique.
-      shop: { ...publicConfig, sellerUsername: vendeurJoignable() },
+      // Le nom de la boutique et la monnaie, rien de plus. Le compte du
+      // vendeur s'est trouvé ici longtemps, pour un bouton qui ouvrait sa
+      // conversation ; ce bouton n'existe plus, et cette route se lit sans
+      // signature.
+      shop: publicConfig,
       categories,
       products,
       statuses: STATUSES,

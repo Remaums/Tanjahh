@@ -43,6 +43,13 @@ const poser = (contact, initData = ADMIN) =>
   });
 const vitrine = async () => (await (await fetch(`${BASE}/api/catalog`)).json()).shop;
 
+// Le repli se lisait dans la vitrine, du temps où /api/catalog publiait le
+// compte du vendeur. Il ne le publie plus — une route sans signature n'a pas
+// à le donner — alors on interroge directement le module qui porte ce repli.
+const { retenirLeContact, vendeurJoignable, adminAPrevenir } =
+  await import('../server/contact.js');
+const { config } = await import('../server/config.js');
+
 const depart = (await reglages()).contact ?? {};
 
 try {
@@ -50,9 +57,12 @@ try {
 
   // C'est la ligne qui compte le plus de la suite : champ vide = comme avant.
   await poser({ adminChatId: '', sellerUsername: '' });
-  const sansRien = await vitrine();
+  retenirLeContact({ adminChatId: '', sellerUsername: '' });
   check('Sans réglage, la boutique garde le compte du .env',
-    Boolean(sansRien.sellerUsername), sansRien.sellerUsername ?? '(vide)');
+    vendeurJoignable() === config.sellerUsername && Boolean(vendeurJoignable()),
+    vendeurJoignable() || '(vide)');
+  check("Et l'admin prévenu reste celui du .env",
+    adminAPrevenir() === config.adminChatId, String(adminAPrevenir()));
   const sante = await (await fetch(`${BASE}/api/health`)).json();
   check("Et la santé dit qu'un compte vendeur est là",
     sante.config?.sellerUsername === true, JSON.stringify(sante.config?.sellerUsername));
@@ -63,8 +73,9 @@ try {
   check('Un @pseudo est accepté', r.status === 200, `HTTP ${r.status}`);
   check("Et c'est le pseudo qui est gardé, pas le @",
     (await r.json()).contact?.sellerUsername === 'boutique_essai');
-  check('La boutique sert le nouveau compte',
-    (await vitrine()).sellerUsername === 'boutique_essai', (await vitrine()).sellerUsername);
+  retenirLeContact({ sellerUsername: 'boutique_essai' });
+  check('La boutique joint le nouveau compte',
+    vendeurJoignable() === 'boutique_essai', vendeurJoignable());
 
   r = await poser({ sellerUsername: 'https://t.me/autre_compte' });
   check('Un lien t.me est accepté aussi',
@@ -119,8 +130,22 @@ try {
   const rendu = (await reglages()).contact ?? {};
   check('Vider les champs est accepté',
     rendu.adminChatId === '' && rendu.sellerUsername === '', JSON.stringify(rendu));
+  retenirLeContact({ adminChatId: '', sellerUsername: '' });
   check('Et la boutique retombe sur le .env',
-    Boolean((await vitrine()).sellerUsername), (await vitrine()).sellerUsername ?? '(vide)');
+    vendeurJoignable() === config.sellerUsername && Boolean(vendeurJoignable()),
+    vendeurJoignable() || '(vide)');
+
+  console.log('\n── Ce que la vitrine ne dit pas ────────────────────');
+
+  // Le compte du vendeur a vécu dans /api/catalog, pour un bouton qui ouvrait
+  // sa conversation. Le bouton est parti ; le compte ne doit pas rester.
+  retenirLeContact({ sellerUsername: 'compte_temoin' });
+  const dehors = await vitrine();
+  check("La vitrine publique ne donne pas le compte du vendeur",
+    !('sellerUsername' in dehors), JSON.stringify(dehors));
+  const brut = await (await fetch(`${BASE}/api/catalog`)).text();
+  check('Et son pseudo ne se trouve nulle part dans la réponse',
+    !brut.includes(config.sellerUsername), config.sellerUsername);
 } finally {
   await poser({
     adminChatId: depart.adminChatId ?? '',

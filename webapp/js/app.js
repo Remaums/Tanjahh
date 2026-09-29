@@ -13,7 +13,7 @@ const PASS_KEY = 'kartoon.pass';
 const CART_MAX_LINES = 50;
 
 const state = {
-  shop: { shopName: 'TANJA HH 67', currency: 'EUR', sellerUsername: '' },
+  shop: { shopName: 'TANJA HH 67', currency: 'EUR' },
   categories: [],
   products: [],
   statuses: {},
@@ -32,7 +32,6 @@ const state = {
   slotId: '',         // celui que le client a choisi
   promo: null,        // remise en cours : { code, discount, label, source }
   lastMessage: '',    // récapitulatif de la dernière commande, pour le renvoyer
-  derniere: null,     // la dernière commande du client, pour « la même chose »
   notes: {},          // la note moyenne de chaque produit, venue du catalogue
   avisADonner: [],    // ses commandes reçues dont il n'a encore rien dit
   avisEnCours: null,  // la commande qu'il est en train de noter
@@ -409,7 +408,6 @@ let signeCharge = false;
 function chargerLaBoutiqueSignee() {
   if (signeCharge) return;
   signeCharge = true;
-  chargerLaDerniereCommande();
   chargerLesAvisADonner();
   chargerLesFavoris();
   battreLePouls();
@@ -832,8 +830,6 @@ function bindStaticHandlers() {
       haptic('light');
     });
   }
-  $('contactTelegram').addEventListener('click', () =>
-    openSellerChat(`Bonjour ${state.shop.shopName} 👋`));
   $('pCoeur').addEventListener('click', async () => {
     if (!state.current) return;
     await basculerFavori(state.current.id);
@@ -917,9 +913,6 @@ function bindStaticHandlers() {
   $('pGalleryNext').addEventListener('click', () => glisserGalerie(1));
 
   $('commander').addEventListener('click', commanderCeProduit);
-  // « La même chose » : le raccourci de l'habitué. Il remplissait le panier,
-  // il rouvre maintenant la conversation avec les mêmes articles écrits.
-  $('reprise').addEventListener('click', () => commanderDeNouveau(state.derniere));
 
   for (const el of document.querySelectorAll('[data-close]')) {
     el.addEventListener('click', closeSheets);
@@ -1352,20 +1345,17 @@ function renderRayons() {
 /* ── Contact ─────────────────────────────────────────────── */
 
 /**
- * L'écran « écris-nous ».
+ * L'écran « une question ? ».
  *
- * Il ne fait qu'une chose, et c'est voulu : ouvrir la conversation. Le reste
- * — horaires, mode de retrait — est rappelé dessous parce que c'est
- * précisément ce qu'on vient demander quand on ne trouve pas la réponse, et
- * qu'une réponse affichée coûte moins cher qu'une réponse à écrire.
+ * Il n'ouvre plus rien : il dit d'écrire sur Snapchat, et rappelle dessous
+ * les horaires et le mode de retrait — précisément ce qu'on vient demander
+ * quand on ne trouve pas la réponse, et qu'une réponse affichée coûte moins
+ * cher qu'une réponse à écrire.
  */
 function renderContact() {
-  const sans = !state.shop.sellerUsername;
-  $('contactTelegram').disabled = sans;
-  $('contactFine').textContent = sans
-    ? t('contact.vendeurAbsent')
-    : t('contact.tuEcrisA', { nom: state.shop.sellerUsername });
-
+  // Le pseudo du vendeur s'affichait ici — « tu écris à @… ». Il ne s'affiche
+  // plus : une boutique ouverte à tous n'est pas l'endroit pour le publier.
+  // L'écran ne fait plus que rappeler les horaires et le mode de retrait.
   const lignes = [];
   const ouvert = state.opening?.open !== false;
   lignes.push([ouvert ? '🟢' : '🔴', t(ouvert ? 'etat.ouverte' : 'etat.fermee'),
@@ -3338,100 +3328,6 @@ function masquerLeTitre() {
   setTimeout(() => { ligne.hidden = true; }, 260);
 }
 
-/* ── Panier ──────────────────────────────────────────────── */
-
-
-/* ── « La même chose » ───────────────────────────────────── */
-
-/**
- * Va chercher la dernière commande du client, s'il en a une.
- *
- * Sur une boutique de réassort, la plupart des commandes sont la précédente :
- * la refaire article par article est un travail qu'on peut lui épargner. Le
- * raccourci suit l'interrupteur « Mes commandes » — sans historique, il n'y a
- * rien à reprendre.
- */
-async function chargerLaDerniereCommande() {
-  const banniere = $('reprise');
-  banniere.hidden = true;
-  if (!tg?.initData || state.features.orderHistory === false) return;
-
-  try {
-    const res = await fetch('/api/orders', { headers: { 'X-Telegram-Init-Data': tg.initData } });
-    if (!res.ok) return;
-    const commandes = await res.json();
-    state.derniere = commandes.find((c) => c.status !== 'annulee') ?? null;
-    renderReprise();
-  } catch {
-    /* pas d'historique : le raccourci reste caché, la boutique fonctionne */
-  }
-}
-
-/** La bannière ne se montre que si elle mène quelque part. */
-function renderReprise() {
-  const banniere = $('reprise');
-  const commande = state.derniere;
-  if (!commande) return void (banniere.hidden = true);
-
-  // On regarde ce qui est encore commandable avant de proposer : promettre
-  // « la même chose » puis annoncer que rien n'est disponible est pire que se
-  // taire.
-  const lignes = reprendreLesLignes(commande);
-  if (!lignes.dispo.length) return void (banniere.hidden = true);
-
-  const combien = lignes.dispo.reduce((somme, l) => somme + l.quantity, 0);
-  $('repriseDetail').textContent =
-    `${lignes.dispo.map((l) => l.nom).slice(0, 2).join(', ')}` +
-    `${lignes.dispo.length > 2 ? '…' : ''} · ${combien} article${combien > 1 ? 's' : ''}`;
-  banniere.hidden = false;
-}
-
-/**
- * Ce qu'on peut reprendre d'une commande, et ce qui manque.
- *
- * Le catalogue a pu bouger depuis : un produit retiré, un format supprimé, un
- * stock descendu. On reprend ce qui existe encore, dans la limite du stock, et
- * on dit ce qui manque plutôt que de laisser le client s'en apercevoir au
- * moment de payer.
- */
-function reprendreLesLignes(commande) {
-  const dispo = [];
-  const manquants = [];
-
-  for (const item of commande.items ?? []) {
-    const produit = state.products.find((p) => p.id === item.id);
-    const variante = produit?.variants?.find((v) => v.id === item.variantId) ?? null;
-
-    if (!produit || (item.variantId && !variante)) {
-      manquants.push(item.name);
-      continue;
-    }
-    const stock = stockOf(produit, variante?.id ?? null);
-    if (stock <= 0) {
-      manquants.push(`${produit.name}${variante ? ` (${variante.label})` : ''}`);
-      continue;
-    }
-    dispo.push({
-      key: `${produit.id}::${variante?.id ?? ''}`,
-      id: produit.id,
-      variantId: variante?.id ?? null,
-      quantity: Math.min(item.quantity, stock, 99),
-      nom: produit.name,
-      // Une quantité rabotée par le stock doit se dire : le client croirait
-      // sinon avoir commandé ce qu'il avait pris la fois d'avant.
-      rabote: Math.min(item.quantity, stock, 99) < item.quantity,
-    });
-  }
-  return { dispo, manquants };
-}
-
-
-
-
-
-
-
-
 /** Relit le catalogue pour que les stocks affichés soient ceux du serveur. */
 async function refreshCatalog() {
   try {
@@ -3443,35 +3339,19 @@ async function refreshCatalog() {
     // grille sans qu'on ait à rouvrir la boutique.
     state.notes = data.notes ?? {};
     renderGrid();
-    // Un article épuisé entre-temps ne doit plus être promis par le raccourci.
-    renderReprise();
   } catch {
     /* on garde l'affichage précédent plutôt que de vider la boutique */
   }
 }
 
 /**
- * Le message qu'on dépose dans la conversation du vendeur.
+ * Le seul bouton de la fiche, et la seule chose qu'il fait.
  *
- * Il ne récapitule plus un panier, une adresse, un créneau et une remise :
- * cette boutique ne prend pas la commande, elle amène le client au vendeur
- * avec ce qu'il faut pour que la conversation commence au bon endroit. Le
- * nom exact du produit et le format choisi, donc — le reste (quantité,
- * remise, remise en main propre ou livraison) se dit en deux phrases, et
- * mieux que par un formulaire.
- */
-/**
- * Commande le produit ouvert : on part dans la conversation du vendeur.
- *
- * Il n'y a pas de panier dans cette boutique et rien n'est enregistré ici.
- * L'application sert à choisir — voir les produits, comparer les formats,
- * lire les avis — et la commande se passe entre le client et le vendeur.
- * D'où le peu de choses que fait ce bouton : construire une phrase juste,
- * et ouvrir Telegram dessus.
- *
- * La fiche se referme derrière : au retour de Telegram, revenir sur une
- * fiche avec son bouton « Commander » encore là laisse croire que rien
- * n'est parti, et on commande deux fois.
+ * Il n'y a pas de panier dans cette boutique et rien n'est enregistré ici :
+ * l'application sert à choisir — voir les produits, comparer les formats,
+ * lire les avis. Le bouton ouvre le panneau qui dit où commander, et rien
+ * de plus. Il n'ouvre aucune conversation, ne quitte pas la boutique, et
+ * n'écrit à personne.
  */
 function commanderCeProduit() {
   const produit = state.current;
@@ -3494,44 +3374,6 @@ function commanderCeProduit() {
  */
 function montrerOuCommander() {
   openSheet('commandeSheet');
-}
-
-/**
- * Recommande ce qui avait déjà été commandé une fois.
- *
- * Le bouton vit sur une commande passée, dans le profil. Il remplissait le
- * panier ; il rouvre maintenant la conversation avec les mêmes articles
- * écrits dedans. Les commandes d'avant sont les seules qu'on verra jamais
- * là — cette boutique n'en enregistre plus — mais tant qu'elles sont là,
- * le raccourci reste le plus court chemin pour en repasser une.
- */
-function commanderDeNouveau(commande) {
-  if (!commande?.items?.length) return;
-  // Le même panneau que le bouton d'une fiche : une seule porte pour
-  // commander, où qu'on appuie. Ce raccourci remplissait un message
-  // pré-rempli pour Telegram ; il n'a plus personne à qui l'envoyer.
-  montrerOuCommander();
-  haptic('light');
-}
-
-/** Ouvre la conversation du vendeur avec le récapitulatif pré-rempli. */
-function openSellerChat(message) {
-  const username = state.shop.sellerUsername;
-  if (!username) {
-    toast(t('msg.vendeurAbsent'));
-    return;
-  }
-
-  // Telegram tronque les URL très longues : on garde le message sous une
-  // taille sûre, le détail complet restant côté serveur avec la référence.
-  const text = message.length > 1500 ? `${message.slice(0, 1490)}…` : message;
-  const url = `https://t.me/${username}?text=${encodeURIComponent(text)}`;
-
-  if (tg?.openTelegramLink) {
-    tg.openTelegramLink(url);
-  } else {
-    window.open(url, '_blank', 'noopener');
-  }
 }
 
 /* ── Mes commandes ───────────────────────────────────────── */
@@ -3568,17 +3410,6 @@ function orderCard(order) {
         .join('')}
     </ul>
     <p class="order__total">${formatPrice(order.total)}</p>`;
-
-  // Reprendre une commande précise, pas seulement la dernière : un client
-  // revient parfois sur celle d'avant.
-  if (order.status !== 'annulee') {
-    const reprise = document.createElement('button');
-    reprise.className = 'btn btn--ghost btn--block';
-    reprise.type = 'button';
-    reprise.textContent = t('commandes.reprendre');
-    reprise.addEventListener('click', () => commanderDeNouveau(order));
-    card.append(reprise);
-  }
   return card;
 }
 

@@ -104,7 +104,6 @@ export const TEXTES = {
     'tri.alphabetique': 'Ordre alphabétique',
 
     /* ── Les rappels ── */
-    'reprise.titre': 'La même chose',
     'catalogue.videTotal': 'Le catalogue est vide pour le moment.',
 
     /* ── Les avis ── */
@@ -151,9 +150,7 @@ export const TEXTES = {
     'contact.titre': 'Une question ?',
     'contact.texte':
       "Un doute sur un produit, une commande qui traîne, une demande particulière : "
-      + 'écris-nous, on répond dans la conversation.',
-    'contact.ouvrir': 'Ouvrir la conversation',
-    'contact.nousEcrire': 'Nous écrire',
+      + 'écris-nous sur Snapchat, on répond là-bas.',
 
     /* ── Le profil ── */
     'profil.titre': 'Mon profil',
@@ -189,7 +186,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'Tu pourras commander une fois ta pièce validée.',
     'msg.calculEnAttente': 'Pas encore — réponds au calcul dans la conversation.',
     'msg.articleParti': "Cet article n'est plus au catalogue. Voici le reste de la boutique.",
-    'msg.vendeurAbsent': "Le compte vendeur n'est pas encore configuré.",
     'msg.verifIndispo': 'Vérification indisponible. Réessaie dans un instant.',
     'msg.reglageRefuse': 'Réglage non enregistré, réessaie.',
 
@@ -200,9 +196,6 @@ export const TEXTES = {
     'rayon.produits': '{n} produits',
 
     /* ── Le contact, en détail ── */
-    'contact.vendeurAbsent':
-      "Le compte vendeur n'est pas encore renseigné : reviens un peu plus tard.",
-    'contact.tuEcrisA': "Tu écris à @{nom}. Réponse dès qu'on est dispo.",
     'contact.onPrend': 'On prend les commandes.',
     'contact.onRouvre': 'On rouvre bientôt.',
     'contact.retrait': 'Retrait sur place',
@@ -224,7 +217,6 @@ export const TEXTES = {
     'commandes.vide': "Tu n'as pas encore passé de commande.",
     'commandes.depuisTelegram': 'Ouvre la boutique depuis Telegram pour retrouver tes commandes.',
     'commandes.profilIndispo': 'Profil indisponible pour le moment.',
-    'commandes.reprendre': '🔁 Reprendre cette commande',
     'profil.client': 'Client {boutique}',
 
     /* ── Les avis, suite ── */
@@ -406,7 +398,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'Price, high to low',
     'tri.alphabetique': 'Alphabetical',
 
-    'reprise.titre': 'The same again',
     'catalogue.videTotal': 'The catalogue is empty for now.',
 
     'avis.titre': 'Reviews',
@@ -448,9 +439,7 @@ export const TEXTES = {
     'contact.titre': 'A question?',
     'contact.texte':
       'Unsure about a product, an order taking its time, a special request: '
-      + 'write to us, we answer right here in the chat.',
-    'contact.ouvrir': 'Open the chat',
-    'contact.nousEcrire': 'Write to us',
+      + 'write to us on Snapchat, that is where we answer.',
 
     'profil.titre': 'My profile',
     'profil.commandes': 'Orders',
@@ -483,7 +472,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'You can order once your ID has been checked.',
     'msg.calculEnAttente': 'Not yet — answer the sum in the chat.',
     'msg.articleParti': "This item has left the catalogue. Here's the rest of the shop.",
-    'msg.vendeurAbsent': 'The seller account is not set up yet.',
     'msg.verifIndispo': 'Verification unavailable. Try again in a moment.',
     'msg.reglageRefuse': 'Setting not saved, try again.',
 
@@ -494,9 +482,6 @@ export const TEXTES = {
     'rayon.produits': '{n} products',
 
     /* ── Le contact, en détail ── */
-    'contact.vendeurAbsent':
-      'The seller account is not filled in yet: come back a little later.',
-    'contact.tuEcrisA': "You're writing to @{nom}. We answer as soon as we're around.",
     'contact.onPrend': "We're taking orders.",
     'contact.onRouvre': "We'll reopen soon.",
     'contact.retrait': 'Meetup',
@@ -518,7 +503,6 @@ export const TEXTES = {
     'commandes.vide': "You haven't placed an order yet.",
     'commandes.depuisTelegram': 'Open the shop from Telegram to find your orders.',
     'commandes.profilIndispo': 'Profile unavailable for the moment.',
-    'commandes.reprendre': '🔁 Order this again',
     'profil.client': '{boutique} customer',
 
     /* ── Les avis, suite ── */
@@ -696,7 +680,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'Precio, de mayor a menor',
     'tri.alphabetique': 'Orden alfabético',
 
-    'reprise.titre': 'Lo mismo otra vez',
     'catalogue.videTotal': 'El catálogo está vacío por ahora.',
 
     'avis.titre': 'Opiniones',
@@ -738,9 +721,7 @@ export const TEXTES = {
     'contact.titre': '¿Una pregunta?',
     'contact.texte':
       'Una duda sobre un producto, un pedido que tarda, una petición especial: '
-      + 'escríbenos, respondemos en la conversación.',
-    'contact.ouvrir': 'Abrir la conversación',
-    'contact.nousEcrire': 'Escríbenos',
+      + 'escríbenos por Snapchat, respondemos allí.',
 
     'profil.titre': 'Mi perfil',
     'profil.commandes': 'Pedidos',
@@ -773,7 +754,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'Podrás pedir en cuanto se valide tu documento.',
     'msg.calculEnAttente': 'Todavía no — responde a la suma en la conversación.',
     'msg.articleParti': 'Este artículo ya no está en el catálogo. Aquí tienes el resto de la tienda.',
-    'msg.vendeurAbsent': 'La cuenta del vendedor aún no está configurada.',
     'msg.verifIndispo': 'Verificación no disponible. Inténtalo en un momento.',
     'msg.reglageRefuse': 'Ajuste no guardado, inténtalo de nuevo.',
 
@@ -784,9 +764,6 @@ export const TEXTES = {
     'rayon.produits': '{n} productos',
 
     /* ── Le contact, en détail ── */
-    'contact.vendeurAbsent':
-      'La cuenta del vendedor aún no está indicada: vuelve un poco más tarde.',
-    'contact.tuEcrisA': 'Escribes a @{nom}. Respondemos en cuanto estemos disponibles.',
     'contact.onPrend': 'Estamos tomando pedidos.',
     'contact.onRouvre': 'Volvemos a abrir pronto.',
     'contact.retrait': 'Recogida en mano',
@@ -808,7 +785,6 @@ export const TEXTES = {
     'commandes.vide': 'Todavía no has hecho ningún pedido.',
     'commandes.depuisTelegram': 'Abre la tienda desde Telegram para ver tus pedidos.',
     'commandes.profilIndispo': 'Perfil no disponible por el momento.',
-    'commandes.reprendre': '🔁 Repetir este pedido',
     'profil.client': 'Cliente de {boutique}',
 
     /* ── Les avis, suite ── */
@@ -987,7 +963,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'Prezzo decrescente',
     'tri.alphabetique': 'Ordine alfabetico',
 
-    'reprise.titre': 'La stessa cosa',
     'catalogue.videTotal': 'Il catalogo è vuoto per il momento.',
 
     'avis.titre': 'Recensioni',
@@ -1028,10 +1003,8 @@ export const TEXTES = {
 
     'contact.titre': 'Una domanda?',
     'contact.texte':
-      'Un dubbio su un prodotto, un ordine che tarda, una richiesta particolare: scrivici, ' +
-      'rispondiamo in chat.',
-    'contact.ouvrir': 'Apri la chat',
-    'contact.nousEcrire': 'Scrivici',
+      'Un dubbio su un prodotto, un ordine che tarda, una richiesta particolare: scrivici ' +
+      'su Snapchat, rispondiamo lì.',
 
     'profil.titre': 'Il mio profilo',
     'profil.commandes': 'Ordini',
@@ -1062,7 +1035,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'Potrai ordinare una volta convalidato il documento.',
     'msg.calculEnAttente': 'Non ancora — rispondi al calcolo in chat.',
     'msg.articleParti': 'Questo articolo non è più a catalogo. Ecco il resto del negozio.',
-    'msg.vendeurAbsent': 'L\'account del venditore non è ancora configurato.',
     'msg.verifIndispo': 'Verifica non disponibile. Riprova tra un attimo.',
     'msg.reglageRefuse': 'Impostazione non salvata, riprova.',
 
@@ -1070,9 +1042,6 @@ export const TEXTES = {
     'rayon.unProduit': '1 prodotto',
     'rayon.produits': '{n} prodotti',
 
-    'contact.vendeurAbsent':
-      'L\'account del venditore non è ancora indicato: torna un po\' più tardi.',
-    'contact.tuEcrisA': 'Scrivi a @{nom}. Rispondiamo appena siamo disponibili.',
     'contact.onPrend': 'Prendiamo ordini.',
     'contact.onRouvre': 'Riapriamo presto.',
     'contact.retrait': 'Ritiro di persona',
@@ -1092,7 +1061,6 @@ export const TEXTES = {
     'commandes.vide': 'Non hai ancora fatto ordini.',
     'commandes.depuisTelegram': 'Apri il negozio da Telegram per ritrovare i tuoi ordini.',
     'commandes.profilIndispo': 'Profilo non disponibile per il momento.',
-    'commandes.reprendre': '🔁 Ripeti questo ordine',
     'profil.client': 'Cliente {boutique}',
 
     'avis.compte': 'Recensioni ({n})',
@@ -1257,7 +1225,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'Prijs aflopend',
     'tri.alphabetique': 'Alfabetisch',
 
-    'reprise.titre': 'Hetzelfde weer',
     'catalogue.videTotal': 'De catalogus is voorlopig leeg.',
 
     'avis.titre': 'Beoordelingen',
@@ -1299,9 +1266,7 @@ export const TEXTES = {
     'contact.titre': 'Een vraag?',
     'contact.texte':
       'Twijfel over een product, een bestelling die op zich laat wachten, een bijzondere vraag: ' +
-      'schrijf ons, we antwoorden in het gesprek.',
-    'contact.ouvrir': 'Gesprek openen',
-    'contact.nousEcrire': 'Schrijf ons',
+      'schrijf ons op Snapchat, daar antwoorden we.',
 
     'profil.titre': 'Mijn profiel',
     'profil.commandes': 'Bestellingen',
@@ -1334,7 +1299,6 @@ export const TEXTES = {
     'msg.calculEnAttente': 'Nog niet — beantwoord de som in het gesprek.',
     'msg.articleParti':
       'Dit artikel staat niet meer in de catalogus. Hier is de rest van de winkel.',
-    'msg.vendeurAbsent': 'Het verkopersaccount is nog niet ingesteld.',
     'msg.verifIndispo': 'Controle niet beschikbaar. Probeer het zo nog eens.',
     'msg.reglageRefuse': 'Instelling niet opgeslagen, probeer opnieuw.',
 
@@ -1342,8 +1306,6 @@ export const TEXTES = {
     'rayon.unProduit': '1 product',
     'rayon.produits': '{n} producten',
 
-    'contact.vendeurAbsent': 'Het verkopersaccount is nog niet ingevuld: kom wat later terug.',
-    'contact.tuEcrisA': 'Je schrijft naar @{nom}. We antwoorden zodra we er zijn.',
     'contact.onPrend': 'We nemen bestellingen aan.',
     'contact.onRouvre': 'We openen binnenkort weer.',
     'contact.retrait': 'Ophalen ter plaatse',
@@ -1363,7 +1325,6 @@ export const TEXTES = {
     'commandes.vide': 'Je hebt nog niets besteld.',
     'commandes.depuisTelegram': 'Open de winkel via Telegram om je bestellingen terug te vinden.',
     'commandes.profilIndispo': 'Profiel nu niet beschikbaar.',
-    'commandes.reprendre': '🔁 Deze bestelling herhalen',
     'profil.client': 'Klant van {boutique}',
 
     'avis.compte': 'Beoordelingen ({n})',
@@ -1530,7 +1491,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'Preço decrescente',
     'tri.alphabetique': 'Ordem alfabética',
 
-    'reprise.titre': 'O mesmo',
     'catalogue.videTotal': 'O catálogo está vazio de momento.',
 
     'avis.titre': 'Avaliações',
@@ -1571,10 +1531,8 @@ export const TEXTES = {
 
     'contact.titre': 'Uma pergunta?',
     'contact.texte':
-      'Uma dúvida sobre um produto, uma encomenda que demora, um pedido especial: escreve-nos, ' +
-      'respondemos na conversa.',
-    'contact.ouvrir': 'Abrir a conversa',
-    'contact.nousEcrire': 'Escreve-nos',
+      'Uma dúvida sobre um produto, uma encomenda que demora, um pedido especial: escreve-nos ' +
+      'no Snapchat, respondemos lá.',
 
     'profil.titre': 'O meu perfil',
     'profil.commandes': 'Encomendas',
@@ -1605,7 +1563,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'Poderás encomendar assim que o teu documento for validado.',
     'msg.calculEnAttente': 'Ainda não — responde à conta na conversa.',
     'msg.articleParti': 'Este artigo já não está no catálogo. Aqui fica o resto da loja.',
-    'msg.vendeurAbsent': 'A conta do vendedor ainda não está configurada.',
     'msg.verifIndispo': 'Verificação indisponível. Tenta daqui a pouco.',
     'msg.reglageRefuse': 'Definição não guardada, tenta de novo.',
 
@@ -1613,9 +1570,6 @@ export const TEXTES = {
     'rayon.unProduit': '1 produto',
     'rayon.produits': '{n} produtos',
 
-    'contact.vendeurAbsent':
-      'A conta do vendedor ainda não está indicada: volta um pouco mais tarde.',
-    'contact.tuEcrisA': 'Escreves a @{nom}. Respondemos assim que estivermos disponíveis.',
     'contact.onPrend': 'Estamos a aceitar encomendas.',
     'contact.onRouvre': 'Reabrimos em breve.',
     'contact.retrait': 'Levantamento em mão',
@@ -1635,7 +1589,6 @@ export const TEXTES = {
     'commandes.vide': 'Ainda não fizeste nenhuma encomenda.',
     'commandes.depuisTelegram': 'Abre a loja pelo Telegram para veres as tuas encomendas.',
     'commandes.profilIndispo': 'Perfil indisponível de momento.',
-    'commandes.reprendre': '🔁 Repetir esta encomenda',
     'profil.client': 'Cliente {boutique}',
 
     'avis.compte': 'Avaliações ({n})',
@@ -1800,7 +1753,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'Preis absteigend',
     'tri.alphabetique': 'Alphabetisch',
 
-    'reprise.titre': 'Dasselbe nochmal',
     'catalogue.videTotal': 'Der Katalog ist im Moment leer.',
 
     'avis.titre': 'Bewertungen',
@@ -1841,10 +1793,8 @@ export const TEXTES = {
 
     'contact.titre': 'Eine Frage?',
     'contact.texte':
-      'Zweifel an einem Produkt, eine Bestellung, die dauert, ein besonderer Wunsch: Schreib uns, ' +
-      'wir antworten im Chat.',
-    'contact.ouvrir': 'Chat öffnen',
-    'contact.nousEcrire': 'Schreib uns',
+      'Zweifel an einem Produkt, eine Bestellung, die dauert, ein besonderer Wunsch: Schreib uns ' +
+      'auf Snapchat, dort antworten wir.',
 
     'profil.titre': 'Mein Profil',
     'profil.commandes': 'Bestellungen',
@@ -1876,7 +1826,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'Du kannst bestellen, sobald dein Ausweis geprüft ist.',
     'msg.calculEnAttente': 'Noch nicht — beantworte die Rechnung im Chat.',
     'msg.articleParti': 'Dieser Artikel ist nicht mehr im Katalog. Hier ist der Rest des Shops.',
-    'msg.vendeurAbsent': 'Das Verkäuferkonto ist noch nicht eingerichtet.',
     'msg.verifIndispo': 'Prüfung nicht verfügbar. Versuch es gleich nochmal.',
     'msg.reglageRefuse': 'Einstellung nicht gespeichert, versuch es nochmal.',
 
@@ -1884,9 +1833,6 @@ export const TEXTES = {
     'rayon.unProduit': '1 Produkt',
     'rayon.produits': '{n} Produkte',
 
-    'contact.vendeurAbsent':
-      'Das Verkäuferkonto ist noch nicht eingetragen: Komm etwas später wieder.',
-    'contact.tuEcrisA': 'Du schreibst an @{nom}. Wir antworten, sobald wir da sind.',
     'contact.onPrend': 'Wir nehmen Bestellungen an.',
     'contact.onRouvre': 'Wir öffnen bald wieder.',
     'contact.retrait': 'Abholung vor Ort',
@@ -1906,7 +1852,6 @@ export const TEXTES = {
     'commandes.vide': 'Du hast noch nichts bestellt.',
     'commandes.depuisTelegram': 'Öffne den Shop über Telegram, um deine Bestellungen zu sehen.',
     'commandes.profilIndispo': 'Profil momentan nicht verfügbar.',
-    'commandes.reprendre': '🔁 Diese Bestellung wiederholen',
     'profil.client': 'Kunde von {boutique}',
 
     'avis.compte': 'Bewertungen ({n})',
@@ -2066,7 +2011,6 @@ export const TEXTES = {
     'tri.prixDecroissant': 'السعر تنازلياً',
     'tri.alphabetique': 'ترتيب أبجدي',
 
-    'reprise.titre': 'الشيء نفسه',
     'catalogue.videTotal': 'الكتالوج فارغ في الوقت الحالي.',
 
     'avis.titre': 'التقييمات',
@@ -2106,9 +2050,7 @@ export const TEXTES = {
     'produit.aimerAussi': 'سيعجبك أيضاً',
 
     'contact.titre': 'عندك سؤال؟',
-    'contact.texte': 'شكّ في منتج، طلب تأخّر، طلب خاص: اكتب لنا، نردّ عليك في المحادثة.',
-    'contact.ouvrir': 'فتح المحادثة',
-    'contact.nousEcrire': 'اكتب لنا',
+    'contact.texte': 'شكّ في منتج، طلب تأخّر، طلب خاص: اكتب لنا على سناب شات، نردّ عليك هناك.',
 
     'profil.titre': 'حسابي',
     'profil.commandes': 'الطلبات',
@@ -2136,7 +2078,6 @@ export const TEXTES = {
     'msg.pieceEnAttente': 'يمكنك الطلب بمجرّد قبول وثيقتك.',
     'msg.calculEnAttente': 'ليس بعد — أجب عن العملية الحسابية في المحادثة.',
     'msg.articleParti': 'لم يعد هذا المنتج في الكتالوج. إليك بقية المتجر.',
-    'msg.vendeurAbsent': 'حساب البائع لم يُضبط بعد.',
     'msg.verifIndispo': 'التحقّق غير متاح. أعد المحاولة بعد لحظات.',
     'msg.reglageRefuse': 'لم يُحفظ الإعداد، أعد المحاولة.',
 
@@ -2144,8 +2085,6 @@ export const TEXTES = {
     'rayon.unProduit': 'منتج واحد',
     'rayon.produits': '{n} منتجات',
 
-    'contact.vendeurAbsent': 'حساب البائع لم يُدرَج بعد: عد بعد قليل.',
-    'contact.tuEcrisA': 'أنت تكتب إلى @{nom}. نردّ بمجرّد أن نكون متاحين.',
     'contact.onPrend': 'نستقبل الطلبات.',
     'contact.onRouvre': 'سنفتح قريباً.',
     'contact.retrait': 'الاستلام باليد',
@@ -2165,7 +2104,6 @@ export const TEXTES = {
     'commandes.vide': 'لم تقم بأي طلب بعد.',
     'commandes.depuisTelegram': 'افتح المتجر من تيليغرام لتجد طلباتك.',
     'commandes.profilIndispo': 'الحساب غير متاح حالياً.',
-    'commandes.reprendre': '🔁 أعد هذا الطلب',
     'profil.client': 'زبون {boutique}',
 
     'avis.compte': 'التقييمات ({n})',

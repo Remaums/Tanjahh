@@ -112,10 +112,12 @@ export const config = {
 };
 
 /** Ce que la Mini App a le droit de connaître (jamais le token, jamais l'admin chat). */
+// Ce que /api/catalog publie, et cette route se lit SANS aucune signature.
+// Le compte du vendeur n'en fait pas partie : la boutique ne l'affiche plus
+// nulle part, et rien ne justifie de le donner à qui passe.
 export const publicConfig = {
   shopName: config.shopName,
   currency: config.currency,
-  sellerUsername: config.sellerUsername,
 };
 
 /**

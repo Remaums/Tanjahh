@@ -55,7 +55,6 @@
   --gold-lo-rgb: 196 106  20;
   --rouille-rgb: 138  75  42; /* la tôle de la pancarte */
   --red-rgb:   255  61  61;   /* fermé, rupture — le néon du « OPEN 7/7 » */
-  --tg-rgb:     42 171 238;   /* le bleu de Telegram : il ne nous appartient pas */
 
   --neon-hi: #d6efff;         /* survol */
   --neon-deep: #5fb4e8;       /* appui */
@@ -88,7 +87,6 @@
   --cream: rgb(var(--cream-rgb));
   --muted: rgb(var(--cream-rgb) / .68);
   --line-soft: rgb(var(--line-rgb) / .2);
-  --tg: rgb(var(--tg-rgb));
 
   /* Alias hérités (admin.css et états produits) */
   --green: var(--neon-deep);
@@ -451,30 +449,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / .3), 0 0 14px rgb(var(--neon-rgb) / .5);
 }
 .btn--ghost { background: rgba(255, 255, 255, .06); }
-
-/* Ce qui renvoie vers Telegram porte le bleu de Telegram : c'est la seule
-   couleur que le client reconnaît sans lire le bouton. */
-.btn--tg {
-  color: #ffffff; background: var(--tg); border-color: transparent;
-  box-shadow: 0 4px 14px rgb(var(--tg-rgb) / .22);
-}
 .btn--grow { flex: 1; }
 
-/* Le bouton « Une question », dans la barre de la fiche.
-
-   Compact et sans `grow` : il partage la barre avec « Commander », qui doit
-   rester le geste évident. À largeur égale, les deux se seraient disputé
-   l'attention et la boutique aurait eu l'air d'hésiter entre vendre et
-   renseigner.
-
-   Il reste assez large pour porter son mot : une icône seule se lit « chat »,
-   pas « une question sur ce produit », et on n'ose pas appuyer sur ce qu'on
-   ne comprend pas. */
-/* Inter est plus large que Barlow : à 390 px la barre passait sur deux
-   rangées — 123 px de haut au lieu de 68 — et « Commander » n'était plus
-   sur la même ligne que « Une question ». On rend les quelques pixels
-   qu'il faut, aux marges intérieures d'abord, au corps ensuite : c'est
-   moins voyant que de raccourcir un libellé. */
+/* La barre ne porte plus qu'un bouton, mais les marges restent rendues :
+   Inter est plus large que Barlow, et à 390 px un libellé long tenait sur
+   deux rangées — 123 px de haut au lieu de 68. */
 .pbar .btn { padding-left: 14px; padding-right: 14px; font-size: 14.5px; }
 .pbar .btn--block { gap: 7px; }
 .btn__libelle { white-space: nowrap; }

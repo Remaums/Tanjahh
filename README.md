@@ -201,6 +201,12 @@ s'affiche nulle part dans la boutique — ni sur ce panneau, ni sur l'écran
 Contact — parce qu'une boutique ouverte à tous n'est pas l'endroit pour
 l'afficher. Il se donne ailleurs, comme le vendeur l'entend.
 
+> Cette phrase a été fausse un temps : l'écran Contact affichait « tu écris à
+> @… », et `/api/catalog` — qui se lit sans aucune signature — publiait le
+> pseudo sous `shop.sellerUsername`. Les deux sont partis. Le serveur garde le
+> compte pour lui : c'est par lui que le bot relaie les messages, mais la
+> vitrine ne le donne plus, et `test/catalogue-public.test.mjs` le vérifie.
+
 La fiche reste ouverte derrière : le client referme le panneau et retrouve ce
 qu'il regardait. Une redirection le sortait de la boutique au moment précis où
 il venait de choisir, et s'il revenait il avait oublié sur quoi.
@@ -223,10 +229,18 @@ prix.
 
 Ce qui a disparu avec les autres boutons :
 
-| Bouton retiré | Ce qu'il faisait |
-|---|---|
-| *Poser une question* | rouvrait la conversation Telegram du vendeur |
-| *Préviens-moi du retour* | inscrivait le client à la liste d'attente d'un format épuisé |
+| Bouton retiré | Où il était | Ce qu'il faisait |
+|---|---|---|
+| *Poser une question* | barre de la fiche | rouvrait la conversation Telegram du vendeur |
+| *Préviens-moi du retour* | barre de la fiche | inscrivait le client à la liste d'attente d'un format épuisé |
+| *Ouvrir la conversation* | écran Contact | rouvrait la conversation Telegram du vendeur |
+| *La même chose* | accueil | remettait la dernière commande |
+| *Reprendre* | chaque commande de l'historique | la même, sur une commande précise |
+
+L'écran **Contact** n'a donc plus aucun bouton : il dit d'écrire sur Snapchat,
+et rappelle dessous les horaires et le mode de retrait. Restent ailleurs dans
+la boutique les boutons qui ne mènent ni à une commande ni au vendeur — les
+onglets, les cœurs des favoris, la bannière d'avis, la pastille de langue.
 
 ⚠️ **La liste d'attente n'est plus atteignable par le client.** Le serveur la
 garde entière — les routes, les inscrits déjà là, l'avis au retour du stock —
@@ -1384,22 +1398,17 @@ lire ses ventes du mardi, alors que la longueur des barres dit déjà tout. Les
 graphiques sont écrits à la main en SVG : quatre courbes ne valent pas cinquante
 kilo-octets de bibliothèque chargés sur le réseau d'un téléphone.
 
-### « La même chose »
+### Ce qui n'existe plus : « La même chose »
 
-Un client qui a déjà commandé trouve, sous la bannière d'accueil, un raccourci
-qui **remet sa dernière commande dans le panier** — sur une boutique de
-réassort, la plupart des commandes sont la précédente. La même chose se
-retrouve sur chaque ligne de « Mes commandes », pour revenir à une commande
-plus ancienne.
+Un client qui avait déjà commandé trouvait, sous la bannière d'accueil, un
+raccourci qui remettait sa dernière commande dans le panier, et la même chose
+sur chaque ligne de « Mes commandes ». Les deux sont **retirés** : la boutique
+ne porte plus qu'un bouton, « Commander », et il ouvre le panneau qui dit où
+commander.
 
-Le catalogue bouge entre deux commandes, et le raccourci ne promet que ce qu'il
-peut tenir : un article retiré ou épuisé est **écarté et annoncé**, une
-quantité plus grande que le stock est **ramenée au stock et annoncée**, et si
-plus rien n'est disponible le raccourci **disparaît** au lieu d'ouvrir un
-panier vide. Un panier déjà rempli n'est jamais remplacé sans qu'on demande.
-
-Il suit l'interrupteur **« Mes commandes »** : sans historique, il n'y a rien à
-reprendre.
+Le panier, lui, avait déjà disparu avant eux. Ce qui restait de ces raccourcis
+ouvrait la conversation du vendeur avec les articles écrits dedans — c'est
+précisément ce qu'on ne veut plus.
 
 ### Effacer les données d'une personne
 
