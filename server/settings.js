@@ -5,6 +5,7 @@ import { normalizeTiers } from './promos.js';
 import { normalizeZones, normalizeSlots, defaultSlots } from './delivery.js';
 import { defaultFeatures, normalizeFeatures } from './features.js';
 import { normalizeMusique } from './musique.js';
+import { retenirLeContact, identifiantDeConversation, pseudoTelegram } from './contact.js';
 
 /**
  * Réglages de la boutique : ce qui se change en exploitation, sans toucher au
@@ -33,9 +34,20 @@ const DEFAULTS = {
   slots: defaultSlots(),
   // Seuil d'alerte : en dessous, le vendeur reçoit un message.
   alerts: { lowStock: 3 },
-  // Où le bouton « Commander » emmène le client. Vide : la conversation
-  // Telegram du vendeur, comme avant. Rempli : le compte Snapchat.
-  contact: { snapchat: '' },
+  // Qui on prévient, et qui les clients écrivent. Les trois champs vides,
+  // c'est le `.env` qui parle — une boutique déjà en service ne voit donc
+  // rien changer tant qu'elle ne touche à rien.
+  contact: {
+    // Où le bouton « Commander » emmène le client. Vide : la conversation
+    // Telegram du vendeur, comme avant. Rempli : le compte Snapchat.
+    snapchat: '',
+    // Où le bot dépose commandes, alertes de stock et messages de clients.
+    // Vide : ADMIN_CHAT_ID.
+    adminChatId: '',
+    // Le compte que le client contacte depuis la boutique. Vide :
+    // SELLER_USERNAME.
+    sellerUsername: '',
+  },
   // L'entretien qui se fait tout seul, tous les jours.
   //
   // La sauvegarde est allumée d'office : elle ne détruit rien, elle ne coûte
@@ -110,6 +122,10 @@ const store = createStore('settings.json', () => structuredClone(DEFAULTS));
 /** Réglages complets : les valeurs par défaut comblent les champs absents. */
 export async function getSettings() {
   const data = await store.read();
+  // Les deux contacts sont lus par du code que rien n'oblige à attendre un
+  // magasin : on les dépose ici, à chaque lecture des réglages — et presque
+  // toute requête en lit. Voir `contact.js` pour le raisonnement.
+  retenirLeContact({ ...DEFAULTS.contact, ...(data.contact ?? {}) });
   // Une boutique installée avant le tableau de bord n'a pas de bloc
   // `features` : ses anciens interrupteurs le remplissent, personne ne voit
   // sa configuration changer sous ses pieds.
@@ -215,12 +231,22 @@ export async function saveSettings(patch) {
     }
     if (patch.contact) {
       const avant = { ...DEFAULTS.contact, ...(data.contact ?? {}) };
-      data.contact = {
-        snapchat:
-          patch.contact.snapchat === undefined
-            ? avant.snapchat
-            : pseudoSnapchat(patch.contact.snapchat),
+      // Chaque champ absent du patch garde sa valeur : le panneau enregistre
+      // parfois le seul réglage que le vendeur vient de toucher.
+      const garde = (clef, valider) => {
+        if (patch.contact[clef] === undefined) return avant[clef];
+        try {
+          return valider(patch.contact[clef]);
+        } catch (err) {
+          throw new HttpError(400, err.message);
+        }
       };
+      data.contact = {
+        snapchat: garde('snapchat', pseudoSnapchat),
+        adminChatId: garde('adminChatId', identifiantDeConversation),
+        sellerUsername: garde('sellerUsername', pseudoTelegram),
+      };
+      retenirLeContact(data.contact);
     }
     if (patch.fulfillment) {
       const current = { ...DEFAULTS.fulfillment, ...(data.fulfillment ?? {}) };

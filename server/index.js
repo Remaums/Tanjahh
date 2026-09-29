@@ -4,6 +4,7 @@ import express from 'express';
 import { webhookCallback } from 'grammy';
 
 import { config, publicConfig, assertConfigured } from './config.js';
+import { adminAPrevenir, vendeurJoignable } from './contact.js';
 import { verifyInitDataAny } from './telegram-auth.js';
 import { configure as secoursConfigure, estInscrit as estInscritAuSecours, combien as combienAuSecours } from './secours.js';
 import {
@@ -211,7 +212,7 @@ app.get('/api/health', async (req, res) => {
     config: {
       botToken: Boolean(config.botToken),
       webappUrl: Boolean(config.webappUrl),
-      sellerUsername: Boolean(config.sellerUsername),
+      sellerUsername: Boolean(vendeurJoignable()),
       adminIds: config.adminIds.length,
       webhookSecret: Boolean(config.webhookSecret),
     },
@@ -254,7 +255,11 @@ app.get('/api/catalog', async (req, res, next) => {
     const settings = await getSettings();
     // La Mini App a besoin de savoir quelles portes elle doit présenter.
     res.json({
-      shop: publicConfig,
+      // `publicConfig` fige ce que le `.env` disait au démarrage ; le compte
+      // vendeur, lui, se règle aussi dans le panneau. On rend donc la valeur
+      // effective, sans quoi un changement fait dans le panneau n'atteindrait
+      // jamais la boutique.
+      shop: { ...publicConfig, sellerUsername: vendeurJoignable() },
       categories,
       products,
       statuses: STATUSES,
@@ -289,9 +294,16 @@ app.get('/api/catalog', async (req, res, next) => {
       // et cette réponse-ci se lit sans la moindre signature.
       musique: playlistPublique(settings.musique, settings.features.musique),
       fulfillment: settings.fulfillment,
-      // Où le bouton « Commander » emmène. Un pseudo public, rien d'autre :
-      // c'est déjà ce que le vendeur affiche partout ailleurs.
-      contact: settings.contact,
+      // Sur quel canal se prennent les commandes — le CANAL, pas le compte.
+      //
+      // Cette réponse se lit sans la moindre signature. Y poser
+      // `settings.contact` entier publiait l'identifiant de conversation du
+      // vendeur, celui vers qui partent commandes et alertes : c'est une
+      // suite d'épreuves qui l'a arrêté, pas une relecture. Et le compte
+      // Snapchat lui-même n'a plus à sortir : depuis que le panneau ne
+      // l'affiche plus, la boutique n'a besoin que de savoir quel panneau
+      // ouvrir.
+      commandes: { canal: settings.contact.snapchat ? 'snapchat' : 'telegram' },
       // Les paliers sont publics : c'est une promesse d'affichage (« −10 %
       // dès 100 € »), pas un secret. Les codes, eux, ne sortent jamais d'ici.
       discounts: { tiers: settings.features.tiers ? settings.discounts.tiers : [] },
@@ -1520,11 +1532,11 @@ if (standalone) {
       // d'abord — c'est là qu'il lit d'habitude — et le secours s'il ne
       // répond plus, ce qui est justement le cas qui déclenche l'annonce.
       prevenirVendeur: async (texte) => {
-        if (!config.adminChatId) return;
+        if (!adminAPrevenir()) return;
         try {
-          await bot.api.sendMessage(config.adminChatId, texte);
+          await bot.api.sendMessage(adminAPrevenir(), texte);
         } catch {
-          await botSecours.api.sendMessage(config.adminChatId, texte).catch(() => {});
+          await botSecours.api.sendMessage(adminAPrevenir(), texte).catch(() => {});
         }
       },
       prevenirClients: (texte, liste) => prevenirLesInscrits(texte, { destinataires: liste }),

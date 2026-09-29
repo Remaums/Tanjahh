@@ -46,7 +46,7 @@ const poser = (snapchat, initData = ADMIN) =>
   fetch(`${BASE}/api/admin/settings`, {
     method: 'PUT', headers: h(initData), body: JSON.stringify({ contact: { snapchat } }),
   });
-const vitrine = async () => (await (await fetch(`${BASE}/api/catalog`)).json()).contact;
+const vitrine = async () => (await (await fetch(`${BASE}/api/catalog`)).json()).commandes;
 
 const depart = (await reglages()).contact?.snapchat ?? '';
 
@@ -58,7 +58,10 @@ try {
   check("Et c'est le pseudo qui est gardé, pas l'URL",
     (await r.json()).contact?.snapchat === 'lagratte677');
 
-  check('La boutique le voit', (await vitrine())?.snapchat === 'lagratte677');
+  // La boutique apprend le CANAL, jamais le compte : la réponse se lit sans
+  // signature, et le compte n'a rien à y faire.
+  check('La boutique sait que les commandes vont sur Snapchat',
+    (await vitrine())?.canal === 'snapchat', JSON.stringify(await vitrine()));
 
   for (const [forme, colle] of [
     ['@pseudo', '@lagratte677'],
@@ -97,7 +100,8 @@ try {
   r = await poser('');
   check('Le champ vide est accepté', r.status === 200, `HTTP ${r.status}`);
   check('Le compte est effacé', (await r.json()).contact?.snapchat === '');
-  check('Et la boutique retombe sur Telegram', (await vitrine())?.snapchat === '');
+  check('Et la boutique retombe sur Telegram', (await vitrine())?.canal === 'telegram',
+    JSON.stringify(await vitrine()));
 
   console.log('\n── Ce qui ne doit pas fuir ─────────────────────────');
 
@@ -106,9 +110,22 @@ try {
   const publique = await (await fetch(`${BASE}/api/catalog`)).json();
   check('Le catalogue public ne porte aucun jeton',
     !JSON.stringify(publique).includes(TOKEN));
-  check("Et n'expose que le pseudo dans `contact`",
-    Object.keys(publique.contact ?? {}).join() === 'snapchat',
-    Object.keys(publique.contact ?? {}).join());
+  // Le garde-fou qui a servi : y poser les réglages de contact entiers
+  // publiait l'identifiant de conversation du vendeur — celui vers qui
+  // partent commandes et alertes — dans une réponse que tout le monde lit.
+  check("Le catalogue public ne dit que le canal",
+    Object.keys(publique.commandes ?? {}).join() === 'canal',
+    Object.keys(publique.commandes ?? {}).join());
+  // `shop.sellerUsername` a le droit d'en sortir, et doit en sortir : c'est
+  // le compte que le bouton ouvre quand Snapchat n'est pas réglé, et un @
+  // public. Ce qui n'a rien à y faire, c'est le compte Snapchat — que le
+  // client ne voit plus nulle part — et l'identifiant de conversation du
+  // vendeur, vers qui partent commandes et alertes.
+  check('Le compte Snapchat ne sort pas',
+    !JSON.stringify(publique).includes('lagratte677'), '');
+  check("Ni le bloc de réglages, ni l'admin à prévenir",
+    publique.contact === undefined && !/adminChatId/.test(JSON.stringify(publique)),
+    JSON.stringify(publique.contact ?? 'absent'));
 } finally {
   const r = await poser(depart);
   const remis = (await r.json().catch(() => ({}))).contact?.snapchat ?? '';

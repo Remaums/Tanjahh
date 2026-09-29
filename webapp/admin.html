@@ -221,6 +221,31 @@
       <span>Compte Snapchat</span>
       <input id="fSnapchat" maxlength="120" placeholder="pseudo, @pseudo ou le lien snapchat.com/add/…">
     </label>
+
+    <h2 class="a-h2">Qui la boutique prévient</h2>
+    <p class="a-hint">
+      Ces deux réglages vivaient dans le fichier <code>.env</code> du serveur :
+      les changer demandait un terminal et un redémarrage. Ils se règlent
+      maintenant ici. <b>Laisse un champ vide et le <code>.env</code>
+      reprend la main</b> — rien ne change tant que tu n'y touches pas.
+    </p>
+    <label class="a-field">
+      <span>Admin à prévenir — commandes, alertes de stock, messages des clients</span>
+      <input id="fAdminChat" maxlength="24" inputmode="text" autocomplete="off"
+             spellcheck="false" placeholder="123456789 — ou -100123456789 pour un groupe">
+    </label>
+    <p class="a-hint">
+      Ton identifiant Telegram, ou celui d'un <b>groupe</b> — commençant par
+      <code>-100</code> — si vous êtes plusieurs à traiter les commandes. Le bot
+      doit être membre du groupe, sinon il ne pourra rien y écrire. Ton
+      identifiant : envoie <code>/start</code> au bot, il te l'affiche.
+    </p>
+    <label class="a-field">
+      <span>Compte vendeur — celui que le client contacte</span>
+      <input id="fSellerUsername" maxlength="64" autocomplete="off" spellcheck="false"
+             placeholder="pseudo, @pseudo ou le lien t.me/…">
+    </label>
+
     <button class="a-btn a-btn--primary a-btn--block" id="saveContact" type="button">Enregistrer le contact</button>
 
     <h2 class="a-h2">Ouverture</h2>

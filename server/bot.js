@@ -30,6 +30,7 @@ import { noterUtilisateur, trouverParPseudo, ficheDuRegistre } from './users.js'
 import { TEXTES, LANGUES, LANGUE_PAR_DEFAUT } from '../webapp/js/langues.js';
 import { langueDe, choisirLaLangue } from './langue.js';
 import { lienDuSecours } from './bot-secours.js';
+import { adminAPrevenir } from './contact.js';
 import {
   combien as combienAuSecours, sante as santeDesPortes,
   configure as configureSecours, estInscrit as estInscritAuSecours,
@@ -949,15 +950,15 @@ async function handleIdentityDocument(ctx) {
       'dès que la vérification est faite.'
   );
 
-  if (!config.adminChatId) {
+  if (!adminAPrevenir()) {
     return console.warn('ADMIN_CHAT_ID absent : pièce reçue mais personne à prévenir.');
   }
 
   try {
-    await ctx.api.forwardMessage(config.adminChatId, ctx.chat.id, ctx.message.message_id);
+    await ctx.api.forwardMessage(adminAPrevenir(), ctx.chat.id, ctx.message.message_id);
     const who = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name ?? 'client';
     await ctx.api.sendMessage(
-      config.adminChatId,
+      adminAPrevenir(),
       `🪪 Vérification demandée par ${who} (id ${ctx.from.id}).\n` +
         'Regarde le document ci-dessus, tranche, puis supprime-le de la conversation.',
       {
@@ -1240,7 +1241,7 @@ function nommer(qui) {
  * touche rien, ce qui est le bon défaut.
  */
 export async function proposerAnnonce(canal, { titre, texte }) {
-  if (!config.adminChatId) return;
+  if (!adminAPrevenir()) return;
 
   const settings = await getSettings();
   if (!settings.features.announcements) return;
@@ -1250,7 +1251,7 @@ export async function proposerAnnonce(canal, { titre, texte }) {
     // Personne à prévenir : le dire une fois vaut mieux qu'un bouton qui
     // n'enverra rien et laissera croire à une panne.
     await bot.api
-      .sendMessage(config.adminChatId, `${titre}\n\nAucun client abonné à ce canal pour l'instant.`)
+      .sendMessage(adminAPrevenir(), `${titre}\n\nAucun client abonné à ce canal pour l'instant.`)
       .catch(() => {});
     return;
   }
@@ -1261,7 +1262,7 @@ export async function proposerAnnonce(canal, { titre, texte }) {
 
   await bot.api
     .sendMessage(
-      config.adminChatId,
+      adminAPrevenir(),
       `${titre}\n\n— — —\n${texte}\n— — —\n\n` +
         `Envoyer à ${cibles.length} client${cibles.length > 1 ? 's' : ''} abonné${cibles.length > 1 ? 's' : ''} ?`,
       {
@@ -1405,7 +1406,7 @@ bot.callbackQuery(/^ann:(\d+)$/, async (ctx) => {
     diffuser(envoi, cibles)
       .then(({ recus, echecs }) =>
         bot.api.sendMessage(
-          config.adminChatId,
+          adminAPrevenir(),
           `📣 Annonce partie : ${recus} reçu${recus > 1 ? 's' : ''}` +
             (echecs ? `, ${echecs} échec${echecs > 1 ? 's' : ''}` : '') + '.' +
             // Un échec sur ce canal est presque toujours quelqu'un qui a
@@ -1567,13 +1568,13 @@ async function relayerAuVendeur(ctx) {
       `Réessaie dans ${attenteEnClair(cadence.attente)}.`;
   }
 
-  if (!config.adminChatId) {
+  if (!adminAPrevenir()) {
     console.warn('ADMIN_CHAT_ID absent : message client reçu, personne à prévenir.');
     return null;
   }
 
   try {
-    await bot.api.sendMessage(config.adminChatId, messageRelaye(ctx.from, ctx.message.text));
+    await bot.api.sendMessage(adminAPrevenir(), messageRelaye(ctx.from, ctx.message.text));
   } catch (err) {
     console.error('Relais du message client impossible :', err.message);
   }
@@ -2013,9 +2014,9 @@ bot.callbackQuery(/^st:([A-Za-z0-9-]+):([a-z]+)$/, async (ctx) => {
 
 /** Prévient le vendeur qu'une commande vient d'être enregistrée. */
 export async function notifyAdmin(order) {
-  if (!config.adminChatId) return;
+  if (!adminAPrevenir()) return;
   try {
-    await bot.api.sendMessage(config.adminChatId, orderMessage(order), {
+    await bot.api.sendMessage(adminAPrevenir(), orderMessage(order), {
       reply_markup: statusKeyboard(order),
     });
   } catch (err) {
@@ -2025,14 +2026,14 @@ export async function notifyAdmin(order) {
 
 /** Prévient le vendeur que des articles passent sous son seuil d'alerte. */
 export async function notifyLowStock(entries) {
-  if (!config.adminChatId || !entries.length) return;
+  if (!adminAPrevenir() || !entries.length) return;
 
   const lignes = entries
     .map((e) => `• ${e.name}${e.variantLabel ? ` (${e.variantLabel})` : ''} — ${e.left === 0 ? 'épuisé' : `reste ${e.left}`}`)
     .join('\n');
 
   try {
-    await bot.api.sendMessage(config.adminChatId, `⚠️ Stock bas\n\n${lignes}`);
+    await bot.api.sendMessage(adminAPrevenir(), `⚠️ Stock bas\n\n${lignes}`);
   } catch (err) {
     console.error('Alerte de stock impossible :', err.message);
   }
@@ -2148,7 +2149,7 @@ bot.callbackQuery(/^av:([A-Za-z0-9-]+):([1-5])$/, async (ctx) => {
  * est devenu une habitude.
  */
 export async function notifyNouvelAvis(order, avis) {
-  if (!config.adminChatId || !avis?.length) return;
+  if (!adminAPrevenir() || !avis?.length) return;
 
   const note = avis[0].note;
   const qui = order.user?.username ? `@${order.user.username}` : order.user?.firstName ?? 'Un client';
@@ -2156,7 +2157,7 @@ export async function notifyNouvelAvis(order, avis) {
 
   try {
     await bot.api.sendMessage(
-      config.adminChatId,
+      adminAPrevenir(),
       `${'⭐'.repeat(note)}${'☆'.repeat(5 - note)}  ${note}/5\n\n` +
         `${qui} · commande ${order.reference}\n` +
         `${articles}\n` +

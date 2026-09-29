@@ -159,8 +159,13 @@ export function assertConfigured({ exit = false } = {}) {
     );
   }
   if (!config.sellerUsername) {
+    // « Ou » et non « donc » : depuis que le panneau sait le régler, un
+    // SELLER_USERNAME absent n'est plus une panne, seulement un réglage qui
+    // vit ailleurs. Crier à l'erreur enverrait chercher dans le mauvais
+    // fichier quelqu'un qui a déjà tout réglé.
     console.warn(
-      '  SELLER_USERNAME non défini : le bouton "Commander" ne pourra pas ouvrir ta conversation.'
+      '  SELLER_USERNAME non défini : règle le compte vendeur dans le panneau\n' +
+        '    (Réglages → Où mènent les commandes), ou pose-le ici.'
     );
   }
 }

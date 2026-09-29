@@ -24,6 +24,7 @@ import { purgerCommandes } from './orders.js';
 import { buildBackup } from './backup.js';
 import { getSettings } from './settings.js';
 import { config } from './config.js';
+import { adminAPrevenir } from './contact.js';
 
 /** Ce qu'on retient d'une besogne : la date du jour où elle a été faite. */
 const store = createStore('entretien.json', {});
@@ -91,7 +92,7 @@ async function noter(clef, valeur) {
  *   pour que les tests n'aient pas besoin de Telegram.
  */
 export async function sauvegarder({ envoyer, maintenant = Date.now() } = {}) {
-  const chatId = config.adminChatId;
+  const chatId = adminAPrevenir();
   if (!chatId) return { fait: false, raison: 'aucun destinataire' };
 
   const sauvegarde = await buildBackup();

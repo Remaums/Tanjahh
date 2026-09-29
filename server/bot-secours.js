@@ -9,6 +9,7 @@ import { noterPassage } from './presence.js';
 import { messageRelaye, texteValide } from './messagerie.js';
 import { creerCadence, attenteEnClair } from './cadence.js';
 import { inscrire, oublier, configure } from './secours.js';
+import { adminAPrevenir } from './contact.js';
 
 /**
  * Le bot de secours : une porte de plus sur la même boutique.
@@ -186,13 +187,13 @@ if (botSecours) {
           `Réessaie dans ${attenteEnClair(cadence.attente)}.`
       );
     }
-    if (!config.adminChatId) {
+    if (!adminAPrevenir()) {
       console.warn('ADMIN_CHAT_ID absent : message reçu sur le secours, personne à prévenir.');
       return ctx.reply('Message bien reçu.');
     }
     try {
       await botSecours.api.sendMessage(
-        config.adminChatId,
+        adminAPrevenir(),
         `🆘 (bot de secours)\n${messageRelaye(ctx.from, texte)}`
       );
     } catch (err) {

@@ -24,7 +24,7 @@ const state = {
   features: {},       // ce que la boutique propose en ce moment
   opening: { open: true },
   fulfillment: { pickup: true, delivery: false, deliveryFee: 0, freeDeliveryFrom: null, minimumOrder: 0 },
-  contact: { snapchat: '' },  // où « Commander » emmène : Snapchat, sinon Telegram
+  commandes: { canal: 'telegram' },  // sur quel canal « Commander » renvoie
   tiers: [],          // remises automatiques par palier
   zones: [],          // zones de livraison desservies
   zone: null,         // celle qui couvre le code postal saisi
@@ -352,7 +352,7 @@ async function init() {
     state.opening = data.opening ?? { open: true };
     state.musique = data.musique ?? { titres: [] };
     state.fulfillment = data.fulfillment ?? state.fulfillment;
-    state.contact = data.contact ?? state.contact;
+    state.commandes = data.commandes ?? state.commandes;
     appliquerLesAnimations();
     applyFeatures();
     state.mode = state.fulfillment.pickup ? 'pickup' : 'delivery';
@@ -3556,10 +3556,9 @@ function commanderCeProduit() {
   if (!produit) return;
   const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
 
-  // Snapchat d'abord, quand le vendeur en a donné un : c'est là qu'il prend
-  // ses commandes. Sans pseudo Snapchat, le bouton fait ce qu'il a toujours
-  // fait, et la boutique n'a pas besoin d'être redéployée pour changer d'avis.
-  if (state.contact?.snapchat) {
+  // Le serveur dit le CANAL, jamais le compte : celui-ci ne sort plus de la
+  // boutique, et le panneau n'en a pas besoin pour s'ouvrir.
+  if (state.commandes?.canal === 'snapchat') {
     montrerOuCommander();
     haptic('light');
     return;

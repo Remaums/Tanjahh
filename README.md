@@ -214,6 +214,37 @@ Le champ n'est donc plus qu'un **interrupteur** : ce qu'on y met n'apparaît
 jamais côté client. Colle ce que tu as sous la main — le lien de partage,
 `@pseudo` ou le pseudo nu ; seul le pseudo est gardé.
 
+> La boutique n'apprend que le **canal** — « snapchat » ou « telegram » —
+> jamais le compte. `/api/catalog` se lit sans la moindre signature : y poser
+> les réglages de contact entiers publiait l'identifiant de conversation du
+> vendeur. C'est une suite d'épreuves qui l'a arrêté, pas une relecture.
+
+### Qui la boutique prévient
+
+Deux réglages qui vivaient dans le `.env` du serveur — les changer demandait
+un terminal et un redémarrage — se règlent maintenant dans **Réglages → Qui la
+boutique prévient** :
+
+| Réglage | À quoi il sert | Repli |
+|---|---|---|
+| **Admin à prévenir** | où arrivent les commandes, les alertes de stock et les messages des clients | `ADMIN_CHAT_ID` |
+| **Compte vendeur** | le compte que le client contacte depuis la boutique | `SELLER_USERNAME` |
+
+**Laisse un champ vide et le `.env` reprend la main.** Une boutique déjà en
+service ne voit donc rien changer tant qu'elle n'y touche pas, et une
+installation neuve marche avec le seul `.env`, comme avant. C'est le point que
+la suite protège en premier : un champ vide ne veut pas dire « personne », il
+veut dire « comme avant » — se tromper là-dessus, c'est une boutique qui cesse
+de recevoir ses commandes sans que rien ne le dise.
+
+L'**admin à prévenir** accepte un identifiant de groupe, commençant par
+`-100` : c'est le cas qu'on veut permettre, deux vendeurs qui voient les mêmes
+commandes. Le bot doit être membre du groupe, sinon il ne pourra rien y
+écrire.
+
+Le **compte vendeur** se colle sous les trois formes habituelles : le lien
+`t.me/…`, `@pseudo` ou le pseudo nu.
+
 ### Le cycle d'une commande
 
 ```

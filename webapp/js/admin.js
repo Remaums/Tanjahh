@@ -2072,6 +2072,8 @@ function renderSettings() {
   renderCommandes();
 
   $('fSnapchat').value = settings.contact?.snapchat ?? '';
+  $('fAdminChat').value = settings.contact?.adminChatId ?? '';
+  $('fSellerUsername').value = settings.contact?.sellerUsername ?? '';
 
   const opening = settings.opening ?? { open: true, hours: {} };
   $('fOpen').checked = Boolean(opening.open);
@@ -2169,11 +2171,23 @@ async function saveContact() {
   try {
     state.settings = await api('/settings', {
       method: 'PUT',
-      body: { contact: { snapchat: $('fSnapchat').value.trim() } },
+      body: {
+        contact: {
+          snapchat: $('fSnapchat').value.trim(),
+          adminChatId: $('fAdminChat').value.trim(),
+          sellerUsername: $('fSellerUsername').value.trim(),
+        },
+      },
     });
     renderSettings();
-    const pseudo = state.settings.contact?.snapchat;
-    toast(pseudo ? `Commandes sur Snapchat : @${pseudo}` : 'Commandes sur la conversation Telegram');
+    // On dit ce qui a été retenu, et d'où ça vient : un champ laissé vide
+    // n'est pas un réglage perdu, c'est le .env qui reprend la main — et
+    // c'est exactement ce qu'on ne devine pas en regardant un champ vide.
+    const c = state.settings.contact ?? {};
+    toast(
+      (c.snapchat ? `Snapchat @${c.snapchat}` : 'Commandes sur Telegram') +
+        ' · ' + (c.adminChatId ? `alertes vers ${c.adminChatId}` : 'alertes selon le .env')
+    );
     haptic('success');
   } catch (err) {
     toast(err.message);
