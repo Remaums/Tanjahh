@@ -205,19 +205,33 @@ La fiche reste ouverte derrière : le client referme le panneau et retrouve ce
 qu'il regardait. Une redirection le sortait de la boutique au moment précis où
 il venait de choisir, et s'il revenait il avait oublié sur quoi.
 
-| Champ *Compte Snapchat*, dans Réglages | Ce que fait le bouton |
+Il n'y a **rien à régler** : ni champ *Compte Snapchat* dans les Réglages, ni
+repli vers la conversation Telegram du vendeur. Le bouton fait toujours la même
+chose, et c'est la seule chose qu'il fait.
+
+> Le réglage a existé, et le catalogue en portait la trace : `/api/catalog` se
+> lit sans la moindre signature, et y poser les réglages de contact entiers
+> publiait l'identifiant de conversation du vendeur. C'est une suite d'épreuves
+> qui l'a arrêté, pas une relecture — `test/catalogue-public.test.mjs` garde
+> encore cette porte, maintenant qu'il n'y a plus de canal à y publier.
+
+### Un seul bouton sur la fiche produit
+
+La barre du bas d'une fiche ne porte plus que **Commander**, avec le prix
+dedans. Épuisé, c'est le même bouton, éteint et grisé, qui dit « Épuisé » sans
+prix.
+
+Ce qui a disparu avec les autres boutons :
+
+| Bouton retiré | Ce qu'il faisait |
 |---|---|
-| rempli | ouvre le panneau « Pour commander » |
-| vide | rouvre la conversation Telegram du vendeur, avec la commande écrite dedans |
+| *Poser une question* | rouvrait la conversation Telegram du vendeur |
+| *Préviens-moi du retour* | inscrivait le client à la liste d'attente d'un format épuisé |
 
-Le champ n'est donc plus qu'un **interrupteur** : ce qu'on y met n'apparaît
-jamais côté client. Colle ce que tu as sous la main — le lien de partage,
-`@pseudo` ou le pseudo nu ; seul le pseudo est gardé.
-
-> La boutique n'apprend que le **canal** — « snapchat » ou « telegram » —
-> jamais le compte. `/api/catalog` se lit sans la moindre signature : y poser
-> les réglages de contact entiers publiait l'identifiant de conversation du
-> vendeur. C'est une suite d'épreuves qui l'a arrêté, pas une relecture.
+⚠️ **La liste d'attente n'est plus atteignable par le client.** Le serveur la
+garde entière — les routes, les inscrits déjà là, l'avis au retour du stock —
+mais le seul bouton qui permettait de s'y inscrire n'existe plus. Personne ne
+s'y ajoutera tant qu'un bouton ne le fera pas à nouveau.
 
 ### Les fichiers de la boutique portent une empreinte
 

@@ -307,16 +307,6 @@ app.get('/api/catalog', async (req, res, next) => {
       // et cette réponse-ci se lit sans la moindre signature.
       musique: playlistPublique(settings.musique, settings.features.musique),
       fulfillment: settings.fulfillment,
-      // Sur quel canal se prennent les commandes — le CANAL, pas le compte.
-      //
-      // Cette réponse se lit sans la moindre signature. Y poser
-      // `settings.contact` entier publiait l'identifiant de conversation du
-      // vendeur, celui vers qui partent commandes et alertes : c'est une
-      // suite d'épreuves qui l'a arrêté, pas une relecture. Et le compte
-      // Snapchat lui-même n'a plus à sortir : depuis que le panneau ne
-      // l'affiche plus, la boutique n'a besoin que de savoir quel panneau
-      // ouvrir.
-      commandes: { canal: settings.contact.snapchat ? 'snapchat' : 'telegram' },
       // Les paliers sont publics : c'est une promesse d'affichage (« −10 %
       // dès 100 € »), pas un secret. Les codes, eux, ne sortent jamais d'ici.
       discounts: { tiers: settings.features.tiers ? settings.discounts.tiers : [] },

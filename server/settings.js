@@ -38,9 +38,6 @@ const DEFAULTS = {
   // c'est le `.env` qui parle — une boutique déjà en service ne voit donc
   // rien changer tant qu'elle ne touche à rien.
   contact: {
-    // Où le bouton « Commander » emmène le client. Vide : la conversation
-    // Telegram du vendeur, comme avant. Rempli : le compte Snapchat.
-    snapchat: '',
     // Où le bot dépose commandes, alertes de stock et messages de clients.
     // Vide : ADMIN_CHAT_ID.
     adminChatId: '',
@@ -242,7 +239,6 @@ export async function saveSettings(patch) {
         }
       };
       data.contact = {
-        snapchat: garde('snapchat', pseudoSnapchat),
         adminChatId: garde('adminChatId', identifiantDeConversation),
         sellerUsername: garde('sellerUsername', pseudoTelegram),
       };
@@ -290,38 +286,6 @@ export async function saveSettings(patch) {
     }
     return { ...DEFAULTS, ...data };
   });
-}
-
-/**
- * Le pseudo Snapchat, quelle que soit la façon dont on l'a collé.
- *
- * Le vendeur copie ce qu'il a sous la main : le lien complet que Snapchat
- * lui donne à partager, le `@pseudo` qu'il lit dans l'application, ou le
- * pseudo nu. Les trois doivent marcher — refuser le lien collé, c'est-à-dire
- * la forme la plus probable, serait un réglage qui ne s'enregistre jamais
- * sans qu'on comprenne pourquoi.
- *
- * On ne garde que le pseudo : le lien se refabrique à l'affichage, et le
- * stocker entier laisserait entrer n'importe quelle URL dans un attribut
- * `href` de la boutique.
- *
- * Vide remet le bouton sur Telegram : c'est ainsi qu'on revient en arrière.
- */
-function pseudoSnapchat(valeur) {
-  const brut = String(valeur ?? '').trim();
-  if (!brut) return '';
-
-  // `snapchat.com/add/pseudo`, avec ou sans https, avec ou sans www, et
-  // avec ce que Snapchat accroche derrière (?share_id=…, //, etc.).
-  const lien = brut.match(/snapchat\.com\/(?:add|t)\/([^/?#]+)/i);
-  const pseudo = (lien ? lien[1] : brut).replace(/^@/, '').trim();
-
-  // Les pseudos Snapchat commencent par une lettre et n'acceptent ensuite
-  // que lettres, chiffres, point, tiret et souligné.
-  if (!/^[A-Za-z][A-Za-z0-9._-]{1,28}$/.test(pseudo)) {
-    throw new HttpError(400, 'Pseudo Snapchat invalide : un pseudo, un @pseudo ou le lien snapchat.com/add/…');
-  }
-  return pseudo;
 }
 
 /**

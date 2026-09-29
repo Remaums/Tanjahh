@@ -146,51 +146,102 @@ check('Un initData de 48 h est refusé', r.status === 401, `HTTP ${r.status}`);
 console.log('\n── L épreuve ne se balaie pas ──────────────────────');
 
 {
-  // 84 combinaisons : sans limite, la bonne tombait au 34ᵉ essai.
+  // L'épreuve est un puzzle : la pièce va à un endroit, et le serveur tolère
+  // douze pixels. Sur trois cents, cela fait environ vingt-cinq positions —
+  // qu'un automate essaierait toutes en quelques secondes s'il le pouvait.
   //
-  // On ne cherche surtout pas la bonne réponse ici : douze essais sur
-  // quatre-vingt-quatre combinaisons, c'est une chance sur sept de tomber
-  // dessus par hasard, et le test échouerait un lancement sur sept sans que
-  // rien ne soit cassé. On envoie donc des réponses dont on sait qu'elles sont
-  // fausses — une sélection vide ne peut pas désigner trois tuiles — et on
-  // regarde où le serveur coupe.
-  const brute = signInitData(TOKEN, { id: 993200 + Math.floor(Math.random() * 100000), first_name: 'Brute' });
-  const epreuve = await (await fetch(`${BASE}/api/captcha`, { headers: h(brute) })).json();
+  // On ne cherche surtout pas la bonne place ici : le test échouerait un
+  // lancement sur vingt-cinq sans que rien ne soit cassé. On dépose donc la
+  // pièce à un endroit dont on SAIT qu'il est faux — loin du trou annoncé —
+  // et on regarde où le serveur coupe.
+  //
+  // Le geste est fourni : sans lui, le refus tombe avant le décompte et le
+  // balayage serait gratuit. C'est le compteur qu'on éprouve, pas le filtre.
+  //
+  // Trois identifiants tirés au hasard, car le compteur de cadence garde la
+  // trace des essais : rejouer les mêmes numéros ferait échouer le second
+  // lancement de la suite sans que rien ne soit cassé. Tirés au hasard, donc
+  // — et la porte du bot leur est ouverte explicitement, sinon /api/captcha
+  // répond 403 et non pas une épreuve.
+  const souche = () => 990000000 + Math.floor(Math.random() * 9000000);
+  const idBrute = souche();
+  const idVoisin = souche();
+  const idHonnete = souche();
+  await franchirLaPorte(BASE, ADMIN, idBrute, idVoisin, idHonnete);
 
-  if (!epreuve.required) {
+  const brute = signInitData(TOKEN, { id: idBrute, first_name: 'Brute' });
+  const reponse = await fetch(`${BASE}/api/captcha`, { headers: h(brute) });
+  const epreuve = reponse.ok ? await reponse.json() : {};
+
+  // Une épreuve éteinte se dit `required: false` — et rien d'autre. Un 403,
+  // un 500 ou un corps inattendu ne sont PAS une épreuve désactivée : les
+  // confondre ferait sauter tout ce qui suit en affichant « OK ».
+  if (!reponse.ok) {
+    check("L'épreuve répond quelque chose", false, `HTTP ${reponse.status}`);
+  } else if (epreuve.required === false) {
     check("L'épreuve est désactivée : rien à balayer", true, 'captcha éteint');
   } else {
-    const repondre = (selection) =>
+    check("L'épreuve annonce un trou à viser",
+      Number.isFinite(epreuve.x) && Number.isFinite(epreuve.largeur) && Number.isFinite(epreuve.piece),
+      `x=${epreuve.x} largeur=${epreuve.largeur} piece=${epreuve.piece}`);
+
+    const geste = (jusqua) => {
+      const debut = Date.now();
+      return Array.from({ length: 6 }, (_, i) => ({
+        t: debut + i * 40, x: Math.round((jusqua * (i + 1)) / 6),
+      }));
+    };
+    // Aussi loin du trou que le cadre le permet : jamais dans la tolérance.
+    const faux = epreuve.x > epreuve.largeur / 2 ? 0 : epreuve.largeur - epreuve.piece;
+    const repondre = () =>
       fetch(`${BASE}/api/captcha`, {
         method: 'POST', headers: h(brute),
-        body: JSON.stringify({ nonce: epreuve.nonce, expiresAt: epreuve.expiresAt, token: epreuve.token, selection }),
+        body: JSON.stringify({
+          nonce: epreuve.nonce, expiresAt: epreuve.expiresAt, token: epreuve.token,
+          x: faux, trace: geste(faux),
+        }),
       }).then((res) => res.json());
 
+    // Le premier refus doit être celui de la POSITION — « Pas tout à fait ».
+    // C'est le seul qui tombe APRÈS que le compteur a été consommé : les trois
+    // autres refus possibles (« Réponse incomplète », « Épuisée », « invalide »)
+    // passent devant le décompte, et si l'un d'eux sortait ici, le balayage
+    // mesuré plus bas ne mesurerait rien du tout. C'est exactement ce qui
+    // rendait cette section muette quand elle envoyait l'ancien format.
+    const premier = await repondre();
+    check('Une pièce mal posée est refusée par le puzzle, pas par l analyseur',
+      /Pas tout à fait/.test(premier.error ?? ''), premier.error ?? '(aucun refus)');
+
     let coupeA = null;
-    for (let essai = 1; essai <= 30 && coupeA === null; essai += 1) {
-      const v = await repondre([]);
+    for (let essai = 2; essai <= 30 && coupeA === null; essai += 1) {
+      const v = await repondre();
       if (/Trop d'essais/.test(v.error ?? '')) coupeA = essai;
     }
 
     check('Le balayage est coupé avant la 30ᵉ tentative', coupeA !== null, `coupé au ${coupeA}ᵉ essai`);
-    check('Et bien avant les 84 combinaisons possibles', coupeA !== null && coupeA <= 20, String(coupeA));
+    check('Et bien avant les vingt-cinq positions possibles',
+      coupeA !== null && coupeA <= 20, String(coupeA));
     check('Le refus dit combien de temps attendre',
-      /Réessaie dans/.test((await repondre([])).error ?? ''));
+      /Réessaie dans/.test((await repondre()).error ?? ''));
 
     // La coupure vise celui qui insiste, pas la boutique : quelqu'un d'autre
     // doit pouvoir répondre dans la seconde qui suit.
-    const voisin = signInitData(TOKEN, { id: 993200 + Math.floor(Math.random() * 100000), first_name: 'Voisin' });
+    const voisin = signInitData(TOKEN, { id: idVoisin, first_name: 'Voisin' });
     const sienne = await (await fetch(`${BASE}/api/captcha`, { headers: h(voisin) })).json();
+    const loin = sienne.x > sienne.largeur / 2 ? 0 : sienne.largeur - sienne.piece;
     const essai = await fetch(`${BASE}/api/captcha`, {
       method: 'POST', headers: h(voisin),
-      body: JSON.stringify({ nonce: sienne.nonce, expiresAt: sienne.expiresAt, token: sienne.token, selection: [] }),
+      body: JSON.stringify({
+        nonce: sienne.nonce, expiresAt: sienne.expiresAt, token: sienne.token,
+        x: loin, trace: geste(loin),
+      }),
     }).then((res) => res.json());
     check('Un autre client n est pas puni pour autant',
       !/Trop d'essais/.test(essai.error ?? ''), essai.error ?? '');
 
     // Et la bonne réponse, elle, passe toujours du premier coup.
     check('Un client qui répond juste entre sans friction',
-      Boolean(await getShopPass(BASE, signInitData(TOKEN, { id: 993200 + Math.floor(Math.random() * 100000), first_name: 'Honnete' }))));
+      Boolean(await getShopPass(BASE, signInitData(TOKEN, { id: idHonnete, first_name: 'Honnete' }))));
   }
 }
 

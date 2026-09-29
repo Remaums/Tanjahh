@@ -1180,25 +1180,6 @@ function blocEffacement(id, surFini) {
 }
 
 /**
- * Où partent les commandes, écrit en clair.
- *
- * Un champ Snapchat vide ne disait rien : impossible de savoir depuis le
- * panneau si le bouton « Commander » ouvrait le panneau Snapchat ou rouvrait
- * la conversation Telegram. Il fallait ouvrir la boutique et appuyer dessus —
- * et quand on s'en apercevait, c'était en croyant à une panne.
- */
-function peindreLeCanal(contact) {
-  const ligne = $('canalActif');
-  if (!ligne) return;
-  const snap = Boolean(contact.snapchat);
-  ligne.classList.toggle('a-canal--snap', snap);
-  ligne.textContent = snap
-    ? '👻 Le bouton « Commander » ouvre le panneau Snapchat.'
-    : '✈️ Le bouton « Commander » rouvre la conversation Telegram du vendeur, ' +
-      'avec la commande écrite dedans. Remplis le champ ci-dessus pour passer sur Snapchat.';
-}
-
-/**
  * Effacer quelqu'un qui n'a de fiche nulle part.
  *
  * Une personne qui a mis trois produits en favori sans jamais commander ni
@@ -2090,8 +2071,6 @@ function renderSettings() {
   renderMusique();
   renderCommandes();
 
-  $('fSnapchat').value = settings.contact?.snapchat ?? '';
-  peindreLeCanal(settings.contact ?? {});
   $('fAdminChat').value = settings.contact?.adminChatId ?? '';
   $('fSellerUsername').value = settings.contact?.sellerUsername ?? '';
 
@@ -2193,7 +2172,6 @@ async function saveContact() {
       method: 'PUT',
       body: {
         contact: {
-          snapchat: $('fSnapchat').value.trim(),
           adminChatId: $('fAdminChat').value.trim(),
           sellerUsername: $('fSellerUsername').value.trim(),
         },
@@ -2204,10 +2182,7 @@ async function saveContact() {
     // n'est pas un réglage perdu, c'est le .env qui reprend la main — et
     // c'est exactement ce qu'on ne devine pas en regardant un champ vide.
     const c = state.settings.contact ?? {};
-    toast(
-      (c.snapchat ? `Snapchat @${c.snapchat}` : 'Commandes sur Telegram') +
-        ' · ' + (c.adminChatId ? `alertes vers ${c.adminChatId}` : 'alertes selon le .env')
-    );
+    toast(c.adminChatId ? `Alertes vers ${c.adminChatId}` : 'Alertes selon le .env');
     haptic('success');
   } catch (err) {
     toast(err.message);

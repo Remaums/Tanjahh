@@ -125,7 +125,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Rien ne correspond à « {mot} ».',
     'catalogue.videCategorie': 'Rien dans cette catégorie pour le moment.',
     'produit.epuiseMinuscule': 'épuisé',
-    'produit.prevenu': '🔔 Tu seras prévenu',
 
     'etat.fermeDans': 'ferme dans {duree}',
     'etat.ouvreDans': 'ouvre dans {duree}',
@@ -144,9 +143,7 @@ export const TEXTES = {
     /* ── La fiche produit ── */
     'produit.format': 'Choisis ton format',
     'produit.commander': 'Commander',
-    'produit.question': 'Une question',
-    'produit.questionCourt': 'Question',
-    'produit.prevenir': '🔔 Préviens-moi du retour',
+    'produit.epuise': 'Épuisé',
     'produit.memeCategorie': 'Même catégorie',
     'produit.aimerAussi': 'Tu vas aimer aussi',
 
@@ -197,8 +194,6 @@ export const TEXTES = {
     'msg.reglageRefuse': 'Réglage non enregistré, réessaie.',
 
     /* ── L'alerte de retour ── */
-    'alerte.inscrit': "On t'écrit dès que ça revient.",
-    'alerte.impossible': 'Inscription impossible pour le moment.',
 
     /* ── Les rayons ── */
     'rayon.unProduit': '1 produit',
@@ -275,12 +270,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Même catégorie · {cat}',
 
     /* ── Ce qu'on écrit au vendeur ── */
-    'msg.bonjourCommander': 'Bonjour ! Je voudrais commander sur {boutique} ⚡',
     'snap.titre': 'Pour commander',
     'snap.texte': 'Les commandes se prennent sur Snapchat : envoie-nous un message là-bas. La boutique, elle, sert à choisir.',
     'snap.compris': 'J\'ai compris',
-    'msg.bonjourQuestion': 'Bonjour ! Une question sur {boutique} ⚡',
-    'msg.bonjourRecommander': 'Bonjour ! Je voudrais recommander la même chose sur {boutique} ⚡',
     'msg.article': 'Article',
 
     /* ── Le retour ── */
@@ -309,7 +301,6 @@ export const TEXTES = {
     'aria.medias': 'Médias',
     'aria.mediaPrec': 'Média précédent',
     'aria.mediaSuiv': 'Média suivant',
-    'aria.question': 'Poser une question sur ce produit',
     'aria.signer': 'Signer ton avis',
 
     /* ── Le lecteur ── */
@@ -434,7 +425,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Nothing matches “{mot}”.',
     'catalogue.videCategorie': 'Nothing in this category for now.',
     'produit.epuiseMinuscule': 'sold out',
-    'produit.prevenu': '🔔 You’ll be told',
 
     'etat.fermeDans': 'closes in {duree}',
     'etat.ouvreDans': 'opens in {duree}',
@@ -451,9 +441,7 @@ export const TEXTES = {
 
     'produit.format': 'Choose your size',
     'produit.commander': 'Order',
-    'produit.question': 'Ask a question',
-    'produit.questionCourt': 'Question',
-    'produit.prevenir': '🔔 Tell me when it’s back',
+    'produit.epuise': 'Sold out',
     'produit.memeCategorie': 'Same category',
     'produit.aimerAussi': 'You might also like',
 
@@ -500,8 +488,6 @@ export const TEXTES = {
     'msg.reglageRefuse': 'Setting not saved, try again.',
 
     /* ── L'alerte de retour ── */
-    'alerte.inscrit': "We'll write as soon as it's back.",
-    'alerte.impossible': "Can't sign you up right now.",
 
     /* ── Les rayons ── */
     'rayon.unProduit': '1 product',
@@ -578,12 +564,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Same category · {cat}',
 
     /* ── Ce qu'on écrit au vendeur ── */
-    'msg.bonjourCommander': 'Hello! I would like to order from {boutique} ⚡',
     'snap.titre': 'To order',
     'snap.texte': 'Orders are taken on Snapchat: send us a message there. The shop is for choosing.',
     'snap.compris': 'Got it',
-    'msg.bonjourQuestion': 'Hello! A question about {boutique} ⚡',
-    'msg.bonjourRecommander': 'Hello! I would like to order the same thing again from {boutique} ⚡',
     'msg.article': 'Item',
 
     /* ── Le retour ── */
@@ -612,7 +595,6 @@ export const TEXTES = {
     'aria.medias': 'Media',
     'aria.mediaPrec': 'Previous media',
     'aria.mediaSuiv': 'Next media',
-    'aria.question': 'Ask a question about this product',
     'aria.signer': 'Sign your review',
 
     /* ── Le lecteur ── */
@@ -733,7 +715,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Nada coincide con «{mot}».',
     'catalogue.videCategorie': 'Nada en esta categoría por ahora.',
     'produit.epuiseMinuscule': 'agotado',
-    'produit.prevenu': '🔔 Te avisaremos',
 
     'etat.fermeDans': 'cierra en {duree}',
     'etat.ouvreDans': 'abre en {duree}',
@@ -750,9 +731,7 @@ export const TEXTES = {
 
     'produit.format': 'Elige tu formato',
     'produit.commander': 'Pedir',
-    'produit.question': 'Una pregunta',
-    'produit.questionCourt': 'Pregunta',
-    'produit.prevenir': '🔔 Avísame cuando vuelva',
+    'produit.epuise': 'Agotado',
     'produit.memeCategorie': 'Misma categoría',
     'produit.aimerAussi': 'También te puede gustar',
 
@@ -799,8 +778,6 @@ export const TEXTES = {
     'msg.reglageRefuse': 'Ajuste no guardado, inténtalo de nuevo.',
 
     /* ── L'alerte de retour ── */
-    'alerte.inscrit': 'Te escribimos en cuanto vuelva.',
-    'alerte.impossible': 'No se puede apuntar por ahora.',
 
     /* ── Les rayons ── */
     'rayon.unProduit': '1 producto',
@@ -877,12 +854,9 @@ export const TEXTES = {
     'produit.memeCategorieAvec': 'Misma categoría · {cat}',
 
     /* ── Ce qu'on écrit au vendeur ── */
-    'msg.bonjourCommander': '¡Hola! Quiero hacer un pedido en {boutique} ⚡',
     'snap.titre': 'Para pedir',
     'snap.texte': 'Los pedidos se hacen por Snapchat: envíanos un mensaje allí. La tienda sirve para elegir.',
     'snap.compris': 'Entendido',
-    'msg.bonjourQuestion': '¡Hola! Una pregunta sobre {boutique} ⚡',
-    'msg.bonjourRecommander': '¡Hola! Quiero repetir el mismo pedido en {boutique} ⚡',
     'msg.article': 'Artículo',
 
     /* ── Le retour ── */
@@ -911,7 +885,6 @@ export const TEXTES = {
     'aria.medias': 'Medios',
     'aria.mediaPrec': 'Medio anterior',
     'aria.mediaSuiv': 'Medio siguiente',
-    'aria.question': 'Hacer una pregunta sobre este producto',
     'aria.signer': 'Firmar tu opinión',
 
     /* ── Le lecteur ── */
@@ -1033,7 +1006,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Nessun risultato per « {mot} ».',
     'catalogue.videCategorie': 'Niente in questa categoria per il momento.',
     'produit.epuiseMinuscule': 'esaurito',
-    'produit.prevenu': '🔔 Ti avviseremo',
 
     'etat.fermeDans': 'chiude tra {duree}',
     'etat.ouvreDans': 'apre tra {duree}',
@@ -1050,9 +1022,7 @@ export const TEXTES = {
 
     'produit.format': 'Scegli il formato',
     'produit.commander': 'Ordina',
-    'produit.question': 'Una domanda',
-    'produit.questionCourt': 'Domanda',
-    'produit.prevenir': '🔔 Avvisami quando torna',
+    'produit.epuise': 'Esaurito',
     'produit.memeCategorie': 'Stessa categoria',
     'produit.aimerAussi': 'Ti piacerà anche',
 
@@ -1096,8 +1066,6 @@ export const TEXTES = {
     'msg.verifIndispo': 'Verifica non disponibile. Riprova tra un attimo.',
     'msg.reglageRefuse': 'Impostazione non salvata, riprova.',
 
-    'alerte.inscrit': 'Ti scriviamo appena torna.',
-    'alerte.impossible': 'Iscrizione impossibile per ora.',
 
     'rayon.unProduit': '1 prodotto',
     'rayon.produits': '{n} prodotti',
@@ -1162,12 +1130,9 @@ export const TEXTES = {
 
     'produit.memeCategorieAvec': 'Stessa categoria · {cat}',
 
-    'msg.bonjourCommander': 'Ciao! Vorrei ordinare da {boutique} ⚡',
     'snap.titre': 'Per ordinare',
     'snap.texte': 'Gli ordini si prendono su Snapchat: mandaci un messaggio lì. Il negozio serve a scegliere.',
     'snap.compris': 'Ho capito',
-    'msg.bonjourQuestion': 'Ciao! Una domanda su {boutique} ⚡',
-    'msg.bonjourRecommander': 'Ciao! Vorrei riordinare la stessa cosa da {boutique} ⚡',
     'msg.article': 'Articolo',
 
     'retour.simple': 'Indietro',
@@ -1192,7 +1157,6 @@ export const TEXTES = {
     'aria.medias': 'Media',
     'aria.mediaPrec': 'Media precedente',
     'aria.mediaSuiv': 'Media successivo',
-    'aria.question': 'Fai una domanda su questo prodotto',
     'aria.signer': 'Firma la tua recensione',
 
     'juke.menu': 'Lettore musicale',
@@ -1312,7 +1276,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Niets komt overeen met « {mot} ».',
     'catalogue.videCategorie': 'Voorlopig niets in deze categorie.',
     'produit.epuiseMinuscule': 'uitverkocht',
-    'produit.prevenu': '🔔 Je krijgt bericht',
 
     'etat.fermeDans': 'sluit over {duree}',
     'etat.ouvreDans': 'opent over {duree}',
@@ -1329,9 +1292,7 @@ export const TEXTES = {
 
     'produit.format': 'Kies je formaat',
     'produit.commander': 'Bestellen',
-    'produit.question': 'Een vraag',
-    'produit.questionCourt': 'Vraag',
-    'produit.prevenir': '🔔 Waarschuw me',
+    'produit.epuise': 'Uitverkocht',
     'produit.memeCategorie': 'Zelfde categorie',
     'produit.aimerAussi': 'Dit vind je ook leuk',
 
@@ -1377,8 +1338,6 @@ export const TEXTES = {
     'msg.verifIndispo': 'Controle niet beschikbaar. Probeer het zo nog eens.',
     'msg.reglageRefuse': 'Instelling niet opgeslagen, probeer opnieuw.',
 
-    'alerte.inscrit': 'We schrijven je zodra het terug is.',
-    'alerte.impossible': 'Inschrijven lukt nu niet.',
 
     'rayon.unProduit': '1 product',
     'rayon.produits': '{n} producten',
@@ -1445,12 +1404,9 @@ export const TEXTES = {
 
     'produit.memeCategorieAvec': 'Zelfde categorie · {cat}',
 
-    'msg.bonjourCommander': 'Hallo! Ik wil graag bestellen bij {boutique} ⚡',
     'snap.titre': 'Om te bestellen',
     'snap.texte': 'Bestellingen gaan via Snapchat: stuur ons daar een bericht. De winkel is om te kiezen.',
     'snap.compris': 'Begrepen',
-    'msg.bonjourQuestion': 'Hallo! Een vraag over {boutique} ⚡',
-    'msg.bonjourRecommander': 'Hallo! Ik wil graag hetzelfde opnieuw bestellen bij {boutique} ⚡',
     'msg.article': 'Artikel',
 
     'retour.simple': 'Terug',
@@ -1475,7 +1431,6 @@ export const TEXTES = {
     'aria.medias': 'Media',
     'aria.mediaPrec': 'Vorige media',
     'aria.mediaSuiv': 'Volgende media',
-    'aria.question': 'Een vraag stellen over dit product',
     'aria.signer': 'Je beoordeling ondertekenen',
 
     'juke.menu': 'Muziekspeler',
@@ -1594,7 +1549,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Nada corresponde a « {mot} ».',
     'catalogue.videCategorie': 'Nada nesta categoria de momento.',
     'produit.epuiseMinuscule': 'esgotado',
-    'produit.prevenu': '🔔 Serás avisado',
 
     'etat.fermeDans': 'fecha em {duree}',
     'etat.ouvreDans': 'abre em {duree}',
@@ -1611,9 +1565,7 @@ export const TEXTES = {
 
     'produit.format': 'Escolhe o formato',
     'produit.commander': 'Encomendar',
-    'produit.question': 'Uma pergunta',
-    'produit.questionCourt': 'Pergunta',
-    'produit.prevenir': '🔔 Avisa-me quando voltar',
+    'produit.epuise': 'Esgotado',
     'produit.memeCategorie': 'Mesma categoria',
     'produit.aimerAussi': 'Também vais gostar',
 
@@ -1657,8 +1609,6 @@ export const TEXTES = {
     'msg.verifIndispo': 'Verificação indisponível. Tenta daqui a pouco.',
     'msg.reglageRefuse': 'Definição não guardada, tenta de novo.',
 
-    'alerte.inscrit': 'Escrevemos-te assim que voltar.',
-    'alerte.impossible': 'Inscrição impossível de momento.',
 
     'rayon.unProduit': '1 produto',
     'rayon.produits': '{n} produtos',
@@ -1724,12 +1674,9 @@ export const TEXTES = {
 
     'produit.memeCategorieAvec': 'Mesma categoria · {cat}',
 
-    'msg.bonjourCommander': 'Olá! Queria encomendar na {boutique} ⚡',
     'snap.titre': 'Para encomendar',
     'snap.texte': 'As encomendas fazem-se no Snapchat: envia-nos uma mensagem por lá. A loja serve para escolher.',
     'snap.compris': 'Percebi',
-    'msg.bonjourQuestion': 'Olá! Uma pergunta sobre a {boutique} ⚡',
-    'msg.bonjourRecommander': 'Olá! Queria repetir a mesma encomenda na {boutique} ⚡',
     'msg.article': 'Artigo',
 
     'retour.simple': 'Voltar',
@@ -1754,7 +1701,6 @@ export const TEXTES = {
     'aria.medias': 'Multimédia',
     'aria.mediaPrec': 'Multimédia anterior',
     'aria.mediaSuiv': 'Multimédia seguinte',
-    'aria.question': 'Fazer uma pergunta sobre este produto',
     'aria.signer': 'Assinar a tua avaliação',
 
     'juke.menu': 'Leitor de música',
@@ -1873,7 +1819,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'Nichts passt zu « {mot} ».',
     'catalogue.videCategorie': 'In dieser Kategorie ist gerade nichts.',
     'produit.epuiseMinuscule': 'ausverkauft',
-    'produit.prevenu': '🔔 Du wirst benachrichtigt',
 
     'etat.fermeDans': 'schließt in {duree}',
     'etat.ouvreDans': 'öffnet in {duree}',
@@ -1890,9 +1835,7 @@ export const TEXTES = {
 
     'produit.format': 'Wähle dein Format',
     'produit.commander': 'Bestellen',
-    'produit.question': 'Eine Frage',
-    'produit.questionCourt': 'Frage',
-    'produit.prevenir': '🔔 Benachrichtige mich',
+    'produit.epuise': 'Ausverkauft',
     'produit.memeCategorie': 'Gleiche Kategorie',
     'produit.aimerAussi': 'Das gefällt dir auch',
 
@@ -1937,8 +1880,6 @@ export const TEXTES = {
     'msg.verifIndispo': 'Prüfung nicht verfügbar. Versuch es gleich nochmal.',
     'msg.reglageRefuse': 'Einstellung nicht gespeichert, versuch es nochmal.',
 
-    'alerte.inscrit': 'Wir schreiben dir, sobald es zurück ist.',
-    'alerte.impossible': 'Eintragung gerade nicht möglich.',
 
     'rayon.unProduit': '1 Produkt',
     'rayon.produits': '{n} Produkte',
@@ -2004,12 +1945,9 @@ export const TEXTES = {
 
     'produit.memeCategorieAvec': 'Gleiche Kategorie · {cat}',
 
-    'msg.bonjourCommander': 'Hallo! Ich würde gern bei {boutique} bestellen ⚡',
     'snap.titre': 'Zum Bestellen',
     'snap.texte': 'Bestellt wird über Snapchat: schick uns dort eine Nachricht. Der Shop ist zum Aussuchen.',
     'snap.compris': 'Verstanden',
-    'msg.bonjourQuestion': 'Hallo! Eine Frage zu {boutique} ⚡',
-    'msg.bonjourRecommander': 'Hallo! Ich würde gern dasselbe nochmal bei {boutique} bestellen ⚡',
     'msg.article': 'Artikel',
 
     'retour.simple': 'Zurück',
@@ -2034,7 +1972,6 @@ export const TEXTES = {
     'aria.medias': 'Medien',
     'aria.mediaPrec': 'Vorheriges Medium',
     'aria.mediaSuiv': 'Nächstes Medium',
-    'aria.question': 'Eine Frage zu diesem Produkt stellen',
     'aria.signer': 'Deine Bewertung unterschreiben',
 
     'juke.menu': 'Musikplayer',
@@ -2148,7 +2085,6 @@ export const TEXTES = {
     'catalogue.rienNeCorrespond': 'لا نتائج لـ « {mot} ».',
     'catalogue.videCategorie': 'لا شيء في هذه الفئة حالياً.',
     'produit.epuiseMinuscule': 'نفد',
-    'produit.prevenu': '🔔 سنُعلِمك',
 
     'etat.fermeDans': 'يُغلق خلال {duree}',
     'etat.ouvreDans': 'يفتح خلال {duree}',
@@ -2165,9 +2101,7 @@ export const TEXTES = {
 
     'produit.format': 'اختر الحجم',
     'produit.commander': 'اطلب',
-    'produit.question': 'سؤال',
-    'produit.questionCourt': 'سؤال',
-    'produit.prevenir': '🔔 أعلِمني عند التوفّر',
+    'produit.epuise': 'نفد',
     'produit.memeCategorie': 'الفئة نفسها',
     'produit.aimerAussi': 'سيعجبك أيضاً',
 
@@ -2206,8 +2140,6 @@ export const TEXTES = {
     'msg.verifIndispo': 'التحقّق غير متاح. أعد المحاولة بعد لحظات.',
     'msg.reglageRefuse': 'لم يُحفظ الإعداد، أعد المحاولة.',
 
-    'alerte.inscrit': 'سنكتب لك فور عودته.',
-    'alerte.impossible': 'التسجيل غير ممكن حالياً.',
 
     'rayon.unProduit': 'منتج واحد',
     'rayon.produits': '{n} منتجات',
@@ -2270,12 +2202,9 @@ export const TEXTES = {
 
     'produit.memeCategorieAvec': 'الفئة نفسها · {cat}',
 
-    'msg.bonjourCommander': 'مرحباً! أودّ الطلب من {boutique} ⚡',
     'snap.titre': 'للطلب',
     'snap.texte': 'الطلبات تُؤخذ على سناب شات: أرسل لنا رسالة هناك. المتجر للاختيار.',
     'snap.compris': 'فهمت',
-    'msg.bonjourQuestion': 'مرحباً! عندي سؤال عن {boutique} ⚡',
-    'msg.bonjourRecommander': 'مرحباً! أودّ إعادة الطلب نفسه من {boutique} ⚡',
     'msg.article': 'منتج',
 
     'retour.simple': 'رجوع',
@@ -2300,7 +2229,6 @@ export const TEXTES = {
     'aria.medias': 'الوسائط',
     'aria.mediaPrec': 'الوسيط السابق',
     'aria.mediaSuiv': 'الوسيط التالي',
-    'aria.question': 'اطرح سؤالاً عن هذا المنتج',
     'aria.signer': 'وقّع تقييمك',
 
     'juke.menu': 'مشغّل الموسيقى',

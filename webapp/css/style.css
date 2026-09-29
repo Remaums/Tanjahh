@@ -637,6 +637,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
   backdrop-filter: none;
 }
 
+/* Le seul bouton de la fiche, éteint : l'article est épuisé. Il reste en
+   place et le dit — le faire disparaître laissait une barre vide au bas
+   d'une fiche, sans rien qui explique pourquoi on ne peut pas commander. */
+.btn--eteint {
+  opacity: .55; filter: grayscale(.6); box-shadow: none; cursor: not-allowed;
+}
+
 .grid-tiles {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0 0;
 }

@@ -106,12 +106,12 @@ try {
 
   // Le panneau enregistre parfois le seul réglage qu'on vient de toucher :
   // un patch partiel ne doit pas effacer les deux autres champs.
-  await poser({ snapchat: 'lagratte677', adminChatId: '111', sellerUsername: 'compte_a' });
+  await poser({ adminChatId: '111', sellerUsername: 'compte_a' });
   await poser({ adminChatId: '222' });
   const apres = (await reglages()).contact ?? {};
   check('Changer l admin garde le reste',
-    apres.adminChatId === '222' && apres.sellerUsername === 'compte_a' &&
-    apres.snapchat === 'lagratte677', JSON.stringify(apres));
+    apres.adminChatId === '222' && apres.sellerUsername === 'compte_a',
+    JSON.stringify(apres));
 
   console.log('\n── Le retour en arrière ────────────────────────────');
 
@@ -123,7 +123,6 @@ try {
     Boolean((await vitrine()).sellerUsername), (await vitrine()).sellerUsername ?? '(vide)');
 } finally {
   await poser({
-    snapchat: depart.snapchat ?? '',
     adminChatId: depart.adminChatId ?? '',
     sellerUsername: depart.sellerUsername ?? '',
   });

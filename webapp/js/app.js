@@ -24,7 +24,6 @@ const state = {
   features: {},       // ce que la boutique propose en ce moment
   opening: { open: true },
   fulfillment: { pickup: true, delivery: false, deliveryFee: 0, freeDeliveryFrom: null, minimumOrder: 0 },
-  commandes: { canal: 'telegram' },  // sur quel canal « Commander » renvoie
   tiers: [],          // remises automatiques par palier
   zones: [],          // zones de livraison desservies
   zone: null,         // celle qui couvre le code postal saisi
@@ -352,7 +351,6 @@ async function init() {
     state.opening = data.opening ?? { open: true };
     state.musique = data.musique ?? { titres: [] };
     state.fulfillment = data.fulfillment ?? state.fulfillment;
-    state.commandes = data.commandes ?? state.commandes;
     appliquerLesAnimations();
     applyFeatures();
     state.mode = state.fulfillment.pickup ? 'pickup' : 'delivery';
@@ -919,11 +917,9 @@ function bindStaticHandlers() {
   $('pGalleryNext').addEventListener('click', () => glisserGalerie(1));
 
   $('commander').addEventListener('click', commanderCeProduit);
-  $('question').addEventListener('click', poserUneQuestion);
   // « La même chose » : le raccourci de l'habitué. Il remplissait le panier,
   // il rouvre maintenant la conversation avec les mêmes articles écrits.
   $('reprise').addEventListener('click', () => commanderDeNouveau(state.derniere));
-  $('notifyMe').addEventListener('click', joinWaitlist);
 
   for (const el of document.querySelectorAll('[data-close]')) {
     el.addEventListener('click', closeSheets);
@@ -2729,27 +2725,23 @@ function majBarreDeCommande() {
   const available = product ? remainingFor(product, state.currentVariant) : 0;
   state.currentQty = 1;
 
-  // Le bouton de question ne dépend ni du stock ni du format : on pose une
-  // question sur un article épuisé aussi, et c'est même là qu'il y en a le
-  // plus. Il ne disparaît que sans compte vendeur, où il n'ouvrirait rien.
-  $('question').hidden = !state.shop.sellerUsername;
-
+  // Un seul bouton sur la fiche, et deux états. La question et l'alerte de
+  // retour en stock sont parties : le vendeur ne veut qu'une porte, et elle
+  // mène au même endroit — écris-nous sur Snapchat.
   const bouton = $('commander');
-  const notify = $('notifyMe');
+  const epuise = available <= 0;
 
-  if (available <= 0) {
-    // Épuisé : plutôt qu'un bouton mort, on propose d'être prévenu — sauf si
-    // la liste d'attente est coupée, auquel cas il n'y a rien à promettre.
-    bouton.hidden = true;
-    notify.hidden = state.features.waitlist === false;
-    if (!notify.hidden) refreshWaitlistButton();
-    return;
-  }
-
-  bouton.hidden = false;
-  notify.hidden = true;
-  bouton.disabled = false;
-  $('pPrice').textContent = formatPrice(unitPrice(product, state.currentVariant));
+  // Épuisé : le bouton reste, éteint, et le dit. Le faire disparaître
+  // laissait une barre vide au bas d'une fiche, sans rien qui explique
+  // pourquoi on ne peut pas commander.
+  bouton.disabled = epuise;
+  bouton.classList.toggle('btn--eteint', epuise);
+  $('pLibelle').textContent = t(epuise ? 'produit.epuise' : 'produit.commander');
+  $('pPrice').textContent = epuise ? '' : formatPrice(unitPrice(product, state.currentVariant));
+  // Le séparateur se vide plutôt que de se masquer : `hidden` sur un élément
+  // dont la feuille de style force l'affichage ne fait rien, et « Épuisé · »
+  // restait à l'écran avec son point tout seul.
+  $('pSepare').textContent = epuise ? '' : ' · ';
 }
 
 /* ── La musique d'ambiance ───────────────────────────────── */
@@ -3346,62 +3338,6 @@ function masquerLeTitre() {
   setTimeout(() => { ligne.hidden = true; }, 260);
 }
 
-/* ── Liste d'attente ─────────────────────────────────────── */
-
-/** Le bouton dit si le client est déjà inscrit pour cet article. */
-async function refreshWaitlistButton() {
-  const notify = $('notifyMe');
-  notify.disabled = false;
-  notify.textContent = t('produit.prevenir');
-  if (!tg?.initData) return;
-
-  try {
-    const params = new URLSearchParams({ id: state.current.id });
-    if (state.currentVariant) params.set('variantId', state.currentVariant);
-    const res = await fetch(`/api/waitlist?${params}`, {
-      headers: { 'X-Telegram-Init-Data': tg.initData },
-    });
-    if (!res.ok) return;
-    if ((await res.json()).subscribed) {
-      notify.disabled = true;
-      notify.textContent = t('produit.prevenu');
-    }
-  } catch (err) {
-    console.warn(err);
-  }
-}
-
-async function joinWaitlist() {
-  const notify = $('notifyMe');
-  notify.disabled = true;
-
-  try {
-    const res = await fetch('/api/waitlist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Telegram-Init-Data': tg?.initData ?? '',
-      },
-      body: JSON.stringify({ id: state.current.id, variantId: state.currentVariant }),
-    });
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      toast(data.error ?? 'Inscription impossible.');
-      notify.disabled = false;
-      return;
-    }
-
-    notify.textContent = t('produit.prevenu');
-    toast(t('alerte.inscrit'));
-    haptic('success');
-  } catch (err) {
-    console.error(err);
-    toast(t('alerte.impossible'));
-    notify.disabled = false;
-  }
-}
-
 /* ── Panier ──────────────────────────────────────────────── */
 
 
@@ -3524,20 +3460,6 @@ async function refreshCatalog() {
  * remise, remise en main propre ou livraison) se dit en deux phrases, et
  * mieux que par un formulaire.
  */
-function ligneDeCommande(produit, variante) {
-  const format = variante ? ` — ${variante.label}` : '';
-  const prix = variante?.price ?? produit.price;
-  return `• ${produit.name}${format}${prix ? ` — ${formatPrice(prix)}` : ''}`;
-}
-
-function buildOrderMessage(produit, variante) {
-  return [
-    t('msg.bonjourCommander', { boutique: state.shop.shopName }),
-    '',
-    ligneDeCommande(produit, variante),
-  ].join('\n');
-}
-
 /**
  * Commande le produit ouvert : on part dans la conversation du vendeur.
  *
@@ -3554,25 +3476,8 @@ function buildOrderMessage(produit, variante) {
 function commanderCeProduit() {
   const produit = state.current;
   if (!produit) return;
-  const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
-
-  // Le serveur dit le CANAL, jamais le compte : celui-ci ne sort plus de la
-  // boutique, et le panneau n'en a pas besoin pour s'ouvrir.
-  if (state.commandes?.canal === 'snapchat') {
-    montrerOuCommander();
-    haptic('light');
-    return;
-  }
-
-  const message = buildOrderMessage(produit, variante);
-
-  if (!state.shop.sellerUsername) {
-    toast(t('msg.vendeurAbsent'));
-    return;
-  }
-  openSellerChat(message);
-  haptic('success');
-  montrerLOnglet(state.retour);
+  montrerOuCommander();
+  haptic('light');
 }
 
 /**
@@ -3592,36 +3497,6 @@ function montrerOuCommander() {
 }
 
 /**
- * Ouvre la conversation pour une question, pas pour une commande.
- *
- * Le message nomme le produit et le format, comme celui de la commande,
- * mais dit « une question » — et c'est tout l'intérêt : le vendeur lit la
- * première ligne et sait à qui il a affaire. Avec un seul bouton, les deux
- * arrivaient sous la même formule et il fallait répondre pour comprendre.
- *
- * Il ne finit pas par une phrase toute faite : Telegram dépose ce texte
- * dans le champ de saisie, curseur à la fin, et le client écrit à la
- * suite. Une question déjà rédigée à sa place serait rarement la sienne.
- */
-function poserUneQuestion() {
-  const produit = state.current;
-  if (!produit) return;
-  if (!state.shop.sellerUsername) {
-    toast(t('msg.vendeurAbsent'));
-    return;
-  }
-  const variante = produit.variants?.find((v) => v.id === state.currentVariant) ?? null;
-  const format = variante ? ` (${variante.label})` : '';
-  openSellerChat([
-    t('msg.bonjourQuestion', { boutique: state.shop.shopName }),
-    '',
-    `• ${produit.name}${format}`,
-    '',
-  ].join('\n'));
-  haptic('light');
-}
-
-/**
  * Recommande ce qui avait déjà été commandé une fois.
  *
  * Le bouton vit sur une commande passée, dans le profil. Il remplissait le
@@ -3632,23 +3507,11 @@ function poserUneQuestion() {
  */
 function commanderDeNouveau(commande) {
   if (!commande?.items?.length) return;
-  if (!state.shop.sellerUsername) {
-    toast(t('msg.vendeurAbsent'));
-    return;
-  }
-  const lignes = commande.items.map((item) => {
-    const produit = state.products.find((p) => p.id === item.id);
-    const nom = produit?.name ?? item.name ?? t('msg.article');
-    const variante = produit?.variants?.find((v) => v.id === item.variantId);
-    const format = variante ? ` — ${variante.label}` : '';
-    return `• ${item.quantity} × ${nom}${format}`;
-  });
-  openSellerChat([
-    t('msg.bonjourRecommander', { boutique: state.shop.shopName }),
-    '',
-    ...lignes,
-  ].join('\n'));
-  haptic('success');
+  // Le même panneau que le bouton d'une fiche : une seule porte pour
+  // commander, où qu'on appuie. Ce raccourci remplissait un message
+  // pré-rempli pour Telegram ; il n'a plus personne à qui l'envoyer.
+  montrerOuCommander();
+  haptic('light');
 }
 
 /** Ouvre la conversation du vendeur avec le récapitulatif pré-rempli. */
