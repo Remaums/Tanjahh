@@ -221,31 +221,42 @@ chose, et c'est la seule chose qu'il fait.
 > qui l'a arrêté, pas une relecture — `test/catalogue-public.test.mjs` garde
 > encore cette porte, maintenant qu'il n'y a plus de canal à y publier.
 
-### Un seul bouton sur la fiche produit
+### Un seul bouton à la fois sur la fiche produit
 
-La barre du bas d'une fiche ne porte plus que **Commander**, avec le prix
-dedans. Épuisé, c'est le même bouton, éteint et grisé, qui dit « Épuisé » sans
-prix.
+La barre du bas d'une fiche ne porte **jamais deux boutons**. Lequel s'affiche
+dépend du stock du format ouvert :
 
-Ce qui a disparu avec les autres boutons :
+| État du format | Le bouton | Ce qu'il fait |
+|---|---|---|
+| en stock | **Commander**, avec le prix | ouvre le panneau « Pour commander » |
+| épuisé | **🔔 Préviens-moi du retour** | inscrit le client à la liste d'attente |
+| épuisé, déjà inscrit | **🔔 Tu seras prévenu**, éteint | rien : on ne s'inscrit pas deux fois |
+| épuisé, liste d'attente coupée | **Épuisé**, éteint et grisé | rien, mais il dit pourquoi |
+
+Un bouton « Commander » éteint ne servait à rien : il disait seulement qu'on ne
+peut pas. À sa place, quelque chose à faire. Et quand l'interrupteur *Liste
+d'attente* est fermé, il n'y a rien à promettre — le bouton éteint revient,
+parce qu'une barre vide n'explique pas pourquoi on ne peut pas commander.
+
+Ce qui a été retiré de la boutique, et n'est pas revenu :
 
 | Bouton retiré | Où il était | Ce qu'il faisait |
 |---|---|---|
 | *Poser une question* | barre de la fiche | rouvrait la conversation Telegram du vendeur |
-| *Préviens-moi du retour* | barre de la fiche | inscrivait le client à la liste d'attente d'un format épuisé |
 | *Ouvrir la conversation* | écran Contact | rouvrait la conversation Telegram du vendeur |
 | *La même chose* | accueil | remettait la dernière commande |
 | *Reprendre* | chaque commande de l'historique | la même, sur une commande précise |
 
-L'écran **Contact** n'a donc plus aucun bouton : il dit d'écrire sur Snapchat,
-et rappelle dessous les horaires et le mode de retrait. Restent ailleurs dans
-la boutique les boutons qui ne mènent ni à une commande ni au vendeur — les
+L'écran **Contact** n'a donc aucun bouton : il dit d'écrire sur Snapchat, et
+rappelle dessous les horaires et le mode de retrait. Restent ailleurs dans la
+boutique les boutons qui ne mènent ni à une commande ni au vendeur — les
 onglets, les cœurs des favoris, la bannière d'avis, la pastille de langue.
 
-⚠️ **La liste d'attente n'est plus atteignable par le client.** Le serveur la
-garde entière — les routes, les inscrits déjà là, l'avis au retour du stock —
-mais le seul bouton qui permettait de s'y inscrire n'existe plus. Personne ne
-s'y ajoutera tant qu'un bouton ne le fera pas à nouveau.
+> Le libellé de ce bouton est décidé par le script, pas par le HTML. Il porte
+> quand même un `data-t`, pour le premier affichage — et la boucle qui applique
+> les traductions y remettait « Commander » sur un article épuisé, sur un bouton
+> éteint ou à la place du rappel. La barre se repeint donc après un changement
+> de langue.
 
 ### Les fichiers de la boutique portent une empreinte
 

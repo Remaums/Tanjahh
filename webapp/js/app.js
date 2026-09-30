@@ -235,6 +235,12 @@ function repeindreLesTextesFabriques() {
     renderTitreDuBandeau, renderChiffres, renderGrid, renderCategories,
     renderRayons, renderContact, peindreLeJuke, renderSuggestionAvis, renderIdentite,
     renderSecours, peindreLesMarches, peindreLaPastilleDeLangue,
+    // La barre de la fiche en fait partie : `pLibelle` porte
+    // `data-t="produit.commander"`, et la boucle des `data-t` y remettait
+    // « Commander » sur un article épuisé — sur un bouton éteint, ou à la
+    // place du rappel de retour. C'est elle qui décide du libellé, pas le
+    // HTML, donc elle repasse après.
+    majBarreDeCommande,
   ];
   for (const refaire of refaires) {
     try { refaire(); } catch { /* pas encore de données : le prochain rendu s'en chargera */ }
@@ -913,6 +919,7 @@ function bindStaticHandlers() {
   $('pGalleryNext').addEventListener('click', () => glisserGalerie(1));
 
   $('commander').addEventListener('click', commanderCeProduit);
+  $('notifyMe').addEventListener('click', joinWaitlist);
 
   for (const el of document.querySelectorAll('[data-close]')) {
     el.addEventListener('click', closeSheets);
@@ -2712,26 +2719,48 @@ function renderVariants() {
  */
 function majBarreDeCommande() {
   const product = state.current;
-  const available = product ? remainingFor(product, state.currentVariant) : 0;
+  // Appelée aussi au changement de langue, parfois sans fiche ouverte : sans
+  // produit il n'y a ni stock à lire ni bouton à choisir.
+  if (!product) return;
+  const available = remainingFor(product, state.currentVariant);
   state.currentQty = 1;
 
-  // Un seul bouton sur la fiche, et deux états. La question et l'alerte de
-  // retour en stock sont parties : le vendeur ne veut qu'une porte, et elle
-  // mène au même endroit — écris-nous sur Snapchat.
+  // Un seul bouton à la fois dans la barre : « Commander » quand il y a du
+  // stock, le rappel de retour quand il n'y en a plus. Les deux ne se
+  // montrent jamais ensemble.
   const bouton = $('commander');
+  const notify = $('notifyMe');
   const epuise = available <= 0;
 
-  // Épuisé : le bouton reste, éteint, et le dit. Le faire disparaître
-  // laissait une barre vide au bas d'une fiche, sans rien qui explique
-  // pourquoi on ne peut pas commander.
-  bouton.disabled = epuise;
-  bouton.classList.toggle('btn--eteint', epuise);
-  $('pLibelle').textContent = t(epuise ? 'produit.epuise' : 'produit.commander');
-  $('pPrice').textContent = epuise ? '' : formatPrice(unitPrice(product, state.currentVariant));
-  // Le séparateur se vide plutôt que de se masquer : `hidden` sur un élément
-  // dont la feuille de style force l'affichage ne fait rien, et « Épuisé · »
-  // restait à l'écran avec son point tout seul.
-  $('pSepare').textContent = epuise ? '' : ' · ';
+  if (epuise) {
+    // Un bouton « Commander » éteint ne servait à rien : il disait seulement
+    // qu'on ne peut pas. À sa place, quelque chose à faire — être prévenu du
+    // retour. Sauf si la liste d'attente est coupée : là il n'y a rien à
+    // promettre, et le bouton éteint dit au moins pourquoi.
+    const sansListe = state.features.waitlist === false;
+    bouton.hidden = !sansListe;
+    notify.hidden = sansListe;
+
+    bouton.disabled = true;
+    bouton.classList.add('btn--eteint');
+    $('pLibelle').textContent = t('produit.epuise');
+    $('pPrice').textContent = '';
+    // Le séparateur se vide plutôt que de se masquer : `hidden` sur un élément
+    // dont la feuille de style force l'affichage ne fait rien, et « Épuisé · »
+    // restait à l'écran avec son point tout seul.
+    $('pSepare').textContent = '';
+
+    if (!sansListe) refreshWaitlistButton();
+    return;
+  }
+
+  bouton.hidden = false;
+  notify.hidden = true;
+  bouton.disabled = false;
+  bouton.classList.remove('btn--eteint');
+  $('pLibelle').textContent = t('produit.commander');
+  $('pPrice').textContent = formatPrice(unitPrice(product, state.currentVariant));
+  $('pSepare').textContent = ' · ';
 }
 
 /* ── La musique d'ambiance ───────────────────────────────── */
@@ -3374,6 +3403,72 @@ function commanderCeProduit() {
  */
 function montrerOuCommander() {
   openSheet('commandeSheet');
+}
+
+/* ── Liste d'attente ─────────────────────────────────────── */
+
+/**
+ * Le bouton dit si le client est déjà inscrit pour cet article.
+ *
+ * L'inscription vit côté serveur, par format : le même produit peut être
+ * attendu en 5 g et disponible en 1 g. Sans signature Telegram on ne demande
+ * rien — le bouton reste sur « préviens-moi », et le serveur refusera.
+ */
+async function refreshWaitlistButton() {
+  const notify = $('notifyMe');
+  const libelle = $('notifyLibelle');
+  notify.disabled = false;
+  libelle.textContent = t('produit.prevenir');
+  if (!tg?.initData || !state.current) return;
+
+  try {
+    const params = new URLSearchParams({ id: state.current.id });
+    if (state.currentVariant) params.set('variantId', state.currentVariant);
+    const res = await fetch(`/api/waitlist?${params}`, {
+      headers: { 'X-Telegram-Init-Data': tg.initData },
+    });
+    if (!res.ok) return;
+    if ((await res.json()).subscribed) {
+      notify.disabled = true;
+      libelle.textContent = t('produit.prevenu');
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
+/** S'inscrire au retour du format ouvert. */
+async function joinWaitlist() {
+  const notify = $('notifyMe');
+  const libelle = $('notifyLibelle');
+  if (!state.current) return;
+  notify.disabled = true;
+
+  try {
+    const res = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Init-Data': tg?.initData ?? '',
+      },
+      body: JSON.stringify({ id: state.current.id, variantId: state.currentVariant }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      toast(data.error ?? t('alerte.impossible'));
+      notify.disabled = false;
+      return;
+    }
+
+    libelle.textContent = t('produit.prevenu');
+    toast(t('alerte.inscrit'));
+    haptic('success');
+  } catch (err) {
+    console.error(err);
+    toast(t('alerte.impossible'));
+    notify.disabled = false;
+  }
 }
 
 /* ── Mes commandes ───────────────────────────────────────── */

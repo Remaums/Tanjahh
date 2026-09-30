@@ -524,6 +524,12 @@
          « Commander », puis un point tout seul sur sa ligne, puis le prix. -->
     <span class="btn__libelle"><span id="pLibelle" data-t="produit.commander">Commander</span><span id="pSepare"> · </span><span id="pPrice"></span></span>
   </button>
+  <!-- Le rappel de retour en stock. Il ne partage JAMAIS la barre avec
+       « Commander » : il prend sa place quand l'article est épuisé, et
+       disparaît dès qu'il y a du stock. Un seul bouton, toujours. -->
+  <button class="btn btn--ghost btn--grow btn--block" id="notifyMe" type="button" hidden>
+    <span id="notifyLibelle" data-t="produit.prevenir">🔔 Préviens-moi du retour</span>
+  </button>
 </div>
 
 <!-- ══ La pastille de musique ══ ═════════════════════════════
