@@ -2851,3 +2851,12 @@ img {
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* Le voile « téléphone uniquement » retire la boutique de l'écran au
+   lieu de se contenter de la recouvrir : rien d'elle ne reste visible,
+   et aucun de ses boutons n'est atteignable. */
+body.verrouille .page,
+body.verrouille .tabbar,
+body.verrouille .pbar,
+body.verrouille .lpastille,
+body.verrouille .juke { display: none !important; }
