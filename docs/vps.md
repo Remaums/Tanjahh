@@ -284,7 +284,7 @@ prends l'option B, qui ne demande que le 80 et le 443.
 Pour que le tunnel survive à la fermeture de ta session SSH :
 
 ```bash
-sudo tee /etc/systemd/system/tunnel.service >/dev/null <<'EOF'
+sudo tee /etc/systemd/system/tunnel-tanja67.service >/dev/null <<'EOF'
 [Unit]
 Description=Tunnel Cloudflare vers la boutique
 After=network-online.target
@@ -297,9 +297,17 @@ User=shop
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl daemon-reload && sudo systemctl enable --now tunnel
-journalctl -u tunnel -n 20      # pour relire l'adresse attribuée
+sudo systemctl daemon-reload && sudo systemctl enable --now tunnel-tanja67
+journalctl -u tunnel-tanja67 -n 20      # pour relire l'adresse attribuée
 ```
+
+> **Le service porte le nom de la boutique — `tunnel-tanja67` — et pas `tunnel` tout
+> court.** Les deux boutiques sont installées par des scripts jumeaux, et elles
+> créaient toutes deux un service nommé `tunnel`. Sur un VPS qui les héberge
+> ensemble, installer l'une réécrivait le tunnel de l'autre vers son propre
+> port : l'autre boutique perdait son adresse sans que rien ne le dise.
+> Un ancien `tunnel.service` qui sert encore CETTE boutique est remplacé par
+> `bash deploy/installer.sh` ; s'il sert l'autre, il n'est pas touché.
 
 ### Option B — un sous-domaine gratuit qui, lui, ne bouge pas
 
@@ -447,7 +455,7 @@ Une ligne pour une sauvegarde quotidienne, gardée 30 jours :
 
 | Symptôme | Cause la plus fréquente | Ce qu'il faut faire |
 |---|---|---|
-| Le tunnel ne rend jamais d'adresse | l'hébergeur filtre l'UDP sortant (port 7844), que cloudflared utilise par défaut | `sudo systemctl edit tunnel` et forcer `--protocol http2` (le 443 en TCP), ou `bash deploy/installer.sh` qui bascule tout seul |
+| Le tunnel ne rend jamais d'adresse | l'hébergeur filtre l'UDP sortant (port 7844), que cloudflared utilise par défaut | `sudo systemctl edit tunnel-tanja67` et forcer `--protocol http2` (le 443 en TCP), ou `bash deploy/installer.sh` qui bascule tout seul |
 | `failed to request quick Tunnel` | Cloudflare refuse les tunnels anonymes depuis cette IP | passe à l'option 2 du guide (DuckDNS), qui n'a besoin que du 80 et du 443 |
 | Le service redémarre en boucle (`NRestarts` qui grimpe) | une exception au démarrage, que `Restart=always` relance indéfiniment | `sudo journalctl -u tanja67 -n 50` : la trace est en haut de chaque cycle |
 | La boutique s'ouvre mais paraît vide | le catalogue n'a pas pu être chargé — l'écran le dit maintenant en clair (« Boutique momentanément injoignable ») au lieu de ressembler à une boutique sans produits | `curl -s localhost:3100/api/catalog \| head -c 200` sur le VPS ; s'il répond une erreur, `sudo journalctl -u tanja67 -n 30` la nomme |
